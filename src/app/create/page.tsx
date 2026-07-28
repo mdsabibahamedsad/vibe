@@ -1,19 +1,28 @@
 "use client";
 
-import { EmptyState } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { PostComposer } from "@/features/feed/components/PostComposer";
 
 export default function CreatePage() {
+  const router = useRouter();
+  const { user, authenticated, loading } = useCurrentUser();
+
+  if (loading) return null;
+  if (!authenticated || !user) {
+    router.push("/");
+    return null;
+  }
+
   return (
-    <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-10 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] bg-[var(--tg-theme-bg-color,#ffffff)] px-4 py-3">
-        <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">Create</h1>
-      </header>
-      <div className="flex flex-1 items-center justify-center">
-        <EmptyState
-          title="Create a Post"
-          description="Share photos, videos, and stories with your followers."
-        />
-      </div>
-    </div>
+    <PostComposer
+      userId={user.id}
+      onPostCreated={() => {
+        router.push("/feed");
+      }}
+      onClose={() => {
+        router.back();
+      }}
+    />
   );
 }
