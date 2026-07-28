@@ -1,30 +1,47 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Supabase browser client.
  *
- * Use this for safe client-side database operations.
- * This client uses the anon/public key — Row Level Security (RLS)
- * policies must be in place to protect data.
+ * The client is created lazily so that missing environment variables
+ * don't crash the module at import time (e.g., during Next.js build).
+ *
+ * Use getSupabaseClient() to get the client instance.
+ * If env vars are missing, a clear error will be thrown at access time.
  *
  * Never use the service-role key in the browser.
  */
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+let _supabaseClient: SupabaseClient | null = null;
 
-if (!supabaseUrl) {
-  throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_URL");
+function getSupabaseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) {
+    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_URL");
+  }
+  return url;
 }
 
-if (!supabaseAnonKey) {
-  throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY");
+function getSupabaseAnonKey(): string {
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!key) {
+    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  }
+  return key;
 }
 
-export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
+/**
+ * Get the Supabase browser client, created lazily on first access.
+ */
+export function getSupabaseClient(): SupabaseClient {
+  if (!_supabaseClient) {
+    _supabaseClient = createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+  }
+  return _supabaseClient;
+}
