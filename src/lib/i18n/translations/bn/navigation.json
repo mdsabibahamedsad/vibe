@@ -1,0 +1,47 @@
+{
+  "feed": "ফিড",
+  "discover": "আবিষ্কার",
+  "matches": "ম্যাচ",
+  "chats": "চ্যাট",
+  "profile": "প্রোফাইল",
+  "settings": "সেটিংস",
+  "notifications": "বিজ্ঞপ্তি",
+  "stories": "স্টোরি",
+  "search": "অনুসন্ধান",
+  "premium": "প্রিমিয়াম",
+  "home": "হোম",
+  "create": "তৈরি করুন",
+  "backToApp": "অ্যাপে ফিরে যান",
+  "signIn": "সাইন ইন",
+  "signOut": "সাইন আউট",
+  "signInToSee": "বিজ্ঞপ্তি দেখতে সাইন ইন করুন",
+  "connectTelegram": "আপনার কার্যকলাপ দেখতে টেলিগ্রাম দিয়ে সংযোগ করুন।",
+  "bottomNav": {
+    "feed": "ফিড",
+    "discover": "আবিষ্কার",
+    "matches": "ম্যাচ",
+    "chats": "চ্যাট",
+    "profile": "প্রোফাইল"
+  },
+  "admin": {
+    "title": "ভাইব অ্যাডমিন",
+    "overview": "সংক্ষিপ্ত বিবরণ",
+    "reports": "রিপোর্ট",
+    "users": "ব্যবহারকারী",
+    "content": "কন্টেন্ট",
+    "appeals": "আপিল",
+    "billing": "বিলিং",
+    "ads": "বিজ্ঞাপন",
+    "auditLog": "অডিট লগ",
+    "admins": "অ্যাডমিন",
+    "verifyingAccess": "অ্যাক্সেস যাচাই করা হচ্ছে..."
+  },
+  "tabs": {
+    "profile": "প্রোফাইল",
+    "photos": "ছবি",
+    "interests": "আগ্রহ",
+    "preferences": "আবিষ্কার",
+    "preview": "প্রিভিউ",
+    "account": "অ্যাকাউন্ট"
+  }
+}

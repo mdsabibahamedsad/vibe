@@ -1,0 +1,18 @@
+{
+  "title": "Billing",
+  "history": "Billing History",
+  "loading": "Loading billing history...",
+  "transactions": "Transactions",
+  "invoice": "Invoice",
+  "date": "Date",
+  "amount": "Amount",
+  "status": "Status",
+  "plan": "Plan",
+  "completed": "Completed",
+  "pending": "Pending",
+  "failed": "Failed",
+  "refunded": "Refunded",
+  "cancelled": "Cancelled",
+  "noTransactions": "No transactions yet",
+  "securePayment": "Secure payment via Telegram Stars ⭐"
+}

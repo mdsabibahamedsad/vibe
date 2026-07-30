@@ -6,6 +6,8 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { Button, Card, Loading } from "@/components/ui";
 import { PhotoPicker } from "@/components/shared/photo-picker";
 import { ProfilePreviewCard } from "@/components/shared/profile-preview-card";
+import { LanguageSelector } from "@/components/language-selector";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { logger } from "@/lib/logger";
 
 interface ProfileForm {
@@ -38,6 +40,9 @@ type Tab = "profile" | "photos" | "interests" | "preferences" | "preview" | "set
 export default function SettingsPage() {
   const router = useRouter();
   const { authenticated, loading: authLoading, user, logout } = useCurrentUser();
+  const { t } = useTranslation("common");
+  const { t: ts } = useTranslation("settings");
+  const { t: tn } = useTranslation("navigation");
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [profileLoading, setProfileLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -290,16 +295,16 @@ export default function SettingsPage() {
     }
   };
 
-  if (authLoading || profileLoading) return <Loading fullScreen message="Loading profile..." />;
+  if (authLoading || profileLoading) return <Loading fullScreen message={t("loading")} />;
   if (!authenticated) return null;
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "profile", label: "Profile" },
-    { key: "photos", label: "Photos" },
-    { key: "interests", label: "Interests" },
-    { key: "preferences", label: "Discovery" },
-    { key: "preview", label: "Preview" },
-    { key: "settings", label: "Account" },
+    { key: "profile", label: tn("tabs.profile") },
+    { key: "photos", label: tn("tabs.photos") },
+    { key: "interests", label: tn("tabs.interests") },
+    { key: "preferences", label: tn("tabs.preferences") },
+    { key: "preview", label: tn("tabs.preview") },
+    { key: "settings", label: tn("tabs.account") },
   ];
 
   return (
@@ -311,10 +316,10 @@ export default function SettingsPage() {
             onClick={() => router.push("/")}
             className="text-sm text-[var(--tg-theme-button-color,#0088cc)]"
           >
-            Back
+            {t("back")}
           </button>
           <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-            Settings
+            {ts("title")}
           </h1>
           <div className="w-12" />
         </div>
@@ -353,12 +358,12 @@ export default function SettingsPage() {
         {activeTab === "profile" && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-              Edit Profile
+              {ts("editProfile")}
             </h2>
 
             <div>
               <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
-                Display Name
+                {ts("displayName")}
               </label>
               <input
                 type="text"
@@ -371,7 +376,7 @@ export default function SettingsPage() {
 
             <div>
               <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
-                Bio
+                {ts("bio")}
               </label>
               <textarea
                 value={form.bio}
@@ -388,35 +393,35 @@ export default function SettingsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
-                  Gender
+                  {ts("gender")}
                 </label>
                 <select
                   value={form.gender}
                   onChange={(e) => setForm((p) => ({ ...p, gender: e.target.value }))}
                   className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 text-[var(--tg-theme-text-color,#000000)]"
                 >
-                  <option value="">Select...</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="non_binary">Non-binary</option>
-                  <option value="prefer_not_to_say">Prefer not to say</option>
+                  <option value="">{t("select")}</option>
+                  <option value="male">{t("gender.male")}</option>
+                  <option value="female">{t("gender.female")}</option>
+                  <option value="non_binary">{t("gender.nonBinary")}</option>
+                  <option value="prefer_not_to_say">{t("gender.preferNotToSay")}</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
-                  Looking for
+                  {ts("lookingFor")}
                 </label>
                 <select
                   value={form.datingIntent}
                   onChange={(e) => setForm((p) => ({ ...p, datingIntent: e.target.value }))}
                   className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 text-[var(--tg-theme-text-color,#000000)]"
                 >
-                  <option value="">Select...</option>
-                  <option value="dating">Dating</option>
-                  <option value="friendship">Friendship</option>
-                  <option value="chat">Chat</option>
-                  <option value="relationship">Relationship</option>
-                  <option value="not_sure">Not sure yet</option>
+                  <option value="">{t("select")}</option>
+                  <option value="dating">{t("datingIntent.dating")}</option>
+                  <option value="friendship">{t("datingIntent.friendship")}</option>
+                  <option value="chat">{t("datingIntent.chat")}</option>
+                  <option value="relationship">{t("datingIntent.relationship")}</option>
+                  <option value="not_sure">{t("datingIntent.notSure")}</option>
                 </select>
               </div>
             </div>
@@ -424,7 +429,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
-                  City
+                  {ts("city")}
                 </label>
                 <input
                   type="text"
@@ -435,7 +440,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
-                  Country
+                  {ts("country")}
                 </label>
                 <input
                   type="text"
@@ -447,7 +452,7 @@ export default function SettingsPage() {
             </div>
 
             <Button onClick={saveProfile} fullWidth loading={saving} disabled={saving}>
-              Save Profile
+              {ts("saveProfile")}
             </Button>
           </div>
         )}

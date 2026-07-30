@@ -1,0 +1,58 @@
+{
+  "title": "Créez votre profil",
+  "step": "Étape {current} sur {total}",
+  "back": "Retour",
+  "skip": "Passer",
+  "next": "Suivant",
+  "complete": "Terminer",
+  "loading": "Chargement...",
+  "pleaseSignIn": "Veuillez vous connecter...",
+  "basicProfile": {
+    "title": "Informations de base",
+    "displayName": "Nom d'affichage",
+    "displayNamePlaceholder": "Votre nom",
+    "bio": "Bio",
+    "bioPlaceholder": "Parlez un peu de vous...",
+    "gender": "Genre",
+    "lookingFor": "Je cherche",
+    "city": "Ville",
+    "cityPlaceholder": "ex. Paris",
+    "country": "Pays",
+    "countryPlaceholder": "ex. France",
+    "saveError": "Échec de l'enregistrement. Veuillez réessayer."
+  },
+  "datingIntent": {
+    "title": "Que cherchez-vous ?",
+    "description": "Sélectionnez ce qui vous amène sur Vibe",
+    "saveError": "Échec de l'enregistrement. Veuillez réessayer."
+  },
+  "interests": {
+    "title": "Centres d'intérêt",
+    "description": "Sélectionnez au moins 1 centre d'intérêt pour nous aider à trouver vos personnes",
+    "selected": "{count}/15",
+    "saveError": "Échec de l'enregistrement. Veuillez réessayer.",
+    "loadError": "Échec du chargement des centres d'intérêt"
+  },
+  "photos": {
+    "title": "Vos photos",
+    "description": "Ajoutez au moins 1 photo pour continuer",
+    "addMore": "Ajouter plus de photos",
+    "invalidFileType": "Veuillez télécharger une image JPEG, PNG ou WebP",
+    "fileTooLarge": "L'image doit faire moins de 10 Mo",
+    "uploadError": "Échec du téléchargement. Veuillez réessayer.",
+    "removeError": "Échec de la suppression de la photo",
+    "minRequired": "Veuillez ajouter au moins 1 photo"
+  },
+  "introVideo": {
+    "title": "Vidéo de présentation (Optionnelle)",
+    "description": "Enregistrez une courte vidéo pour vous présenter"
+  },
+  "discoveryPreferences": {
+    "title": "Préférences de découverte",
+    "ageRange": "Tranche d'âge : {min}–{max}",
+    "maxDistance": "Distance max : {distance}",
+    "showMe": "Montrez-moi",
+    "invalidAgeRange": "L'âge minimum ne peut pas être supérieur à l'âge maximum",
+    "saveError": "Échec de l'enregistrement. Veuillez réessayer."
+  }
+}

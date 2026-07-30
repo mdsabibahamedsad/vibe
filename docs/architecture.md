@@ -151,6 +151,67 @@ Media storage is modular:
 
 ---
 
+## Recommendation Engine Architecture
+
+The Recommendation Engine lives alongside the Search & Discovery Engine:
+
+```
+Frontend (Search / Discover page)
+    ↓
+GET /api/recommendations?mode=social|dating&query=...
+    ↓
+recommendation.service: getRecommendations()
+    ↓
+  ┌─────────────────────────────────────┐
+  │  Prompt 12: Candidate Retrieval     │
+  │  discoverProfiles() → eligible pool │
+  └──────────────┬──────────────────────┘
+                 ↓
+  ┌─────────────────────────────────────┐
+  │  Prompt 13: Recommendation Engine   │
+  │  ┌─ Feature Extraction (10 feats)  │
+  │  ├─ Mutual Compatibility Scoring   │
+  │  ├─ Weighted Ranking (dating/social)│
+  │  ├─ MMR Diversity Reranking        │
+  │  ├─ Exploration Injection          │
+  │  └─ Impression Tracking            │
+  └──────────────┬──────────────────────┘
+                 ↓
+    Ranked results + explanations + compatibility badge
+```
+
+### Key Services
+
+| Service | Responsibility |
+|---------|---------------|
+| `recommendation.service` | Unified entry point; wraps Prompt 12 |
+| `feature.service` | Extracts 10 normalized features (0–1) |
+| `compatibility.service` | Mutual preference compatibility (both directions) |
+| `ranking.service` | Weighted scoring, config validation, badge generation |
+| `diversity.service` | MMR reranking + seeded exploration injection |
+| `feedback.service` | Impression recording + aggregate signal computation |
+
+### Ranking Configuration
+
+All weights are centralized in `lib/recommendation/constants.ts`. Two modes:
+- **Dating:** Compatibility 25%, Interests 20%, Location 10%, Activity 10%, etc.
+- **Social:** Interests 25%, Mutual Connections 20%, Activity 15%, Location 10%, etc.
+
+### Future ML Interface
+
+The `RecommendationModel` interface is ready for ML replacement:
+
+```ts
+interface RecommendationModel {
+  score(viewerFeatures, candidateFeatures): Promise<number>;
+  readonly version: string;
+}
+```
+
+Replace `RuleBasedRecommendationModel` with `MLRecommendationModel` without changing the discovery system.
+
+---
+
 ## Security Boundaries
 
 1. Never expose Supabase service-role key
@@ -179,6 +240,8 @@ Media storage is modular:
 | Subscriptions | Premium tiers, recurring billing          |
 | Moderation    | Reports, blocking, content moderation     |
 | Notifications | Push notifications, in-app alerts         |
+| Recommendation | Personalized recommendation engine with ranking, diversity, exploration |
+| Search         | Full-text search, social discovery, dating discovery |
 | Referrals     | Invite system, referral rewards           |
 | Analytics     | User behavior, growth metrics             |
 | Admin         | Dashboard, user management, system config |

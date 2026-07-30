@@ -1,0 +1,58 @@
+{
+  "title": "Crie seu perfil",
+  "step": "Passo {current} de {total}",
+  "back": "Voltar",
+  "skip": "Pular",
+  "next": "Próximo",
+  "complete": "Concluir",
+  "loading": "Carregando...",
+  "pleaseSignIn": "Faça login...",
+  "basicProfile": {
+    "title": "Informações básicas",
+    "displayName": "Nome de exibição",
+    "displayNamePlaceholder": "Seu nome",
+    "bio": "Bio",
+    "bioPlaceholder": "Conte um pouco sobre você...",
+    "gender": "Gênero",
+    "lookingFor": "Procurando por",
+    "city": "Cidade",
+    "cityPlaceholder": "ex. São Paulo",
+    "country": "País",
+    "countryPlaceholder": "ex. Brasil",
+    "saveError": "Falha ao salvar. Tente novamente."
+  },
+  "datingIntent": {
+    "title": "O que você está procurando?",
+    "description": "Selecione o que traz você ao Vibe",
+    "saveError": "Falha ao salvar. Tente novamente."
+  },
+  "interests": {
+    "title": "Interesses",
+    "description": "Selecione pelo menos 1 interesse para nos ajudar a encontrar suas pessoas",
+    "selected": "{count}/15",
+    "saveError": "Falha ao salvar. Tente novamente.",
+    "loadError": "Falha ao carregar interesses"
+  },
+  "photos": {
+    "title": "Suas Fotos",
+    "description": "Adicione pelo menos 1 foto para continuar",
+    "addMore": "Adicionar mais fotos",
+    "invalidFileType": "Envie uma imagem JPEG, PNG ou WebP",
+    "fileTooLarge": "A imagem deve ter menos de 10MB",
+    "uploadError": "Falha ao enviar. Tente novamente.",
+    "removeError": "Falha ao remover foto",
+    "minRequired": "Adicione pelo menos 1 foto"
+  },
+  "introVideo": {
+    "title": "Vídeo de apresentação (Opcional)",
+    "description": "Grave um vídeo curto para se apresentar"
+  },
+  "discoveryPreferences": {
+    "title": "Preferências de Descoberta",
+    "ageRange": "Faixa etária: {min}–{max}",
+    "maxDistance": "Distância máxima: {distance}",
+    "showMe": "Mostre-me",
+    "invalidAgeRange": "A idade mínima não pode ser maior que a idade máxima",
+    "saveError": "Falha ao salvar. Tente novamente."
+  }
+}

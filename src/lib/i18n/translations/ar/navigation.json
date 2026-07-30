@@ -1,0 +1,47 @@
+{
+  "feed": "المنشورات",
+  "discover": "اكتشف",
+  "matches": "التطابقات",
+  "chats": "المحادثات",
+  "profile": "الملف الشخصي",
+  "settings": "الإعدادات",
+  "notifications": "الإشعارات",
+  "stories": "القصص",
+  "search": "بحث",
+  "premium": "بريميوم",
+  "home": "الرئيسية",
+  "create": "إنشاء",
+  "backToApp": "العودة إلى التطبيق",
+  "signIn": "تسجيل الدخول",
+  "signOut": "تسجيل الخروج",
+  "signInToSee": "سجل الدخول لرؤية الإشعارات",
+  "connectTelegram": "اتصل بتليجرام لرؤية نشاطك.",
+  "bottomNav": {
+    "feed": "المنشورات",
+    "discover": "اكتشف",
+    "matches": "التطابقات",
+    "chats": "المحادثات",
+    "profile": "الملف الشخصي"
+  },
+  "admin": {
+    "title": "إدارة فايب",
+    "overview": "نظرة عامة",
+    "reports": "التقارير",
+    "users": "المستخدمون",
+    "content": "المحتوى",
+    "appeals": "الاستئنافات",
+    "billing": "الفواتير",
+    "ads": "الإعلانات",
+    "auditLog": "سجل التدقيق",
+    "admins": "المسؤولون",
+    "verifyingAccess": "جارٍ التحقق من الوصول..."
+  },
+  "tabs": {
+    "profile": "الملف الشخصي",
+    "photos": "الصور",
+    "interests": "الاهتمامات",
+    "preferences": "الاكتشاف",
+    "preview": "معاينة",
+    "account": "الحساب"
+  }
+}

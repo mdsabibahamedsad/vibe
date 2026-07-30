@@ -1,0 +1,18 @@
+{
+  "title": "Feed",
+  "emptyTitle": "No posts yet",
+  "emptyDescription": "Follow people to see their posts here.",
+  "createPost": "Create post",
+  "postPlaceholder": "What's on your mind?",
+  "commentPlaceholder": "Write a comment...",
+  "like": "Like",
+  "comment": "Comment",
+  "share": "Share",
+  "likes": "{count} likes",
+  "comments": "{count} comments",
+  "shares": "{count} shares",
+  "views": "{count} views",
+  "justPosted": "Just now",
+  "loading": "Loading feed...",
+  "loadingMore": "Loading more..."
+}

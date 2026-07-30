@@ -1,0 +1,58 @@
+{
+  "title": "Create your profile",
+  "step": "Step {current} of {total}",
+  "back": "Back",
+  "skip": "Skip",
+  "next": "Next",
+  "complete": "Complete",
+  "loading": "Loading...",
+  "pleaseSignIn": "Please sign in...",
+  "basicProfile": {
+    "title": "Basic Info",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Your name",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell people a bit about yourself...",
+    "gender": "Gender",
+    "lookingFor": "Looking for",
+    "city": "City",
+    "cityPlaceholder": "e.g. Dhaka",
+    "country": "Country",
+    "countryPlaceholder": "e.g. Bangladesh",
+    "saveError": "Failed to save. Please try again."
+  },
+  "datingIntent": {
+    "title": "What are you looking for?",
+    "description": "Select what brings you to Vibe",
+    "saveError": "Failed to save. Please try again."
+  },
+  "interests": {
+    "title": "Interests",
+    "description": "Select at least 1 interest to help us find your people",
+    "selected": "{count}/15",
+    "saveError": "Failed to save. Please try again.",
+    "loadError": "Failed to load interests"
+  },
+  "photos": {
+    "title": "Your Photos",
+    "description": "Add at least 1 photo to continue",
+    "addMore": "Add more photos",
+    "invalidFileType": "Please upload a JPEG, PNG, or WebP image",
+    "fileTooLarge": "Image must be less than 10MB",
+    "uploadError": "Failed to upload. Please try again.",
+    "removeError": "Failed to remove photo",
+    "minRequired": "Please add at least 1 photo"
+  },
+  "introVideo": {
+    "title": "Intro Video (Optional)",
+    "description": "Record a short video to introduce yourself"
+  },
+  "discoveryPreferences": {
+    "title": "Discovery Preferences",
+    "ageRange": "Age range: {min}–{max}",
+    "maxDistance": "Max distance: {distance}",
+    "showMe": "Show me",
+    "invalidAgeRange": "Minimum age cannot be greater than maximum age",
+    "saveError": "Failed to save. Please try again."
+  }
+}

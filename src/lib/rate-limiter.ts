@@ -46,6 +46,18 @@ export interface RateLimitResult {
  */
 export class InMemoryRateLimiter implements RateLimiterStore {
   private store = new Map<string, { count: number; resetAt: number }>();
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    // Cleanup expired entries every 5 minutes to prevent memory leaks
+    if (typeof setInterval !== "undefined" && !this.cleanupInterval) {
+      this.cleanupInterval = setInterval(() => this.cleanup(), 5 * 60 * 1000);
+      // Allow the process to exit even if the interval is still running
+      if (this.cleanupInterval && typeof this.cleanupInterval === "object") {
+        this.cleanupInterval.unref?.();
+      }
+    }
+  }
 
   async check(key: string, maxRequests: number, windowMs: number): Promise<RateLimitResult> {
     const now = Date.now();
@@ -83,14 +95,9 @@ export class InMemoryRateLimiter implements RateLimiterStore {
 // Singleton in-memory limiter for development
 const defaultStore = new InMemoryRateLimiter();
 
-// Cleanup expired entries every 5 minutes
-if (typeof setInterval !== "undefined") {
-  setInterval(() => defaultStore.cleanup(), 5 * 60 * 1000);
-}
-
 /**
- * Default rate limiter for authentication endpoints.
- * Uses the in-memory store by default.
+ * Rate limiter instance with configurable store.
+ * Supports both boolean check() and throwing enforce().
  */
 export class RateLimiter {
   private store: RateLimiterStore;
@@ -117,7 +124,8 @@ export class RateLimiter {
     if (!result.allowed) {
       logger.warn("Rate limit exceeded", {
         limiter: this.config.name,
-        identifier,
+        identifier: identifier.substring(0, 20), // Truncate for privacy
+        requestId: undefined as unknown as string,
       });
     }
 
@@ -137,24 +145,122 @@ export class RateLimiter {
   }
 
   getConfig(): RateLimiterConfig {
-    return this.config;
+    return { ...this.config };
   }
 }
 
-/**
- * Preconfigured rate limiters for common endpoints.
- */
+// ============================================================================
+// Preconfigured rate limiters for every endpoint category
+// ============================================================================
 
-/** Auth endpoint: 10 requests per minute per IP */
+/** Auth: 10 requests per minute per IP */
 export const authRateLimiter = new RateLimiter({
   windowMs: 60 * 1000,
   maxRequests: 10,
   name: "auth",
 });
 
-/** API general: 60 requests per minute per IP */
+/** Login/auth initiation: 5 requests per minute per IP */
+export const loginRateLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  name: "login",
+});
+
+/** General API: 60 requests per minute per IP */
 export const apiRateLimiter = new RateLimiter({
   windowMs: 60 * 1000,
   maxRequests: 60,
   name: "api",
+});
+
+/** Profile updates: 10 requests per minute per user */
+export const profileUpdateLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 10,
+  name: "profile_update",
+});
+
+/** Likes/dating actions: 30 requests per minute per user */
+export const datingActionLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 30,
+  name: "dating_actions",
+});
+
+/** Messages: 100 requests per minute per user */
+export const messageLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 100,
+  name: "messages",
+});
+
+/** Media uploads: 10 requests per minute per user */
+export const uploadLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 10,
+  name: "uploads",
+});
+
+/** Comments: 20 requests per minute per user */
+export const commentLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 20,
+  name: "comments",
+});
+
+/** Reports: 5 requests per minute per user */
+export const reportLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  name: "reports",
+});
+
+/** Search: 30 requests per minute per user */
+export const searchLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 30,
+  name: "search",
+});
+
+/** AI requests: 10 requests per minute per user */
+export const aiLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 10,
+  name: "ai_requests",
+});
+
+/** Admin APIs: 120 requests per minute per admin */
+export const adminLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 120,
+  name: "admin",
+});
+
+/** Post creation: 6 requests per minute per user */
+export const postCreationLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 6,
+  name: "post_creation",
+});
+
+/** Story creation: 4 requests per minute per user */
+export const storyLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 4,
+  name: "stories",
+});
+
+/** Account/data operations: 3 requests per minute per user */
+export const accountOperationLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 3,
+  name: "account_ops",
+});
+
+/** Billing/payment operations: 5 requests per minute per user */
+export const billingLimiter = new RateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  name: "billing",
 });

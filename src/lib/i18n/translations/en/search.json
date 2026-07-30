@@ -1,0 +1,18 @@
+{
+  "title": "Search",
+  "placeholder": "Search people...",
+  "clear": "Clear search",
+  "toggleFilters": "Toggle filters",
+  "noResults": "No results found",
+  "searching": "Searching...",
+  "people": "People",
+  "posts": "Posts",
+  "hashtags": "Hashtags",
+  "trending": "Trending",
+  "recent": "Recent",
+  "clearHistory": "Clear history",
+  "verified": "Verified",
+  "filterBy": "Filter by",
+  "allResults": "All Results",
+  "seeAll": "See all"
+}

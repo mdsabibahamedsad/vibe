@@ -1,0 +1,47 @@
+{
+  "feed": "Beranda",
+  "discover": "Jelajahi",
+  "matches": "Cocok",
+  "chats": "Chat",
+  "profile": "Profil",
+  "settings": "Pengaturan",
+  "notifications": "Notifikasi",
+  "stories": "Cerita",
+  "search": "Cari",
+  "premium": "Premium",
+  "home": "Beranda",
+  "create": "Buat",
+  "backToApp": "Kembali ke Aplikasi",
+  "signIn": "Masuk",
+  "signOut": "Keluar",
+  "signInToSee": "Masuk untuk melihat notifikasi",
+  "connectTelegram": "Hubungkan dengan Telegram untuk melihat aktivitas Anda.",
+  "bottomNav": {
+    "feed": "Beranda",
+    "discover": "Jelajahi",
+    "matches": "Cocok",
+    "chats": "Chat",
+    "profile": "Profil"
+  },
+  "admin": {
+    "title": "Admin Vibe",
+    "overview": "Ikhtisar",
+    "reports": "Laporan",
+    "users": "Pengguna",
+    "content": "Konten",
+    "appeals": "Banding",
+    "billing": "Tagihan",
+    "ads": "Iklan",
+    "auditLog": "Log Audit",
+    "admins": "Admin",
+    "verifyingAccess": "Memverifikasi akses..."
+  },
+  "tabs": {
+    "profile": "Profil",
+    "photos": "Foto",
+    "interests": "Minat",
+    "preferences": "Penemuan",
+    "preview": "Pratinjau",
+    "account": "Akun"
+  }
+}

@@ -10,6 +10,7 @@ export interface AuthUser {
   telegramUserId: number;
   username?: string;
   displayName: string;
+  role: string;
   needsOnboarding: boolean;
 }
 

@@ -1,24 +1,7 @@
-/**
- * Server-side authenticated user helper.
- *
- * Retrieves the verified application user from a request's Authorization header
- * containing a Supabase JWT access token.
- *
- * IMPORTANT: This function uses the Supabase Auth user JWT to identify the user,
- * NOT client-provided user IDs from request body or query params.
- *
- * The flow:
- *   1. Extract Bearer token from Authorization header
- *   2. Verify the token with Supabase Auth
- *   3. Look up the application user in public.users
- *   4. Return the user (or null if not authenticated)
- */
-
 import { createClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AppError } from "@/lib/errors";
 
-/** Application user returned by getCurrentUser */
 export interface CurrentUser {
   id: string;
   telegramUserId: number;
@@ -33,50 +16,35 @@ export interface CurrentUser {
   lastSeenAt: string | null;
 }
 
-/**
- * Get the current authenticated user from a Next.js Request object.
- *
- * Extracts the Supabase JWT from the Authorization header,
- * verifies it, and returns the application user.
- *
- * @param request - The incoming Next.js Request
- * @returns The authenticated CurrentUser
- * @throws AppError if not authenticated (401)
- */
-export async function getCurrentUser(request: Request): Promise<CurrentUser> {
-  const authHeader = request.headers.get("Authorization");
-  const accessToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-
-  if (!accessToken) {
-    throw new AppError("AUTHENTICATION_ERROR", "Authentication required", {
-      statusCode: 401,
-    });
+async function getAccessToken(request?: Request): Promise<string | null> {
+  if (request) {
+    const authHeader = request.headers.get("Authorization");
+    return authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const allCookies = cookieStore.getAll();
+    for (const cookie of allCookies) {
+      if (cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token")) {
+        try {
+          const parsed = JSON.parse(cookie.value);
+          if (parsed.access_token) return parsed.access_token;
+        } catch {}
+      }
+    }
+  } catch {}
 
-  // Verify the access token with Supabase Auth
-  const client = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: { persistSession: false },
-  });
+  return null;
+}
 
-  const { data: userData, error: userError } = await client.auth.getUser(accessToken);
-
-  if (userError || !userData.user) {
-    throw new AppError("AUTHENTICATION_ERROR", "Invalid or expired session", {
-      statusCode: 401,
-    });
-  }
-
-  const authUserId = userData.user.id;
-
-  // Look up the application user
+async function lookupUser(appUserId: string): Promise<CurrentUser> {
   const adminClient = createAdminClient();
   const { data: appUser, error: appUserError } = await adminClient
     .from("users")
     .select("*")
-    .eq("id", authUserId)
+    .eq("id", appUserId)
     .single();
 
   if (appUserError || !appUser) {
@@ -85,7 +53,6 @@ export async function getCurrentUser(request: Request): Promise<CurrentUser> {
     });
   }
 
-  // Check if user is banned
   if (appUser.is_banned) {
     throw new AppError("AUTHORIZATION_ERROR", "Your account has been suspended", {
       statusCode: 403,
@@ -107,11 +74,34 @@ export async function getCurrentUser(request: Request): Promise<CurrentUser> {
   };
 }
 
-/**
- * Get the current authenticated user without throwing if not authenticated.
- * Returns null instead.
- */
-export async function getOptionalCurrentUser(request: Request): Promise<CurrentUser | null> {
+export async function getCurrentUser(request?: Request): Promise<CurrentUser> {
+  const accessToken = await getAccessToken(request);
+
+  if (!accessToken) {
+    throw new AppError("AUTHENTICATION_ERROR", "Authentication required", {
+      statusCode: 401,
+    });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false },
+  });
+
+  const { data: userData, error: userError } = await client.auth.getUser(accessToken);
+
+  if (userError || !userData.user) {
+    throw new AppError("AUTHENTICATION_ERROR", "Invalid or expired session", {
+      statusCode: 401,
+    });
+  }
+
+  return lookupUser(userData.user.id);
+}
+
+export async function getOptionalCurrentUser(request?: Request): Promise<CurrentUser | null> {
   try {
     return await getCurrentUser(request);
   } catch {

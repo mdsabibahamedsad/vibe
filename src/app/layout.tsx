@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { TelegramProvider } from "@/components/telegram-provider";
 import { AuthProvider } from "@/components/auth-provider";
+import { AuthGate } from "@/components/auth-gate";
+import { I18nProvider } from "@/components/i18n-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,14 +23,19 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" dir="ltr" suppressHydrationWarning>
       <head>
-        {/* Telegram WebApp script */}
         <script src="https://telegram.org/js/telegram-web-app.js" async />
       </head>
       <body className="min-h-dvh">
         <TelegramProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <AuthGate>
+              <I18nProvider>
+                {children}
+              </I18nProvider>
+            </AuthGate>
+          </AuthProvider>
         </TelegramProvider>
       </body>
     </html>

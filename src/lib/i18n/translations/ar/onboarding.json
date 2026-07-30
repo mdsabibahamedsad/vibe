@@ -1,0 +1,58 @@
+{
+  "title": "أنشئ ملفك الشخصي",
+  "step": "الخطوة {current} من {total}",
+  "back": "رجوع",
+  "skip": "تخطي",
+  "next": "التالي",
+  "complete": "إكمال",
+  "loading": "جارٍ التحميل...",
+  "pleaseSignIn": "يرجى تسجيل الدخول...",
+  "basicProfile": {
+    "title": "المعلومات الأساسية",
+    "displayName": "الاسم المعروض",
+    "displayNamePlaceholder": "اسمك",
+    "bio": "السيرة",
+    "bioPlaceholder": "أخبر الناس قليلاً عن نفسك...",
+    "gender": "الجنس",
+    "lookingFor": "أبحث عن",
+    "city": "المدينة",
+    "cityPlaceholder": "مثال: دبي",
+    "country": "البلد",
+    "countryPlaceholder": "مثال: الإمارات",
+    "saveError": "فشل الحفظ. يرجى المحاولة مرة أخرى."
+  },
+  "datingIntent": {
+    "title": "ما الذي تبحث عنه؟",
+    "description": "اختر ما الذي أتى بك إلى فايب",
+    "saveError": "فشل الحفظ. يرجى المحاولة مرة أخرى."
+  },
+  "interests": {
+    "title": "الاهتمامات",
+    "description": "اختر اهتماماً واحداً على الأقل لمساعدتنا في العثور على أشخاصك",
+    "selected": "{count}/15",
+    "saveError": "فشل الحفظ. يرجى المحاولة مرة أخرى.",
+    "loadError": "فشل تحميل الاهتمامات"
+  },
+  "photos": {
+    "title": "صورك",
+    "description": "أضف صورة واحدة على الأقل للمتابعة",
+    "addMore": "أضف المزيد من الصور",
+    "invalidFileType": "يرجى رفع صورة JPEG أو PNG أو WebP",
+    "fileTooLarge": "يجب أن تكون الصورة أقل من 10 ميجابايت",
+    "uploadError": "فشل الرفع. يرجى المحاولة مرة أخرى.",
+    "removeError": "فشل إزالة الصورة",
+    "minRequired": "يرجى إضافة صورة واحدة على الأقل"
+  },
+  "introVideo": {
+    "title": "فيديو تعريفي (اختياري)",
+    "description": "سجل فيديو قصير لتقديم نفسك"
+  },
+  "discoveryPreferences": {
+    "title": "تفضيلات الاكتشاف",
+    "ageRange": "نطاق العمر: {min}–{max}",
+    "maxDistance": "المسافة القصوى: {distance}",
+    "showMe": "أظهر لي",
+    "invalidAgeRange": "لا يمكن أن يكون الحد الأدنى للعمر أكبر من الحد الأقصى",
+    "saveError": "فشل الحفظ. يرجى المحاولة مرة أخرى."
+  }
+}

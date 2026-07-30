@@ -642,6 +642,29 @@ Audit trail for admin actions.
 
 ---
 
+## Table: `recommendation_impressions`
+
+Tracks recommendation exposure for feedback loop and ranking improvement.
+
+| Column            | Type        | Constraints        | Description                           |
+| ----------------- | ----------- | ------------------ | ------------------------------------- |
+| id                | uuid        | PK                 |                                       |
+| viewer_id         | uuid        | FK→users           | Who received the recommendation       |
+| candidate_id      | uuid        | FK→users           | Who was recommended                   |
+| mode              | text        |                    | social | dating                     |
+| request_id        | text        |                    | Opaque request grouping ID            |
+| ranking_version   | text        |                    | Which ranking config was used          |
+| position          | integer     |                    | Display position (0-indexed)          |
+| score_bucket      | text        |                    | high / medium / low                   |
+| interaction_type  | text        |                    | like / pass / follow / view / match   |
+| interacted_at     | timestamptz |                    | When user interacted                   |
+| created_at        | timestamptz |                    |                                       |
+
+**Indexes:** viewer_id, candidate_id, viewer_id+candidate_id, request_id
+**RLS:** Viewers can SELECT own impressions; no INSERT/UPDATE/DELETE from client
+
+---
+
 ## Table: `analytics_events`
 
 Lightweight event tracking.

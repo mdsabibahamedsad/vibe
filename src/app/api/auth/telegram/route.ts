@@ -98,6 +98,7 @@ export async function POST(request: Request) {
         telegramUserId: authResult.session.user.telegramUserId,
         username: authResult.session.user.username,
         displayName: authResult.session.user.displayName,
+        role: authResult.session.user.role,
         needsOnboarding,
       },
       session: {

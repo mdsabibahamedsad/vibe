@@ -1,0 +1,58 @@
+{
+  "title": "Buat profil Anda",
+  "step": "Langkah {current} dari {total}",
+  "back": "Kembali",
+  "skip": "Lewati",
+  "next": "Lanjut",
+  "complete": "Selesai",
+  "loading": "Memuat...",
+  "pleaseSignIn": "Silakan masuk...",
+  "basicProfile": {
+    "title": "Informasi Dasar",
+    "displayName": "Nama Tampilan",
+    "displayNamePlaceholder": "Nama Anda",
+    "bio": "Bio",
+    "bioPlaceholder": "Ceritakan sedikit tentang diri Anda...",
+    "gender": "Jenis Kelamin",
+    "lookingFor": "Mencari",
+    "city": "Kota",
+    "cityPlaceholder": "mis. Jakarta",
+    "country": "Negara",
+    "countryPlaceholder": "mis. Indonesia",
+    "saveError": "Gagal menyimpan. Silakan coba lagi."
+  },
+  "datingIntent": {
+    "title": "Apa yang Anda cari?",
+    "description": "Pilih apa yang membawa Anda ke Vibe",
+    "saveError": "Gagal menyimpan. Silakan coba lagi."
+  },
+  "interests": {
+    "title": "Minat",
+    "description": "Pilih setidaknya 1 minat untuk membantu kami menemukan orang Anda",
+    "selected": "{count}/15",
+    "saveError": "Gagal menyimpan. Silakan coba lagi.",
+    "loadError": "Gagal memuat minat"
+  },
+  "photos": {
+    "title": "Foto Anda",
+    "description": "Tambahkan setidaknya 1 foto untuk melanjutkan",
+    "addMore": "Tambahkan lebih banyak foto",
+    "invalidFileType": "Harap unggah gambar JPEG, PNG, atau WebP",
+    "fileTooLarge": "Gambar harus kurang dari 10MB",
+    "uploadError": "Gagal mengunggah. Silakan coba lagi.",
+    "removeError": "Gagal menghapus foto",
+    "minRequired": "Harap tambahkan setidaknya 1 foto"
+  },
+  "introVideo": {
+    "title": "Video Perkenalan (Opsional)",
+    "description": "Rekam video pendek untuk memperkenalkan diri Anda"
+  },
+  "discoveryPreferences": {
+    "title": "Preferensi Penemuan",
+    "ageRange": "Rentang usia: {min}–{max}",
+    "maxDistance": "Jarak maksimum: {distance}",
+    "showMe": "Tunjukkan saya",
+    "invalidAgeRange": "Usia minimum tidak boleh lebih besar dari usia maksimum",
+    "saveError": "Gagal menyimpan. Silakan coba lagi."
+  }
+}

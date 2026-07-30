@@ -10,7 +10,7 @@
 
 import { logger } from "@/lib/logger";
 
-export type DeepLinkEntity = "post" | "profile" | "community";
+export type DeepLinkEntity = "post" | "profile" | "community" | "story" | "match" | "chat" | "notifications";
 
 /**
  * Create a shareable deep-link identifier for an entity.
@@ -29,7 +29,12 @@ export function parseDeepLink(
   const entityType = parts[0] as DeepLinkEntity;
   const entityId = parts.slice(1).join("_");
 
-  if (!["post", "profile", "community"].includes(entityType) || !entityId) {
+  const validTypes = [
+    "post", "profile", "community", "story",
+    "match", "chat", "notifications",
+  ];
+
+  if (!validTypes.includes(entityType) || !entityId) {
     return null;
   }
 
@@ -81,5 +86,33 @@ export function shareDeepLink(entityType: DeepLinkEntity, entityId: string): voi
     navigator.clipboard.writeText(link).catch(() => {
       // Clipboard unavailable
     });
+  }
+}
+
+/**
+ * Resolve a deep-link route to a local app navigation path.
+ * Returns null if the route cannot be resolved.
+ */
+export function resolveDeepLinkRoute(
+  entityType: DeepLinkEntity,
+  entityId: string,
+): string | null {
+  switch (entityType) {
+    case "post":
+      return `/feed?postId=${entityId}`;
+    case "profile":
+      return `/profile/${entityId}`;
+    case "story":
+      return `/stories?storyId=${entityId}`;
+    case "match":
+      return `/matches/${entityId}`;
+    case "chat":
+      return `/chat/${entityId}`;
+    case "notifications":
+      return "/notifications";
+    case "community":
+      return `/communities/${entityId}`;
+    default:
+      return null;
   }
 }

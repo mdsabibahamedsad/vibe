@@ -32,6 +32,7 @@ export interface AuthSession {
     telegramUserId: number;
     displayName: string;
     username?: string;
+    role: string;
   };
 }
 
@@ -173,7 +174,19 @@ export async function createAuthSession(validatedData: ValidatedTelegramData): P
 
   const session = signInData.session;
 
-  // Step 4: Return session info to client
+  // Step 4: Look up user role
+  let userRole = "user";
+  const { data: appUser } = await adminClient
+    .from("users")
+    .select("role")
+    .eq("id", authUserId)
+    .single();
+
+  if (appUser) {
+    userRole = appUser.role;
+  }
+
+  // Step 5: Return session info to client
   return {
     session: {
       accessToken: session.access_token,
@@ -185,6 +198,7 @@ export async function createAuthSession(validatedData: ValidatedTelegramData): P
         telegramUserId: telegramUser.id,
         displayName: telegramUser.first_name,
         username: telegramUser.username,
+        role: userRole,
       },
     },
     isNewUser,

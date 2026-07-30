@@ -1,0 +1,58 @@
+{
+  "title": "Profilinizi oluşturun",
+  "step": "Adım {current} / {total}",
+  "back": "Geri",
+  "skip": "Atla",
+  "next": "İleri",
+  "complete": "Tamamla",
+  "loading": "Yükleniyor...",
+  "pleaseSignIn": "Lütfen giriş yapın...",
+  "basicProfile": {
+    "title": "Temel Bilgiler",
+    "displayName": "Görünen Ad",
+    "displayNamePlaceholder": "Adınız",
+    "bio": "Biyografi",
+    "bioPlaceholder": "Kendinizden biraz bahsedin...",
+    "gender": "Cinsiyet",
+    "lookingFor": "Aradığım",
+    "city": "Şehir",
+    "cityPlaceholder": "örn. İstanbul",
+    "country": "Ülke",
+    "countryPlaceholder": "örn. Türkiye",
+    "saveError": "Kaydedilemedi. Lütfen tekrar deneyin."
+  },
+  "datingIntent": {
+    "title": "Ne arıyorsunuz?",
+    "description": "Sizi Vibe'a getiren şeyi seçin",
+    "saveError": "Kaydedilemedi. Lütfen tekrar deneyin."
+  },
+  "interests": {
+    "title": "İlgi Alanları",
+    "description": "Sizin için doğru kişileri bulmamıza yardımcı olması için en az 1 ilgi alanı seçin",
+    "selected": "{count}/15",
+    "saveError": "Kaydedilemedi. Lütfen tekrar deneyin.",
+    "loadError": "İlgi alanları yüklenemedi"
+  },
+  "photos": {
+    "title": "Fotoğraflarınız",
+    "description": "Devam etmek için en az 1 fotoğraf ekleyin",
+    "addMore": "Daha fazla fotoğraf ekleyin",
+    "invalidFileType": "Lütfen JPEG, PNG veya WebP görseli yükleyin",
+    "fileTooLarge": "Görsel 10MB'dan küçük olmalıdır",
+    "uploadError": "Yükleme başarısız. Lütfen tekrar deneyin.",
+    "removeError": "Fotoğraf kaldırılamadı",
+    "minRequired": "Lütfen en az 1 fotoğraf ekleyin"
+  },
+  "introVideo": {
+    "title": "Tanıtım Videosu (İsteğe bağlı)",
+    "description": "Kendinizi tanıtmak için kısa bir video kaydedin"
+  },
+  "discoveryPreferences": {
+    "title": "Keşif Tercihleri",
+    "ageRange": "Yaş aralığı: {min}–{max}",
+    "maxDistance": "Maksimum mesafe: {distance}",
+    "showMe": "Bana göster",
+    "invalidAgeRange": "Minimum yaş, maksimum yaştan büyük olamaz",
+    "saveError": "Kaydedilemedi. Lütfen tekrar deneyin."
+  }
+}

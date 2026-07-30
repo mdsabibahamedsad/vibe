@@ -16,6 +16,14 @@ import { createClient } from "@supabase/supabase-js";
  *  - Expose this to the client/browser
  *  - Use in Server Components that render client data
  *  - Include in imported modules that run on the client
+ *
+ * QUERY TIMEOUTS:
+ *   Import `withQueryTimeout` from "./server" and wrap critical queries:
+ *
+ *   const { data } = await withQueryTimeout(
+ *     adminClient.from('users').select('*'),
+ *     { timeoutMs: 5000 }
+ *   );
  */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

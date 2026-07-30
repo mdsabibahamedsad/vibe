@@ -1,0 +1,58 @@
+{
+  "title": "अपनी प्रोफ़ाइल बनाएं",
+  "step": "चरण {current} / {total}",
+  "back": "वापस",
+  "skip": "छोड़ें",
+  "next": "आगे",
+  "complete": "पूरा करें",
+  "loading": "लोड हो रहा है...",
+  "pleaseSignIn": "कृपया साइन इन करें...",
+  "basicProfile": {
+    "title": "मूल जानकारी",
+    "displayName": "प्रदर्शन नाम",
+    "displayNamePlaceholder": "आपका नाम",
+    "bio": "बायो",
+    "bioPlaceholder": "अपने बारे में थोड़ा बताएं...",
+    "gender": "लिंग",
+    "lookingFor": "ढूंढ रहे हैं",
+    "city": "शहर",
+    "cityPlaceholder": "जैसे: दिल्ली",
+    "country": "देश",
+    "countryPlaceholder": "जैसे: भारत",
+    "saveError": "सहेजने में विफल। कृपया पुनः प्रयास करें।"
+  },
+  "datingIntent": {
+    "title": "आप क्या ढूंढ रहे हैं?",
+    "description": "चुनें कि आपको वाइब पर क्या लाया",
+    "saveError": "सहेजने में विफल। कृपया पुनः प्रयास करें।"
+  },
+  "interests": {
+    "title": "रुचियां",
+    "description": "हमें आपके लोग खोजने में मदद करने के लिए कम से कम 1 रुचि चुनें",
+    "selected": "{count}/15",
+    "saveError": "सहेजने में विफल। कृपया पुनः प्रयास करें।",
+    "loadError": "रुचियां लोड करने में विफल"
+  },
+  "photos": {
+    "title": "आपकी फ़ोटो",
+    "description": "जारी रखने के लिए कम से कम 1 फ़ोटो जोड़ें",
+    "addMore": "और फ़ोटो जोड़ें",
+    "invalidFileType": "कृपया JPEG, PNG, या WebP इमेज अपलोड करें",
+    "fileTooLarge": "इमेज 10MB से कम होनी चाहिए",
+    "uploadError": "अपलोड विफल। कृपया पुनः प्रयास करें।",
+    "removeError": "फ़ोटो हटाने में विफल",
+    "minRequired": "कृपया कम से कम 1 फ़ोटो जोड़ें"
+  },
+  "introVideo": {
+    "title": "परिचय वीडियो (वैकल्पिक)",
+    "description": "अपना परिचय देने के लिए एक छोटा वीडियो रिकॉर्ड करें"
+  },
+  "discoveryPreferences": {
+    "title": "खोज प्राथमिकताएं",
+    "ageRange": "आयु सीमा: {min}–{max}",
+    "maxDistance": "अधिकतम दूरी: {distance}",
+    "showMe": "मुझे दिखाएं",
+    "invalidAgeRange": "न्यूनतम आयु अधिकतम आयु से अधिक नहीं हो सकती",
+    "saveError": "सहेजने में विफल। कृपया पुनः प्रयास करें।"
+  }
+}

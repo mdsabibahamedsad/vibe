@@ -1,0 +1,58 @@
+{
+  "title": "Crea tu perfil",
+  "step": "Paso {current} de {total}",
+  "back": "Atrás",
+  "skip": "Saltar",
+  "next": "Siguiente",
+  "complete": "Completar",
+  "loading": "Cargando...",
+  "pleaseSignIn": "Inicia sesión...",
+  "basicProfile": {
+    "title": "Información básica",
+    "displayName": "Nombre",
+    "displayNamePlaceholder": "Tu nombre",
+    "bio": "Biografía",
+    "bioPlaceholder": "Cuéntale un poco a la gente sobre ti...",
+    "gender": "Género",
+    "lookingFor": "Buscando",
+    "city": "Ciudad",
+    "cityPlaceholder": "ej. Madrid",
+    "country": "País",
+    "countryPlaceholder": "ej. España",
+    "saveError": "Error al guardar. Inténtalo de nuevo."
+  },
+  "datingIntent": {
+    "title": "¿Qué estás buscando?",
+    "description": "Selecciona qué te trae a Vibe",
+    "saveError": "Error al guardar. Inténtalo de nuevo."
+  },
+  "interests": {
+    "title": "Intereses",
+    "description": "Selecciona al menos 1 interés para ayudarnos a encontrar a tu gente",
+    "selected": "{count}/15",
+    "saveError": "Error al guardar. Inténtalo de nuevo.",
+    "loadError": "Error al cargar intereses"
+  },
+  "photos": {
+    "title": "Tus Fotos",
+    "description": "Añade al menos 1 foto para continuar",
+    "addMore": "Añadir más fotos",
+    "invalidFileType": "Por favor sube una imagen JPEG, PNG o WebP",
+    "fileTooLarge": "La imagen debe ser menor a 10MB",
+    "uploadError": "Error al subir. Inténtalo de nuevo.",
+    "removeError": "Error al eliminar foto",
+    "minRequired": "Por favor añade al menos 1 foto"
+  },
+  "introVideo": {
+    "title": "Video de presentación (Opcional)",
+    "description": "Graba un video corto para presentarte"
+  },
+  "discoveryPreferences": {
+    "title": "Preferencias de Descubrimiento",
+    "ageRange": "Rango de edad: {min}–{max}",
+    "maxDistance": "Distancia máxima: {distance}",
+    "showMe": "Muéstrame",
+    "invalidAgeRange": "La edad mínima no puede ser mayor que la edad máxima",
+    "saveError": "Error al guardar. Inténtalo de nuevo."
+  }
+}

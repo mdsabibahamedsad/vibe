@@ -1,0 +1,47 @@
+{
+  "feed": "फ़ीड",
+  "discover": "खोजें",
+  "matches": "मैच",
+  "chats": "चैट",
+  "profile": "प्रोफ़ाइल",
+  "settings": "सेटिंग्स",
+  "notifications": "सूचनाएं",
+  "stories": "स्टोरीज़",
+  "search": "खोजें",
+  "premium": "प्रीमियम",
+  "home": "होम",
+  "create": "बनाएं",
+  "backToApp": "ऐप पर वापस जाएं",
+  "signIn": "साइन इन",
+  "signOut": "साइन आउट",
+  "signInToSee": "सूचनाएं देखने के लिए साइन इन करें",
+  "connectTelegram": "अपनी गतिविधि देखने के लिए टेलीग्राम से कनेक्ट करें।",
+  "bottomNav": {
+    "feed": "फ़ीड",
+    "discover": "खोजें",
+    "matches": "मैच",
+    "chats": "चैट",
+    "profile": "प्रोफ़ाइल"
+  },
+  "admin": {
+    "title": "वाइब एडमिन",
+    "overview": "अवलोकन",
+    "reports": "रिपोर्ट",
+    "users": "उपयोगकर्ता",
+    "content": "सामग्री",
+    "appeals": "अपील",
+    "billing": "बिलिंग",
+    "ads": "विज्ञापन",
+    "auditLog": "ऑडिट लॉग",
+    "admins": "एडमिन",
+    "verifyingAccess": "पहुंच सत्यापित की जा रही है..."
+  },
+  "tabs": {
+    "profile": "प्रोफ़ाइल",
+    "photos": "फ़ोटो",
+    "interests": "रुचियां",
+    "preferences": "खोज",
+    "preview": "पूर्वावलोकन",
+    "account": "खाता"
+  }
+}

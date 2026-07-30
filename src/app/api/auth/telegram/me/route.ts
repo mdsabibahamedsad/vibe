@@ -33,6 +33,7 @@ export async function GET(request: Request) {
         displayName: user.displayName,
         firstName: user.firstName,
         lastName: user.lastName,
+        role: user.role,
         needsOnboarding,
       },
     });

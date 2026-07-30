@@ -1,0 +1,47 @@
+{
+  "feed": "Feed",
+  "discover": "Discover",
+  "matches": "Matches",
+  "chats": "Chats",
+  "profile": "Profile",
+  "settings": "Settings",
+  "notifications": "Notifications",
+  "stories": "Stories",
+  "search": "Search",
+  "premium": "Premium",
+  "home": "Home",
+  "create": "Create",
+  "backToApp": "Back to App",
+  "signIn": "Sign in",
+  "signOut": "Sign Out",
+  "signInToSee": "Sign in to see notifications",
+  "connectTelegram": "Connect with Telegram to see your activity.",
+  "bottomNav": {
+    "feed": "Feed",
+    "discover": "Discover",
+    "matches": "Matches",
+    "chats": "Chats",
+    "profile": "Profile"
+  },
+  "admin": {
+    "title": "Vibe Admin",
+    "overview": "Overview",
+    "reports": "Reports",
+    "users": "Users",
+    "content": "Content",
+    "appeals": "Appeals",
+    "billing": "Billing",
+    "ads": "Ads",
+    "auditLog": "Audit Log",
+    "admins": "Admins",
+    "verifyingAccess": "Verifying access..."
+  },
+  "tabs": {
+    "profile": "Profile",
+    "photos": "Photos",
+    "interests": "Interests",
+    "preferences": "Discovery",
+    "preview": "Preview",
+    "account": "Account"
+  }
+}

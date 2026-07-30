@@ -1,0 +1,47 @@
+{
+  "feed": "Akış",
+  "discover": "Keşfet",
+  "matches": "Eşleşmeler",
+  "chats": "Sohbetler",
+  "profile": "Profil",
+  "settings": "Ayarlar",
+  "notifications": "Bildirimler",
+  "stories": "Hikayeler",
+  "search": "Ara",
+  "premium": "Premium",
+  "home": "Ana Sayfa",
+  "create": "Oluştur",
+  "backToApp": "Uygulamaya Dön",
+  "signIn": "Giriş yap",
+  "signOut": "Çıkış yap",
+  "signInToSee": "Bildirimleri görmek için giriş yapın",
+  "connectTelegram": "Aktivitenizi görmek için Telegram ile bağlanın.",
+  "bottomNav": {
+    "feed": "Akış",
+    "discover": "Keşfet",
+    "matches": "Eşleşmeler",
+    "chats": "Sohbetler",
+    "profile": "Profil"
+  },
+  "admin": {
+    "title": "Vibe Admin",
+    "overview": "Genel Bakış",
+    "reports": "Raporlar",
+    "users": "Kullanıcılar",
+    "content": "İçerik",
+    "appeals": "İtirazlar",
+    "billing": "Faturalandırma",
+    "ads": "Reklamlar",
+    "auditLog": "Denetim Günlüğü",
+    "admins": "Yöneticiler",
+    "verifyingAccess": "Erişim doğrulanıyor..."
+  },
+  "tabs": {
+    "profile": "Profil",
+    "photos": "Fotoğraflar",
+    "interests": "İlgi Alanları",
+    "preferences": "Keşif",
+    "preview": "Önizleme",
+    "account": "Hesap"
+  }
+}
