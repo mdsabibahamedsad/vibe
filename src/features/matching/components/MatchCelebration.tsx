@@ -52,9 +52,9 @@ export function MatchCelebration({
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur">
       <div
-        className={`mx-6 w-full max-w-sm rounded-3xl bg-[var(--tg-theme-bg-color,#ffffff)] dark:bg-gray-800 p-8 shadow-2xl ${
+        className={`mx-6 w-full max-w-sm glass-dark rounded-3xl p-8 shadow-lift ${
           prefersReducedMotion.current ? "" : "animate-bounce-in"
         }`}
       >
@@ -62,10 +62,10 @@ export function MatchCelebration({
         <div className="flex flex-col items-center gap-6">
           {/* Heading */}
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-[var(--tg-theme-text-color,#000000)]">
+            <h2 className="font-display text-gradient text-4xl">
               It&apos;s a Match! 🎉
             </h2>
-            <p className="mt-1 text-sm text-[var(--tg-theme-hint-color,#999999)]">
+            <p className="mt-1 text-sm text-muted">
               You and {data.otherUserName} liked each other.
             </p>
           </div>
@@ -73,15 +73,15 @@ export function MatchCelebration({
           {/* Profile images side by side */}
           <div className="flex items-center -space-x-4">
             {/* Current user avatar (placeholder — will be enhanced) */}
-            <div className="w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
-              <div className="w-full h-full flex items-center justify-center">
+            <div className="ring-gradient rounded-full p-1 shadow-glow">
+              <div className="w-20 h-20 rounded-full bg-surface-2 overflow-hidden flex items-center justify-center">
                 <span className="text-2xl">👤</span>
               </div>
             </div>
 
             {/* Sparkle icon */}
             <div
-              className={`z-10 flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 text-white text-lg shadow-lg ${
+              className={`z-10 flex items-center justify-center w-10 h-10 rounded-full bg-brand-gradient text-white text-lg shadow-glow ${
                 prefersReducedMotion.current ? "" : "animate-pulse"
               }`}
             >
@@ -89,26 +89,25 @@ export function MatchCelebration({
             </div>
 
             {/* Other user avatar */}
-            <div className="w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden">
-              <Avatar
-                src={data.otherUserAvatarUrl}
-                alt={data.otherUserName}
-                size="xl"
-                fallback={data.otherUserName.charAt(0)}
-                className="w-full h-full"
-              />
-            </div>
+            <Avatar
+              src={data.otherUserAvatarUrl}
+              alt={data.otherUserName}
+              size="xl"
+              ring
+              fallback={data.otherUserName.charAt(0)}
+              className="w-20 h-20"
+            />
           </div>
 
           {/* Names */}
-          <p className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
+          <p className="text-sm font-medium text-fg">
             You & {data.otherUserName}
           </p>
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-3 w-full">
             <Button
-              variant="primary"
+              variant="gradient"
               onClick={onViewMatch}
               fullWidth
             >

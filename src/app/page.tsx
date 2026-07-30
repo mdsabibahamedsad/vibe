@@ -1,14 +1,27 @@
 "use client";
 
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { StoriesSection } from "@/features/stories/components/StoriesSection";
 import { Feed } from "@/features/feed/components/Feed";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { useI18n } from "@/components/i18n-provider";
 
 export default function HomePage() {
+  const { loading: authLoading, authenticated } = useCurrentUser();
   const { t } = useTranslation("navigation");
-  const { isRtl } = useI18n();
+
+  // Show a brief loading screen while auth state is being determined
+  // This prevents the "Loading stories..." flash when auth is still initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--tg-theme-button-color,#7c3aed)] border-t-transparent" />
+          <p className="text-sm text-[var(--tg-theme-hint-color,#999999)]">Loading Vibe...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)]">
@@ -39,8 +52,25 @@ export default function HomePage() {
         </div>
       </header>
 
-      <StoriesSection />
-      <Feed />
+      {/* Only render stories/feed once auth state is known */}
+      {authenticated ? (
+        <>
+          <StoriesSection />
+          <Feed />
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--tg-theme-button-color,#7c3aed)]">
+            <span className="text-2xl font-bold text-white">V</span>
+          </div>
+          <h2 className="text-xl font-bold text-[var(--tg-theme-text-color,#000000)] mb-2">
+            Welcome to Vibe
+          </h2>
+          <p className="text-sm text-[var(--tg-theme-hint-color,#999999)] max-w-xs">
+            Social discovery inside Telegram. Sign in to see stories and your feed.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

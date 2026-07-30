@@ -38,10 +38,10 @@ export function PostActions({
       <button
         onClick={handleLike}
         disabled={liking}
-        className={`flex items-center gap-1.5 transition-all duration-200 ${
+        className={`flex items-center gap-1.5 transition-all duration-200 active:scale-90 ${
           isLiked
-            ? "text-red-500 scale-110"
-            : "text-[var(--tg-theme-hint-color,#999999)] hover:text-red-400"
+            ? "text-accent-500 drop-shadow-[0_0_12px_rgba(236,72,153,0.55)]"
+            : "text-muted hover:text-fg"
         } ${animated ? "scale-125" : ""}`}
         aria-label={isLiked ? "Unlike" : "Like"}
       >
@@ -64,7 +64,7 @@ export function PostActions({
       {/* Comment */}
       <button
         onClick={onComment}
-        className="flex items-center gap-1.5 text-[var(--tg-theme-hint-color,#999999)] hover:text-[var(--tg-theme-button-color,#0088cc)] transition-colors"
+        className="flex items-center gap-1.5 text-muted hover:text-fg transition-colors"
         aria-label="Comment"
       >
         <svg
@@ -86,7 +86,7 @@ export function PostActions({
       {/* Share */}
       <button
         onClick={onShare}
-        className="flex items-center gap-1.5 text-[var(--tg-theme-hint-color,#999999)] hover:text-[var(--tg-theme-button-color,#0088cc)] transition-colors ml-auto"
+        className="flex items-center gap-1.5 text-muted hover:text-fg transition-colors ml-auto"
         aria-label="Share"
       >
         <svg

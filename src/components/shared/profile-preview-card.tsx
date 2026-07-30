@@ -39,13 +39,13 @@ export function ProfilePreviewCard({
   const intentLabel = datingIntent ? (INTENT_LABELS[datingIntent] ?? datingIntent) : null;
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-[var(--tg-theme-bg-color,#ffffff)] border border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+    <div className="surface-card overflow-hidden rounded-3xl">
       {/* Photo area */}
-      <div className="aspect-[3/4] bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] flex items-center justify-center relative">
+      <div className="aspect-[3/4] bg-surface-2 flex items-center justify-center relative">
         {photoUrl ? (
           <img src={photoUrl} alt={displayName} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex flex-col items-center gap-2 text-[var(--tg-theme-hint-color,#999999)]">
+          <div className="flex flex-col items-center gap-2 text-muted">
             <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
@@ -64,17 +64,17 @@ export function ProfilePreviewCard({
       </div>
 
       {/* Info */}
-      <div className="p-4 space-y-2">
+      <div className="p-5 space-y-2">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
+          <h3 className="font-display text-xl font-semibold text-fg tracking-tight">
             {displayName}
           </h3>
           {age && (
-            <span className="text-lg text-[var(--tg-theme-text-color,#000000)]">, {age}</span>
+            <span className="text-xl text-muted">, {age}</span>
           )}
           {!isCompact && (
             <svg
-              className="h-4 w-4 text-[var(--tg-theme-button-color,#0088cc)]"
+              className="h-4 w-4 text-accent-500"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -88,8 +88,8 @@ export function ProfilePreviewCard({
         </div>
 
         {location && (
-          <p className="flex items-center gap-1 text-sm text-[var(--tg-theme-hint-color,#999999)]">
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <p className="flex items-center gap-1 text-sm text-muted">
+            <svg className="h-3.5 w-3.5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -112,13 +112,13 @@ export function ProfilePreviewCard({
             {interests.slice(0, 5).map((interest) => (
               <span
                 key={interest.slug ?? interest.name}
-                className="rounded-full bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-2.5 py-0.5 text-xs text-[var(--tg-theme-text-color,#000000)]"
+                className="rounded-full bg-surface-2 border border-divider px-2.5 py-1 text-xs font-medium text-fg"
               >
                 {interest.name}
               </span>
             ))}
             {interests.length > 5 && (
-              <span className="rounded-full bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-2.5 py-0.5 text-xs text-[var(--tg-theme-hint-color,#999999)]">
+              <span className="rounded-full bg-surface-2 px-2.5 py-1 text-xs text-muted">
                 +{interests.length - 5}
               </span>
             )}
@@ -126,15 +126,15 @@ export function ProfilePreviewCard({
         )}
 
         {bio && !isCompact && (
-          <p className="text-sm text-[var(--tg-theme-text-color,#000000)] leading-relaxed pt-1">
+          <p className="text-sm text-fg leading-relaxed pt-1">
             {bio}
           </p>
         )}
 
         {intentLabel && !isCompact && (
-          <div className="flex items-center gap-1.5 pt-1 text-xs text-[var(--tg-theme-hint-color,#999999)]">
+          <div className="flex items-center gap-1.5 pt-1 text-xs text-muted">
             <span>Looking for:</span>
-            <span className="font-medium text-[var(--tg-theme-button-color,#0088cc)]">
+            <span className="font-semibold text-gradient">
               {intentLabel}
             </span>
           </div>

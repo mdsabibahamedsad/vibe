@@ -160,15 +160,15 @@ export function AdCard({ ad, onError }: AdCardProps) {
   return (
     <div
       ref={cardRef}
-      className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+      className="surface-card rounded-2xl overflow-hidden transition-shadow hover:shadow-lift"
     >
       {/* Sponsored label */}
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+        <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-0.5 text-[10px] font-medium text-muted uppercase tracking-wider">
           {ad.sponsoredLabel}
         </span>
         {ad.isHouseCampaign && (
-          <span className="text-[10px] text-blue-500 font-medium">Vibe</span>
+          <span className="text-[10px] text-gradient font-semibold">Vibe</span>
         )}
       </div>
 
@@ -178,14 +178,14 @@ export function AdCard({ ad, onError }: AdCardProps) {
           {ad.creativeType === "video" ? (
             <OptimizedVideo
               mediaId={ad.mediaId}
-              className="w-full aspect-video rounded-lg object-cover"
+              className="w-full aspect-video rounded-xl object-cover"
               posterMediaId={ad.thumbnailMediaId ?? undefined}
             />
           ) : (
             <OptimizedImage
               mediaId={ad.mediaId}
               alt={ad.headline}
-              className="w-full aspect-video rounded-lg object-cover"
+              className="w-full aspect-video rounded-xl object-cover"
             />
           )}
         </div>
@@ -193,11 +193,11 @@ export function AdCard({ ad, onError }: AdCardProps) {
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-sm font-semibold text-[var(--tg-theme-text-color,#000000)] leading-tight">
+        <h3 className="font-display text-sm font-semibold text-fg leading-tight">
           {ad.headline}
         </h3>
         {ad.body && (
-          <p className="mt-1 text-xs text-[var(--tg-theme-hint-color,#999999)] line-clamp-2">
+          <p className="mt-1 text-xs text-muted line-clamp-2">
             {ad.body}
           </p>
         )}
@@ -206,7 +206,7 @@ export function AdCard({ ad, onError }: AdCardProps) {
         <button
           onClick={handleClick}
           disabled={navigating}
-          className="mt-3 w-full rounded-lg bg-[var(--tg-theme-button-color,#0088cc)] px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+          className="mt-3 w-full rounded-full bg-brand-gradient px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
         >
           {navigating ? "Opening..." : ad.cta}
         </button>

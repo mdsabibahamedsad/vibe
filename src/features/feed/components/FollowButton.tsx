@@ -39,7 +39,7 @@ export function FollowButton({
   }, [loading, following, onFollow, onUnfollow]);
 
   const sizeClasses =
-    size === "sm" ? "px-3 py-1 text-xs rounded-full" : "px-4 py-2 text-sm rounded-lg";
+    size === "sm" ? "px-3 py-1 text-xs rounded-full" : "px-4 py-2 text-sm rounded-full";
 
   return (
     <button
@@ -52,9 +52,9 @@ export function FollowButton({
       } ${
         following
           ? hovering
-            ? "bg-red-50 text-red-500 border border-red-200"
-            : "bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] text-[var(--tg-theme-text-color,#000000)] border border-transparent"
-          : "bg-[var(--tg-theme-button-color,#0088cc)] text-white hover:opacity-90"
+            ? "bg-danger text-white border border-transparent"
+            : "bg-surface-2 border border-divider text-fg"
+          : "bg-brand-gradient text-white shadow-glow hover:opacity-90 active:scale-95"
       }`}
       aria-label={following ? "Unfollow" : "Follow"}
     >

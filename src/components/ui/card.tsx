@@ -2,12 +2,15 @@ import type { HTMLAttributes } from "react";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   padding?: boolean;
+  /** Use the glassmorphism variant (translucent + blur). */
+  glass?: boolean;
 }
 
-export function Card({ padding = true, className = "", children, ...props }: CardProps) {
+export function Card({ padding = true, glass = false, className = "", children, ...props }: CardProps) {
+  const surface = glass ? "glass" : "surface-card";
   return (
     <div
-      className={`rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] ${padding ? "p-4" : ""} ${className}`}
+      className={`${surface} rounded-2xl ${padding ? "p-4" : ""} ${className}`}
       {...props}
     >
       {children}
@@ -30,7 +33,7 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={`text-lg font-semibold text-[var(--tg-theme-text-color,#000000)] ${className}`}
+      className={`font-display text-lg font-semibold text-fg tracking-tight ${className}`}
       {...props}
     >
       {children}
@@ -44,7 +47,7 @@ export function CardDescription({
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={`text-sm text-[var(--tg-theme-hint-color,#999999)] ${className}`} {...props}>
+    <p className={`text-sm text-muted ${className}`} {...props}>
       {children}
     </p>
   );

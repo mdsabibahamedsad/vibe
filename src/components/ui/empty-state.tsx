@@ -9,13 +9,17 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-      {icon && <div className="text-[var(--tg-theme-hint-color,#999999)]">{icon}</div>}
-      <h3 className="text-lg font-medium text-[var(--tg-theme-text-color,#000000)]">{title}</h3>
-      {description && (
-        <p className="max-w-xs text-sm text-[var(--tg-theme-hint-color,#999999)]">{description}</p>
+    <div className="flex flex-col items-center justify-center gap-4 p-10 text-center">
+      {icon && (
+        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-gradient text-white shadow-glow animate-float">
+          {icon}
+        </div>
       )}
-      {action && <div className="mt-2">{action}</div>}
+      <h3 className="font-display text-xl font-semibold text-fg tracking-tight">{title}</h3>
+      {description && (
+        <p className="max-w-xs text-sm text-muted leading-relaxed">{description}</p>
+      )}
+      {action && <div className="mt-3">{action}</div>}
     </div>
   );
 }

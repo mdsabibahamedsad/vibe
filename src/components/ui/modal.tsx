@@ -33,22 +33,23 @@ export function Modal({ open, onClose, children, title }: ModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 transition-opacity" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
 
       {/* Sheet / Modal Panel */}
-      <div className="relative w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-[var(--tg-theme-bg-color,#ffffff)] p-6 shadow-xl animate-slide-up">
+      <div className="glass relative w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-lift animate-slide-up">
         {/* Drag handle indicator for bottom sheets */}
-        <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-gray-300 sm:hidden" />
+        <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-fg/20 sm:hidden" />
 
         {/* Header */}
         {title && (
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-              {title}
-            </h2>
+            <h2 className="font-display text-lg font-semibold text-fg tracking-tight">{title}</h2>
             <button
               onClick={onClose}
-              className="rounded-full p-1 text-[var(--tg-theme-hint-color,#999999)] hover:bg-black/5 dark:hover:bg-white/10"
+              className="rounded-full p-1.5 text-muted hover:bg-fg/10 hover:text-fg transition-colors"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path

@@ -89,9 +89,9 @@ export function FeedPost({
 
   return (
     <>
-      <div className="bg-[var(--tg-theme-bg-color,#ffffff)] border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+      <div className="surface-card rounded-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center justify-between p-4 pb-3">
           <div className="flex items-center gap-2.5">
             <Avatar
               src={post.author?.avatarUrl}
@@ -101,12 +101,12 @@ export function FeedPost({
             />
             <div className="min-w-0">
               <div className="flex items-center gap-1">
-                <span className="text-sm font-semibold text-[var(--tg-theme-text-color,#000000)] truncate">
+                <span className="text-sm font-semibold text-fg truncate">
                   {post.author?.displayName ?? "Unknown"}
                 </span>
                 {post.author?.isVerified && (
                   <svg
-                    className="h-4 w-4 flex-shrink-0 text-blue-500"
+                    className="h-4 w-4 flex-shrink-0 text-accent-500"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -114,18 +114,18 @@ export function FeedPost({
                   </svg>
                 )}
                 {post.author?.age && (
-                  <span className="text-sm text-[var(--tg-theme-hint-color,#999999)]">
+                  <span className="text-sm text-muted">
                     {post.author.age}
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 {post.author?.city && (
-                  <span className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+                  <span className="text-xs text-muted">
                     {post.author.city}
                   </span>
                 )}
-                <span className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+                <span className="text-xs text-muted">
                   {formatTime(post.createdAt)}
                 </span>
               </div>
@@ -162,7 +162,7 @@ export function FeedPost({
         {/* Caption */}
         {post.caption && (
           <div className="px-4 pb-3">
-            <p className="text-sm text-[var(--tg-theme-text-color,#000000)] leading-relaxed">
+            <p className="text-sm text-fg leading-relaxed">
               {post.caption}
             </p>
           </div>
@@ -185,10 +185,10 @@ export function FeedPost({
 
         {/* View comments link */}
         {commentCount > 0 && (
-          <div className="px-4 pb-3">
+          <div className="px-4 pb-4">
             <button
               onClick={() => setCommentOpen(true)}
-              className="text-sm text-[var(--tg-theme-hint-color,#999999)] hover:text-[var(--tg-theme-button-color,#0088cc)]"
+              className="text-sm text-muted hover:text-primary transition-colors"
             >
               View all {commentCount} comment{commentCount !== 1 ? "s" : ""}
             </button>
@@ -198,24 +198,24 @@ export function FeedPost({
 
       {/* Delete confirmation */}
       {showConfirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-sm rounded-2xl bg-[var(--tg-theme-bg-color,#ffffff)] p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="surface-card mx-4 w-full max-w-sm rounded-3xl p-6 shadow-lift">
+            <h3 className="text-lg font-semibold text-fg">
               Delete post?
             </h3>
-            <p className="mt-2 text-sm text-[var(--tg-theme-hint-color,#999999)]">
+            <p className="mt-2 text-sm text-muted">
               This action cannot be undone. The post will be removed from your feed.
             </p>
             <div className="mt-4 flex gap-3">
               <button
                 onClick={() => setShowConfirmDelete(false)}
-                className="flex-1 rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] py-2.5 text-sm font-medium text-[var(--tg-theme-text-color,#000000)]"
+                className="flex-1 rounded-full bg-surface-2 border border-divider py-2.5 text-sm font-medium text-fg hover:bg-surface transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-medium text-white"
+                className="flex-1 rounded-full bg-danger py-2.5 text-sm font-medium text-white hover:opacity-90 active:scale-95 transition"
               >
                 Delete
               </button>

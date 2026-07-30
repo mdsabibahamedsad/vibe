@@ -33,12 +33,12 @@ function SingleImage({ media }: { media: MediaItem }) {
   const imageUrl = media.thumbnailUrl || `/api/media/${media.mediaId}`;
 
   return (
-    <div className="relative w-full overflow-hidden bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+    <div className="relative w-full overflow-hidden bg-surface-2">
       {!loaded && !error && (
-        <div className="aspect-[4/3] animate-pulse bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)]" />
+        <div className="aspect-[4/3] animate-shimmer bg-surface-2" />
       )}
       {error ? (
-        <div className="aspect-[4/3] flex items-center justify-center text-[var(--tg-theme-hint-color,#999999)] text-sm">
+        <div className="aspect-[4/3] flex items-center justify-center text-muted text-sm">
           Failed to load image
         </div>
       ) : (
@@ -77,7 +77,7 @@ function ImageGallery({ images }: { images: MediaItem[] }) {
   }, [activeIndex, images.length]);
 
   return (
-    <div className="relative overflow-hidden bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+    <div className="relative overflow-hidden bg-surface-2">
       <div
         className="flex transition-transform duration-200"
         style={{ transform: `translateX(-${activeIndex * 100}%)` }}
@@ -159,7 +159,7 @@ function VideoPlayer({ media }: { media: MediaItem }) {
   };
 
   return (
-    <div className="relative overflow-hidden bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+    <div className="relative overflow-hidden bg-surface-2">
       <video
         ref={videoRef}
         src={media.thumbnailUrl || `/api/media/${media.mediaId}`}
@@ -179,7 +179,7 @@ function VideoPlayer({ media }: { media: MediaItem }) {
         aria-label={playing ? "Pause" : "Play"}
       >
         {!playing && (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm shadow-glow">
             <svg className="h-6 w-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>

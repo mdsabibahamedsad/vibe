@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui";
 import { logger } from "@/lib/logger";
 
 interface PostComposerProps {
@@ -133,31 +132,34 @@ export function PostComposer({ userId, onPostCreated, onClose }: PostComposerPro
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
+    <div className="glass flex min-h-dvh flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-divider">
         <button
           onClick={onClose}
-          className="text-sm text-[var(--tg-theme-hint-color,#999999)] hover:text-[var(--tg-theme-text-color,#000000)]"
+          className="text-sm text-muted hover:text-fg transition-colors"
         >
           Cancel
         </button>
-        <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
+        <h1 className="text-lg font-semibold text-fg font-display">
           New Post
         </h1>
-        <Button
+        <button
           onClick={handlePublish}
-          loading={publishing}
           disabled={(!caption.trim() && mediaPreviews.length === 0) || publishing}
-          size="sm"
+          className={`rounded-full px-5 py-2 text-sm font-medium transition active:scale-95 ${
+            (!caption.trim() && mediaPreviews.length === 0) || publishing
+              ? "bg-surface-2 text-muted"
+              : "bg-brand-gradient text-white shadow-glow"
+          }`}
         >
-          Publish
-        </Button>
+          {publishing ? "Publishing…" : "Publish"}
+        </button>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mx-4 mt-3 rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400">
+        <div className="mx-4 mt-3 rounded-xl bg-danger/10 p-3 text-sm text-danger">
           {error}
           <button onClick={() => setError(null)} className="ml-2 font-medium">
             ×
@@ -174,9 +176,9 @@ export function PostComposer({ userId, onPostCreated, onClose }: PostComposerPro
           placeholder="What's on your mind?"
           maxLength={2000}
           rows={4}
-          className="w-full resize-none rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm text-[var(--tg-theme-text-color,#000000)] placeholder:text-[var(--tg-theme-hint-color,#999999)] focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50"
+          className="w-full resize-none rounded-2xl bg-surface-2 px-4 py-3 text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
-        <p className="text-xs text-[var(--tg-theme-hint-color,#999999)] text-right">
+        <p className="text-xs text-muted text-right">
           {caption.length}/2000
         </p>
 
@@ -196,7 +198,7 @@ export function PostComposer({ userId, onPostCreated, onClose }: PostComposerPro
                 )}
                 <button
                   onClick={() => removeMedia(media.id)}
-                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs"
+                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-white text-xs shadow-soft"
                   aria-label="Remove media"
                 >
                   ×
@@ -217,7 +219,7 @@ export function PostComposer({ userId, onPostCreated, onClose }: PostComposerPro
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-2 rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm text-[var(--tg-theme-text-color,#000000)] hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 rounded-2xl bg-surface-2 px-4 py-3 text-sm text-fg hover:bg-surface hover:shadow-soft transition-all"
         >
           <svg
             className="h-5 w-5"
@@ -237,7 +239,7 @@ export function PostComposer({ userId, onPostCreated, onClose }: PostComposerPro
 
         {/* Visibility selector */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
+          <label className="text-sm font-medium text-fg">
             Visibility
           </label>
           <div className="flex gap-2">
@@ -251,10 +253,10 @@ export function PostComposer({ userId, onPostCreated, onClose }: PostComposerPro
               <button
                 key={option.value}
                 onClick={() => setVisibility(option.value)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all active:scale-95 ${
                   visibility === option.value
-                    ? "bg-[var(--tg-theme-button-color,#0088cc)] text-white"
-                    : "bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] text-[var(--tg-theme-text-color,#000000)]"
+                    ? "bg-brand-gradient text-white shadow-glow"
+                    : "bg-surface-2 text-fg hover:bg-surface"
                 }`}
               >
                 {option.label}

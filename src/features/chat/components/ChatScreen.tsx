@@ -116,7 +116,7 @@ export function ChatScreen({
 
     if (isAccessDenied) {
       return (
-        <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
+        <div className="flex min-h-dvh flex-col bg-bg">
           <ChatHeader
             otherUser={null}
             realtimeStatus="disconnected"
@@ -136,7 +136,7 @@ export function ChatScreen({
     }
 
     return (
-      <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
+      <div className="flex min-h-dvh flex-col bg-bg">
         <ChatHeader
           otherUser={null}
           realtimeStatus="disconnected"
@@ -154,7 +154,7 @@ export function ChatScreen({
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
+    <div className="flex h-dvh flex-col bg-bg">
       {/* Header */}
       <ChatHeader
         otherUser={otherUser}

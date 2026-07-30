@@ -123,7 +123,7 @@ export function Feed() {
         action={
           <a
             href="/create"
-            className="mt-3 inline-block rounded-lg bg-[var(--tg-theme-button-color,#0088cc)] px-6 py-2.5 text-sm font-medium text-white"
+            className="mt-3 inline-block rounded-full bg-brand-gradient px-6 py-2.5 text-sm font-medium text-white shadow-glow active:scale-95 transition"
           >
             Create Post
           </a>
@@ -136,31 +136,33 @@ export function Feed() {
     <div className="pb-safe">
       {/* Post error toast */}
       {postError && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 rounded-xl bg-red-500 p-3 text-sm text-white shadow-lg">
+        <div className="fixed bottom-4 left-4 right-4 z-40 rounded-2xl bg-danger p-3 text-sm text-white shadow-lift">
           {postError}
         </div>
       )}
 
       {/* Feed items */}
-      {items.map((post) => (
-        <FeedPost
-          key={post.id}
-          post={post}
-          currentUserId={user.id}
-          onLike={handleLike}
-          onUnlike={handleUnlike}
-          onDelete={handleDelete}
-          onFollow={async (userId) => {
-            await followUser(userId);
-          }}
-          onUnfollow={async (userId) => {
-            await unfollowUser(userId);
-          }}
-          onReport={handleReport}
-          onBlock={handleBlock}
-          liking={liking}
-        />
-      ))}
+      <div className="space-y-3">
+        {items.map((post) => (
+          <FeedPost
+            key={post.id}
+            post={post}
+            currentUserId={user.id}
+            onLike={handleLike}
+            onUnlike={handleUnlike}
+            onDelete={handleDelete}
+            onFollow={async (userId) => {
+              await followUser(userId);
+            }}
+            onUnfollow={async (userId) => {
+              await unfollowUser(userId);
+            }}
+            onReport={handleReport}
+            onBlock={handleBlock}
+            liking={liking}
+          />
+        ))}
+      </div>
 
       {/* Load more trigger */}
       {hasMore && (
@@ -170,7 +172,7 @@ export function Feed() {
           ) : (
             <button
               onClick={loadMore}
-              className="text-sm text-[var(--tg-theme-button-color,#0088cc)] font-medium"
+              className="text-sm text-primary font-medium hover:text-accent-400 transition-colors"
             >
               Load more
             </button>

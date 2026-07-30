@@ -36,7 +36,7 @@ export function MatchCard({ match, onPress }: MatchCardProps) {
   return (
     <button
       onClick={onPress}
-      className="flex items-center gap-3 w-full px-4 py-3 active:bg-black/5 dark:active:bg-white/5 transition-colors"
+      className="flex items-center gap-3 w-full px-4 py-3 surface-card rounded-2xl text-left transition-all duration-200 hover:shadow-lift"
       aria-label={`Open chat with ${match.user.displayName}`}
     >
       {/* Avatar with unread ring */}
@@ -46,33 +46,33 @@ export function MatchCard({ match, onPress }: MatchCardProps) {
           alt={match.user.displayName}
           size="lg"
           fallback={match.user.displayName.charAt(0)}
-          className={match.unread ? "ring-2 ring-[var(--tg-theme-button-color,#0088cc)]" : ""}
+          ring={match.unread}
         />
       </div>
 
       {/* Info */}
-      <div className="flex-1 min-w-0 text-left">
+      <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-sm font-semibold text-[var(--tg-theme-text-color,#000000)] truncate">
+          <span className="font-display font-semibold text-fg truncate">
             {match.user.displayName}
           </span>
           {match.user.age && (
-            <span className="text-sm text-[var(--tg-theme-hint-color,#999999)]">
+            <span className="text-sm text-muted">
               {match.user.age}
             </span>
           )}
           {/* Unread dot */}
           {match.unread && (
-            <span className="w-2 h-2 rounded-full bg-[var(--tg-theme-button-color,#0088cc)] flex-shrink-0" aria-label="Unread" />
+            <span className="w-2 h-2 rounded-full bg-accent-500 shadow-[0_0_8px_var(--color-accent-500)] flex-shrink-0" aria-label="Unread" />
           )}
         </div>
         <div className="flex items-center gap-2 mt-0.5">
           {match.user.city && (
-            <span className="text-xs text-[var(--tg-theme-hint-color,#999999)] truncate">
+            <span className="text-xs text-muted truncate">
               {match.user.city}
             </span>
           )}
-          <span className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+          <span className="text-xs text-subtle">
             Matched {formatMatchDate(match.matchedAt)}
           </span>
         </div>
@@ -80,7 +80,7 @@ export function MatchCard({ match, onPress }: MatchCardProps) {
 
       {/* Chevron */}
       <svg
-        className="w-4 h-4 text-[var(--tg-theme-hint-color,#999999)] flex-shrink-0"
+        className="w-4 h-4 text-muted flex-shrink-0"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

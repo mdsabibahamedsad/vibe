@@ -117,25 +117,25 @@ export function MessageComposer({
   const canSend = text.trim().length > 0 && !sending && !disabled;
 
   return (
-    <div className="border-t border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] bg-[var(--tg-theme-bg-color,#ffffff)]">
+    <div className="glass border-t border-divider">
       {/* Reply preview bar */}
       {replyToMessage && (
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
-          <div className="w-0.5 h-8 rounded-full bg-[var(--tg-theme-button-color,#0088cc)]" />
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-2">
+          <div className="w-0.5 h-8 rounded-full bg-primary" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-[var(--tg-theme-button-color,#0088cc)] truncate">
+            <p className="text-xs font-medium text-primary truncate">
               {replyToMessage.senderName}
             </p>
-            <p className="text-xs text-[var(--tg-theme-hint-color,#999999)] truncate">
+            <p className="text-xs text-muted truncate">
               {replyToMessage.text}
             </p>
           </div>
           <button
             onClick={onCancelReply}
-            className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/10"
+            className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-surface-2/70"
             aria-label="Cancel reply"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3.5 h-3.5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -148,10 +148,10 @@ export function MessageComposer({
         {onAttach && !disabled && (
           <button
             onClick={onAttach}
-            className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-black/5 active:bg-black/10 transition-colors"
+            className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-surface-2 active:bg-surface-2/70 transition-colors"
             aria-label="Attach media"
           >
-            <svg className="w-5 h-5 text-[var(--tg-theme-hint-color,#999999)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
@@ -160,8 +160,8 @@ export function MessageComposer({
         {/* Text input */}
         <div className="flex-1 min-w-0">
           {disabled && disabledReason ? (
-            <div className="px-3 py-2.5 rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
-              <p className="text-xs text-[var(--tg-theme-hint-color,#999999)] text-center">
+            <div className="px-3 py-2.5 rounded-full bg-surface-2">
+              <p className="text-xs text-muted text-center">
                 {disabledReason}
               </p>
             </div>
@@ -174,7 +174,7 @@ export function MessageComposer({
               placeholder="Message..."
               maxLength={MAX_MESSAGE_LENGTH}
               rows={1}
-              className="w-full resize-none rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-3 py-2.5 text-sm text-[var(--tg-theme-text-color,#000000)] placeholder:text-[var(--tg-theme-hint-color,#999999)] outline-none focus:ring-1 focus:ring-[var(--tg-theme-button-color,#0088cc)]"
+              className="w-full resize-none rounded-full bg-surface-2 px-4 py-2.5 text-sm text-fg placeholder:text-muted outline-none focus:ring-1 focus:ring-primary"
               aria-label="Message input"
             />
           )}
@@ -186,8 +186,8 @@ export function MessageComposer({
           disabled={!canSend}
           className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
             canSend
-              ? "bg-[var(--tg-theme-button-color,#0088cc)] text-white shadow-sm"
-              : "bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] text-[var(--tg-theme-hint-color,#999999)]"
+              ? "bg-brand-gradient text-white shadow-glow"
+              : "bg-surface-2 text-muted"
           }`}
           aria-label="Send message"
         >

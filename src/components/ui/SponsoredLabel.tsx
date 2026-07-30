@@ -24,8 +24,8 @@ export function SponsoredLabel({
       aria-label={`Advertisement: ${text}`}
       className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
         isHouseCampaign
-          ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-          : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+          ? "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300"
+          : "bg-surface-2 text-muted"
       } ${className}`}
     >
       {text}

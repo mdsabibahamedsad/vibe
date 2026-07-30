@@ -17,14 +17,16 @@ import { logger } from "@/lib/logger";
  * Telegram sends X-Telegram-Bot-Api-Secret-Token header if configured.
  *
  * Handles:
- *   - /start command → welcome message + Mini App deep link
- *   - Deep link start params → redirect to Mini App with params
+ *   - /start command → welcome message + Mini App launch button
+ *   - Deep link start params → pass through to Mini App
  *   - Other commands → appropriate responses
  *
  * IMPORTANT:
  *   Never expose the bot token. Read only from environment variable.
  *   Never log sensitive user/payment data.
  */
+
+const PRODUCTION_MINI_APP_URL = "https://vibe-sand-phi-five.vercel.app";
 
 export async function POST(request: Request) {
   try {
@@ -40,56 +42,65 @@ export async function POST(request: Request) {
 
     const update = await request.json().catch(() => null);
     if (!update) {
+      logger.warn("Bot webhook: Invalid payload received");
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
+
+    // Log that we received an update (no sensitive data)
+    logger.info("Bot webhook: Update received", {
+      updateId: update.update_id,
+      hasMessage: !!update.message,
+      hasCallbackQuery: !!update.callback_query,
+      hasPreCheckoutQuery: !!update.pre_checkout_query,
+    });
 
     // Handle /start command with optional deep-link parameter
     if (update.message?.text) {
       const text = update.message.text;
       const chatId = update.message.chat?.id;
+      const from = update.message.from;
 
       if (!chatId) {
+        logger.warn("Bot webhook: Missing chat_id in message");
         return NextResponse.json({ error: "Missing chat_id" }, { status: 400 });
       }
 
-      const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "vibe_app_bot";
-      const miniAppUrl = process.env.TELEGRAM_MINI_APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
+      // Log safely (no token or personally identifying info beyond what Telegram already knows)
+      logger.info("Bot webhook: Message received", {
+        chatId,
+        text: text.split(" ")[0], // Only log the command, not full params
+        fromId: from?.id,
+      });
+
+      const miniAppUrl = getMiniAppUrl();
+
+      // Build a proper Mini App launch button
+      const webAppButton = {
+        text: "🚀 Open Vibe",
+        web_app: { url: miniAppUrl },
+      };
 
       // Parse /start [parameter]
       if (text.startsWith("/start")) {
         const parts = text.split(" ");
         const startParam = parts.length > 1 ? parts[1] : null;
 
-        // Build Mini App deep link URL
-        let deepLinkUrl = miniAppUrl;
-
+        // If a start param is provided, pass it as startapp parameter to the Mini App
+        let buttonUrl = miniAppUrl;
         if (startParam) {
-          // Validate start parameter (alphanumeric + underscore only, max 64 chars)
           const sanitized = startParam.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 64);
           if (sanitized) {
-            deepLinkUrl = `https://t.me/${botUsername}/vibe?startapp=${sanitized}`;
+            buttonUrl = `${miniAppUrl}?startapp=${sanitized}`;
           }
         }
 
-        // Return a response containing the welcome message and Mini App button
         const welcomeMessage =
           startParam
-            ? `👋 Welcome to Vibe! Use the button below to open the app.`
-            : `👋 Welcome to Vibe — Social, Dating & Creator Community!\n\nDiscover people, match, chat, and share.`;
+            ? `👋 Welcome to Vibe Social App!\n\nUse the button below to open the app.`
+            : `👋 Welcome to Vibe — Social, Dating & Creator Community!\n\nDiscover people, match, chat, and share stories.`;
 
-        // We use Telegram Bot API's sendMessage + InlineKeyboardMarkup
-        // to send the welcome message with a Mini App launch button.
-        // This is done via Telegram Bot API since Next.js webhook
-        // responses don't directly support Telegram bot response format.
         await sendTelegramMessage(chatId, welcomeMessage, {
-          inline_keyboard: [
-            [
-              {
-                text: "🚀 Open Vibe",
-                web_app: { url: deepLinkUrl || miniAppUrl },
-              },
-            ],
-          ],
+          inline_keyboard: [[{ ...webAppButton, web_app: { url: buttonUrl } }]],
         });
 
         logger.info("Bot webhook: /start handled", {
@@ -109,29 +120,45 @@ export async function POST(request: Request) {
         );
       } else if (text === "/app") {
         await sendTelegramMessage(chatId, "🚀 Opening Vibe...", {
-          inline_keyboard: [
-            [
-              {
-                text: "🚀 Open Vibe",
-                web_app: { url: miniAppUrl },
-              },
-            ],
-          ],
+          inline_keyboard: [[webAppButton]],
         });
       } else if (text === "/privacy") {
         await sendTelegramMessage(
           chatId,
           "🔒 *Privacy*\n\n" +
-            "Vibe respects your privacy. We only collect data necessary to provide the service.\n" +
-            "Full privacy policy: [link to your privacy page]\n\n" +
+            "Vibe respects your privacy. We only collect data necessary to provide the service.\n\n" +
             "You can request data export or account deletion at any time through the app settings.",
         );
       } else if (text === "/terms") {
         await sendTelegramMessage(
           chatId,
           "📋 *Terms of Service*\n\n" +
-            "By using Vibe, you agree to our Terms of Service.\n" +
-            "Full terms: [link to your terms page]",
+            "By using Vibe, you agree to our Terms of Service.",
+        );
+      }
+    }
+
+    // Handle callback queries (e.g. inline button presses)
+    if (update.callback_query) {
+      const callbackQuery = update.callback_query;
+      logger.info("Bot webhook: Callback query received", {
+        callbackQueryId: callbackQuery.id,
+        data: callbackQuery.data,
+      });
+
+      // Answer the callback query to remove the loading state
+      await answerCallbackQuery(callbackQuery.id);
+
+      // Handle specific callback data
+      if (callbackQuery.data === "open_app") {
+        await sendTelegramMessage(
+          callbackQuery.message?.chat?.id,
+          "🚀 Opening Vibe...",
+          {
+            inline_keyboard: [
+              [{ text: "🚀 Open Vibe", web_app: { url: getMiniAppUrl() } }],
+            ],
+          },
         );
       }
     }
@@ -147,13 +174,29 @@ export async function POST(request: Request) {
 }
 
 /**
+ * Get the Mini App URL from environment or fall back to production URL.
+ */
+function getMiniAppUrl(): string {
+  return (
+    process.env.TELEGRAM_MINI_APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    PRODUCTION_MINI_APP_URL
+  );
+}
+
+/**
  * Send a message to a Telegram chat via Bot API.
- * Falls back to no-op if bot token is missing (graceful degradation).
+ *
+ * Uses raw JSON body with reply_markup as a direct object (NOT stringified),
+ * since Telegram's Bot API accepts JSON natively when Content-Type is
+ * application/json.
+ *
+ * Falls back to graceful no-op if bot token is missing (for local dev).
  */
 async function sendTelegramMessage(
   chatId: number,
   text: string,
-  replyMarkup?: { inline_keyboard: Array<Array<{ text: string; web_app?: { url: string }; callback_data?: string }>> },
+  replyMarkup?: { inline_keyboard: Array<Array<Record<string, unknown>>> },
 ) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) {
@@ -169,8 +212,10 @@ async function sendTelegramMessage(
       disable_web_page_preview: true,
     };
 
+    // reply_markup is passed as a direct object (not stringified).
+    // When Content-Type is application/json, Telegram accepts nested objects.
     if (replyMarkup) {
-      body.reply_markup = JSON.stringify(replyMarkup);
+      body.reply_markup = replyMarkup;
     }
 
     const controller = new AbortController();
@@ -186,11 +231,14 @@ async function sendTelegramMessage(
     clearTimeout(timeout);
 
     if (!response.ok) {
-      const errorBody = await response.text().catch(() => "Unknown error");
+      const errorBody = await response.json().catch(() => ({ description: "Unknown error" }));
       logger.warn("Bot webhook: Failed to send Telegram message", {
         status: response.status,
-        error: errorBody.slice(0, 200),
+        errorCode: errorBody.error_code,
+        description: errorBody.description,
       });
+    } else {
+      logger.info("Bot webhook: Message sent successfully", { chatId });
     }
   } catch (error) {
     logger.warn("Bot webhook: Failed to send Telegram message (network error)", {
@@ -200,22 +248,37 @@ async function sendTelegramMessage(
 }
 
 /**
+ * Answer a callback query to clear the loading state on the Telegram client.
+ */
+async function answerCallbackQuery(callbackQueryId: string, text?: string) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  if (!botToken) return;
+
+  try {
+    const body: Record<string, unknown> = {
+      callback_query_id: callbackQueryId,
+    };
+    if (text) {
+      body.text = text;
+    }
+
+    await fetch(`https://api.telegram.org/bot${botToken}/answerCallbackQuery`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    // Best-effort
+  }
+}
+
+/**
  * GET /api/bot/webhook — returns a simple OK status.
  *
  * Does NOT expose webhook configuration details to unauthenticated callers.
- * For debugging webhook info, use the curl command:
- *   curl https://api.telegram.org/bot<TOKEN>/getWebhookInfo
+ * For debugging webhook info, use:
+ *   GET /api/bot/webhook/info
  */
 export async function GET() {
   return NextResponse.json({ ok: true, service: "vibe-bot-webhook" });
 }
-
-/**
- * POST /api/bot/set-webhook — configure the webhook URL (admin only).
- * This would require admin authorization in production.
- * For now, document the curl command in setup instructions.
- *
- * curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
- *   -H "Content-Type: application/json" \
- *   -d '{"url":"<YOUR_DOMAIN>/api/bot/webhook","secret_token":"<YOUR_SECRET>"}'
- */

@@ -41,8 +41,13 @@ export function useStories(): UseStoriesReturn {
     setLoading(true);
     setError(null);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15_000); // 15s timeout
+
     try {
-      const res = await fetch("/api/stories");
+      const res = await fetch("/api/stories", {
+        signal: controller.signal,
+      });
 
       if (!res.ok) {
         const result = await res.json().catch(() => ({ error: "Failed to load stories" }));
@@ -55,11 +60,17 @@ export function useStories(): UseStoriesReturn {
       setHasOwnStory(data.hasOwnStory);
       setOwnStoryGroup(data.ownStoryGroup);
     } catch (err) {
-      logger.error("Stories load error", {
-        error: err instanceof Error ? err.message : "Unknown",
-      });
-      setError(err instanceof Error ? err.message : "Failed to load stories");
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setError("Request timed out. Please try again.");
+        logger.warn("Stories fetch timed out");
+      } else {
+        logger.error("Stories load error", {
+          error: err instanceof Error ? err.message : "Unknown",
+        });
+        setError(err instanceof Error ? err.message : "Failed to load stories");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
       loadingRef.current = false;
     }

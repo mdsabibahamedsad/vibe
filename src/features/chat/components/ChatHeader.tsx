@@ -43,15 +43,15 @@ export function ChatHeader({
   };
 
   return (
-    <header className="sticky top-0 z-10 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] bg-[var(--tg-theme-bg-color,#ffffff)]/80 backdrop-blur-md">
+    <header className="glass sticky top-0 z-10 border-b border-divider">
       <div className="flex items-center gap-2 px-2 py-2">
         {/* Back button */}
         <button
           onClick={onBack}
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 active:bg-black/10 dark:hover:bg-white/10 dark:active:bg-white/15 transition-colors"
+          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-2 active:bg-surface-2/70 transition-colors"
           aria-label="Go back"
         >
-          <svg className="w-5 h-5 text-[var(--tg-theme-text-color,#000000)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5 text-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
@@ -69,18 +69,18 @@ export function ChatHeader({
         {/* Name and status */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-[var(--tg-theme-text-color,#000000)] truncate">
+            <span className="text-sm font-semibold text-fg truncate">
               {otherUser?.displayName ?? "Chat"}
             </span>
             {otherUser?.age && (
-              <span className="text-sm text-[var(--tg-theme-hint-color,#999999)]">
+              <span className="text-sm text-muted">
                 {otherUser.age}
               </span>
             )}
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
             <span className={`w-1.5 h-1.5 rounded-full ${statusIndicator[realtimeStatus]}`} />
-            <span className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+            <span className="text-xs text-muted">
               {realtimeStatus === "connected"
                 ? "Online"
                 : realtimeStatus === "connecting"
@@ -94,11 +94,11 @@ export function ChatHeader({
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 active:bg-black/10 dark:hover:bg-white/10 dark:active:bg-white/15 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-2 active:bg-surface-2/70 transition-colors"
             aria-label="Chat menu"
             aria-expanded={menuOpen}
           >
-            <svg className="w-5 h-5 text-[var(--tg-theme-text-color,#000000)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01" />
             </svg>
           </button>
@@ -107,7 +107,7 @@ export function ChatHeader({
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-12 z-30 min-w-40 rounded-xl bg-[var(--tg-theme-bg-color,#ffffff)] shadow-lg border border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] py-1">
+              <div className="absolute right-0 top-12 z-30 min-w-40 surface-card py-1">
                 {onViewProfile && (
                   <MenuItem
                     label="View Profile"
@@ -179,8 +179,8 @@ function MenuItem({
       onClick={onPress}
       className={`flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors ${
         danger
-          ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-          : "text-[var(--tg-theme-text-color,#000000)] hover:bg-black/5 dark:hover:bg-white/10"
+          ? "text-danger hover:bg-danger/10"
+          : "text-fg hover:bg-surface-2"
       }`}
     >
       {icon}

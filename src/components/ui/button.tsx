@@ -2,7 +2,7 @@
 
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "gradient";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,18 +14,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--tg-theme-button-color,#0088cc)] text-[var(--tg-theme-button-text-color,#ffffff)] hover:opacity-90 active:opacity-80",
+    "bg-primary text-primary-fg hover:brightness-110 active:brightness-95 shadow-glow",
+  gradient:
+    "bg-brand-gradient text-white hover:brightness-110 active:brightness-95 shadow-glow",
   secondary:
-    "bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] text-[var(--tg-theme-text-color,#000000)] hover:opacity-80 active:opacity-70",
+    "bg-surface-2 text-fg border border-divider hover:brightness-97 active:brightness-94",
   ghost:
-    "bg-transparent text-[var(--tg-theme-text-color,#000000)] hover:bg-black/5 active:bg-black/10 dark:hover:bg-white/10 dark:active:bg-white/15",
-  danger: "bg-red-500 text-white hover:bg-red-600 active:bg-red-700",
+    "bg-transparent text-fg hover:bg-black/5 active:bg-black/10 dark:hover:bg-white/10 dark:active:bg-white/15",
+  danger:
+    "bg-danger text-white hover:brightness-110 active:brightness-95 shadow-[0_8px_30px_-6px_rgb(225_29_72/0.5)]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-sm",
-  lg: "px-6 py-3 text-base",
+  sm: "px-4 py-2 text-sm",
+  md: "px-5 py-2.5 text-sm",
+  lg: "px-7 py-3.5 text-base",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -43,7 +46,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const baseClasses =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 disabled:opacity-50 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center font-semibold rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 select-none";
 
     return (
       <button

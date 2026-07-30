@@ -142,21 +142,21 @@ export function CommentSheet({ open, onClose, postId, onCommentCreated }: Commen
   return (
     <div className="fixed inset-0 z-50 flex flex-col">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="relative mt-auto flex h-[80vh] flex-col rounded-t-2xl bg-[var(--tg-theme-bg-color,#ffffff)] shadow-xl animate-slide-up">
+      <div className="glass relative mt-auto flex h-[80vh] flex-col rounded-t-3xl shadow-lift animate-slide-up">
         {/* Handle */}
-        <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-gray-300" />
+        <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-divider" />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
-          <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-divider">
+          <h2 className="text-lg font-semibold text-fg font-display">
             Comments
           </h2>
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 text-[var(--tg-theme-hint-color,#999999)] hover:bg-black/5 dark:hover:bg-white/10"
+            className="rounded-full p-1.5 text-muted hover:text-fg hover:bg-surface-2 transition-colors"
             aria-label="Close"
           >
             <svg
@@ -176,7 +176,7 @@ export function CommentSheet({ open, onClose, postId, onCommentCreated }: Commen
           {loading ? (
             <div className="flex justify-center py-8">
               <svg
-                className="h-6 w-6 animate-spin text-[var(--tg-theme-button-color,#0088cc)]"
+                className="h-6 w-6 animate-spin text-primary"
                 viewBox="0 0 24 24"
                 fill="none"
               >
@@ -196,7 +196,7 @@ export function CommentSheet({ open, onClose, postId, onCommentCreated }: Commen
               </svg>
             </div>
           ) : comments.length === 0 ? (
-            <p className="text-center text-sm text-[var(--tg-theme-hint-color,#999999)] py-8">
+            <p className="text-center text-sm text-muted py-8">
               No comments yet. Be the first!
             </p>
           ) : (
@@ -217,7 +217,7 @@ export function CommentSheet({ open, onClose, postId, onCommentCreated }: Commen
           {hasMore && (
             <button
               onClick={() => loadComments(cursor!)}
-              className="w-full py-2 text-sm text-[var(--tg-theme-button-color,#0088cc)] font-medium"
+              className="w-full py-2 text-sm text-primary font-medium hover:text-accent-400 transition-colors"
             >
               Load more
             </button>
@@ -226,13 +226,13 @@ export function CommentSheet({ open, onClose, postId, onCommentCreated }: Commen
 
         {/* Reply indicator */}
         {replyTo && (
-          <div className="flex items-center gap-2 px-4 py-1.5 bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] mx-3 rounded-t-lg">
-            <span className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
-              Replying to <strong>{replyTo.name}</strong>
+          <div className="flex items-center gap-2 px-4 py-1.5 bg-surface-2 mx-3 rounded-t-lg">
+            <span className="text-xs text-muted">
+              Replying to <strong className="text-fg">{replyTo.name}</strong>
             </span>
             <button
               onClick={() => setReplyTo(null)}
-              className="ml-auto text-[var(--tg-theme-hint-color,#999999)]"
+              className="ml-auto text-muted hover:text-fg transition-colors"
             >
               <svg
                 className="h-4 w-4"
@@ -248,7 +248,7 @@ export function CommentSheet({ open, onClose, postId, onCommentCreated }: Commen
         )}
 
         {/* Input */}
-        <div className="border-t border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-3 py-3 flex gap-2">
+        <div className="border-t border-divider px-3 py-3 flex gap-2">
           <input
             ref={inputRef}
             type="text"
@@ -261,13 +261,13 @@ export function CommentSheet({ open, onClose, postId, onCommentCreated }: Commen
               }
             }}
             placeholder="Write a comment..."
-            className="flex-1 rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-2.5 text-sm text-[var(--tg-theme-text-color,#000000)] placeholder:text-[var(--tg-theme-hint-color,#999999)] focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50"
+            className="flex-1 rounded-full bg-surface-2 px-4 py-2.5 text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
             maxLength={1000}
           />
           <button
             onClick={handleSubmit}
             disabled={!newComment.trim() || sending}
-            className="rounded-xl bg-[var(--tg-theme-button-color,#0088cc)] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50 transition-opacity"
+            className="rounded-full bg-brand-gradient px-4 py-2.5 text-sm font-medium text-white shadow-glow disabled:opacity-50 disabled:shadow-none active:scale-95 transition"
           >
             {sending ? (
               <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -322,7 +322,7 @@ function CommentItem({
 }) {
   if (comment.isDeleted) {
     return (
-      <div className="text-sm italic text-[var(--tg-theme-hint-color,#999999)]">[deleted]</div>
+      <div className="text-sm italic text-muted">[deleted]</div>
     );
   }
 
@@ -337,20 +337,20 @@ function CommentItem({
         />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
+            <span className="text-sm font-medium text-fg">
               {comment.author?.displayName ?? "Unknown"}
             </span>
-            <span className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+            <span className="text-xs text-muted">
               {formatTime(comment.createdAt)}
             </span>
           </div>
-          <p className="text-sm text-[var(--tg-theme-text-color,#000000)] mt-0.5">
+          <p className="text-sm text-fg mt-0.5">
             {comment.content}
           </p>
           <div className="flex items-center gap-3 mt-1">
             <button
               onClick={() => onReply(comment.id, comment.author?.displayName ?? "User")}
-              className="text-xs text-[var(--tg-theme-hint-color,#999999)] hover:text-[var(--tg-theme-button-color,#0088cc)]"
+              className="text-xs text-muted hover:text-primary transition-colors"
             >
               Reply
             </button>
@@ -360,7 +360,7 @@ function CommentItem({
 
       {/* Replies */}
       {comment.replies.length > 0 && (
-        <div className="ml-10 mt-2 space-y-2 pl-3 border-l-2 border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+        <div className="ml-10 mt-2 space-y-2 pl-3 border-l-2 border-accent-500/30">
           {comment.replies.map((reply) => (
             <div key={reply.id} className="flex items-start gap-2">
               <Avatar
@@ -371,14 +371,14 @@ function CommentItem({
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
+                  <span className="text-sm font-medium text-fg">
                     {reply.author?.displayName ?? "Unknown"}
                   </span>
-                  <span className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+                  <span className="text-xs text-muted">
                     {formatTime(reply.createdAt)}
                   </span>
                 </div>
-                <p className="text-sm text-[var(--tg-theme-text-color,#000000)] mt-0.5">
+                <p className="text-sm text-fg mt-0.5">
                   {reply.content}
                 </p>
               </div>

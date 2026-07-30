@@ -29,6 +29,16 @@ yarn-error.log*
 # vercel
 .vercel
 
+# freebuff workspace
+.freebuff/
+
+# temp files
+COMMIT_MSG.txt
+set-env.bat
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*

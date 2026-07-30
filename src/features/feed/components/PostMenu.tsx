@@ -35,7 +35,7 @@ export function PostMenu({ isOwnPost, onDelete, onEdit, onReport, onBlock }: Pos
           e.stopPropagation();
           setOpen(!open);
         }}
-        className="rounded-full p-1.5 text-[var(--tg-theme-hint-color,#999999)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+        className="rounded-full p-1.5 text-muted hover:text-fg hover:bg-surface-2 transition-colors"
         aria-label="Post menu"
       >
         <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -46,7 +46,7 @@ export function PostMenu({ isOwnPost, onDelete, onEdit, onReport, onBlock }: Pos
       </button>
 
       {open && (
-        <div className="absolute right-0 top-8 z-50 min-w-[180px] rounded-xl bg-[var(--tg-theme-bg-color,#ffffff)] py-1 shadow-lg border border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+        <div className="absolute right-0 top-8 z-50 min-w-[180px] rounded-2xl surface-card py-1 shadow-lift">
           {isOwnPost ? (
             <>
               {onEdit && (
@@ -55,7 +55,7 @@ export function PostMenu({ isOwnPost, onDelete, onEdit, onReport, onBlock }: Pos
                     setOpen(false);
                     onEdit();
                   }}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--tg-theme-text-color,#000000)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-surface-2 transition-colors"
                 >
                   <svg
                     className="h-4 w-4"
@@ -78,7 +78,7 @@ export function PostMenu({ isOwnPost, onDelete, onEdit, onReport, onBlock }: Pos
                   setOpen(false);
                   onDelete();
                 }}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger/10 transition-colors"
               >
                 <svg
                   className="h-4 w-4"
@@ -103,7 +103,7 @@ export function PostMenu({ isOwnPost, onDelete, onEdit, onReport, onBlock }: Pos
                   setOpen(false);
                   onReport();
                 }}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--tg-theme-text-color,#000000)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-surface-2 transition-colors"
               >
                 <svg
                   className="h-4 w-4"
@@ -126,7 +126,7 @@ export function PostMenu({ isOwnPost, onDelete, onEdit, onReport, onBlock }: Pos
                     setOpen(false);
                     onBlock();
                   }}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger/10 transition-colors"
                 >
                   <svg
                     className="h-4 w-4"

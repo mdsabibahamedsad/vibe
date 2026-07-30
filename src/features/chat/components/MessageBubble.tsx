@@ -33,7 +33,7 @@ export function MessageBubble({
   if (message.messageType === "system") {
     return (
       <div className="flex justify-center py-2">
-        <span className="text-xs text-[var(--tg-theme-hint-color,#999999)] italic">
+        <span className="text-xs text-muted italic">
           {message.textContent}
         </span>
       </div>
@@ -56,14 +56,14 @@ export function MessageBubble({
           <div
             className={`mb-0.5 rounded-lg px-3 py-1.5 text-xs border-l-2 ${
               message.isOwn
-                ? "bg-[var(--tg-theme-bg-color,#ffffff)]/20 border-[var(--tg-theme-button-color,#0088cc)]"
-                : "bg-black/5 dark:bg-white/10 border-gray-400"
+                ? "bg-white/20 border-primary"
+                : "bg-surface-2 border-muted"
             }`}
           >
-            <p className="font-medium text-[var(--tg-theme-button-color,#0088cc)] truncate">
+            <p className="font-medium text-primary truncate">
               {message.replyPreview.senderName}
             </p>
-            <p className="text-[var(--tg-theme-hint-color,#999999)] truncate">
+            <p className="text-muted truncate">
               {message.replyPreview.text}
             </p>
           </div>
@@ -72,10 +72,10 @@ export function MessageBubble({
         {/* Message content */}
         <div
           onClick={() => setShowActions(!showActions)}
-          className={`rounded-2xl px-3.5 py-2.5 ${
+          className={`rounded-3xl px-3.5 py-2.5 ${
             message.isOwn
-              ? "bg-[var(--tg-theme-button-color,#0088cc)] text-[var(--tg-theme-button-text-color,#ffffff)] rounded-br-md"
-              : "bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] text-[var(--tg-theme-text-color,#000000)] rounded-bl-md"
+              ? "bg-brand-gradient text-white rounded-br-md shadow-glow"
+              : "glass text-fg rounded-bl-md"
           }`}
           role="button"
           tabIndex={0}
@@ -99,14 +99,14 @@ export function MessageBubble({
                 className="block rounded-lg overflow-hidden max-w-48"
                 aria-label={`View ${message.messageType}`}
               >
-                <div className="aspect-square bg-black/10 dark:bg-white/10 rounded-lg flex items-center justify-center">
+                <div className="aspect-square bg-surface-2 rounded-lg flex items-center justify-center">
                   {message.messageType === "video" ? (
-                    <svg className="w-8 h-8 text-[var(--tg-theme-hint-color,#999999)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   ) : (
-                    <svg className="w-8 h-8 text-[var(--tg-theme-hint-color,#999999)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   )}
@@ -128,7 +128,7 @@ export function MessageBubble({
               className={`text-[10px] ${
                 message.isOwn
                   ? "text-white/70"
-                  : "text-[var(--tg-theme-hint-color,#999999)]"
+                  : "text-muted"
               }`}
             >
               {formatTime(message.createdAt)}
@@ -153,10 +153,10 @@ export function MessageBubble({
                   onReply(message.id);
                   setShowActions(false);
                 }}
-                className="w-8 h-8 rounded-full bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] flex items-center justify-center shadow-sm"
+                className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center shadow-soft"
                 aria-label="Reply"
               >
-                <svg className="w-4 h-4 text-[var(--tg-theme-text-color,#000000)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                 </svg>
               </button>
@@ -168,10 +168,10 @@ export function MessageBubble({
                   onDelete(message.id);
                   setShowActions(false);
                 }}
-                className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shadow-sm"
+                className="w-8 h-8 rounded-full bg-danger/15 flex items-center justify-center shadow-soft"
                 aria-label="Delete message"
               >
-                <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>

@@ -36,7 +36,7 @@ export function ImageViewer({ message, onClose }: ImageViewerProps) {
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center"
+        className="glass-dark absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center"
         aria-label="Close viewer"
       >
         <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,8 +49,7 @@ export function ImageViewer({ message, onClose }: ImageViewerProps) {
         className={`max-w-full max-h-full p-4 transition-transform duration-200 ${zoomed ? "scale-150" : "scale-100"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="rounded-2xl overflow-hidden bg-black/30"
+        <div className="glass-dark rounded-2xl overflow-hidden"
           style={{
             width: "min(90vw, 400px)",
             height: "min(80vh, 500px)",
@@ -81,7 +80,7 @@ export function ImageViewer({ message, onClose }: ImageViewerProps) {
       {/* Caption */}
       {message.textContent && (
         <div className="absolute bottom-4 left-4 right-4 text-center">
-          <p className="text-sm text-white/80 bg-black/40 rounded-lg px-3 py-2 inline-block max-w-md mx-auto">
+          <p className="glass-dark text-sm text-white rounded-full px-4 py-2 inline-block max-w-md mx-auto">
             {message.textContent}
           </p>
         </div>

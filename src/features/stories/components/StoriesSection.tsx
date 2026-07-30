@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useStories } from "@/features/stories/hooks/useStories";
 import { useStoryViewer } from "@/features/stories/hooks/useStoryViewer";
@@ -16,9 +16,12 @@ interface StoriesSectionProps {
 /**
  * StoriesSection — Full stories system component.
  * Renders the StoriesBar and manages the viewer and composer.
+ *
+ * Waits for auth to be ready before fetching stories.
+ * Shows a brief loading indicator, then gracefully handles empty/error states.
  */
 export function StoriesSection({ onStoryCreate }: StoriesSectionProps) {
-  const { user } = useCurrentUser();
+  const { user, loading: authLoading } = useCurrentUser();
   const {
     groups,
     hasOwnStory,
@@ -65,6 +68,11 @@ export function StoriesSection({ onStoryCreate }: StoriesSectionProps) {
     refresh();
     onStoryCreate?.();
   }, [refresh, onStoryCreate]);
+
+  // Wait for auth to be ready before showing stories
+  if (authLoading) {
+    return null; // Don't render anything while auth is loading
+  }
 
   if (loading) {
     return <Loading message="Loading stories..." />;

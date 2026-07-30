@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useMatches } from "@/features/matching/hooks/useMatches";
 import { MatchCard } from "@/features/matching/components/MatchCard";
 import { Loading, EmptyState, ErrorState } from "@/components/ui";
+import { AppHeader } from "@/components/app-header";
+import { BottomNav } from "@/components/bottom-nav";
 import Link from "next/link";
 
 export default function MatchesPage() {
@@ -40,21 +42,22 @@ export default function MatchesPage() {
 
   if (!authenticated || !user) {
     return (
-      <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
-        <Header />
+      <div className="flex min-h-dvh flex-col">
+        <AppHeader title="Matches" />
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
             title="Sign in to see your matches"
             description="Connect with Telegram to see your matches."
           />
         </div>
+        <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)] pb-safe">
-      <Header />
+    <div className="flex min-h-dvh flex-col pb-safe">
+      <AppHeader title="Matches" />
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
@@ -72,7 +75,7 @@ export default function MatchesPage() {
             action={
               <Link
                 href="/discover"
-                className="mt-3 inline-block rounded-xl bg-[var(--tg-theme-button-color,#0088cc)] px-6 py-2.5 text-sm font-medium text-white"
+                className="mt-3 inline-flex items-center justify-center rounded-full bg-brand-gradient px-6 py-2.5 text-sm font-semibold text-white shadow-glow transition-transform active:scale-95"
               >
                 Discover People
               </Link>
@@ -81,37 +84,30 @@ export default function MatchesPage() {
         </div>
       ) : (
         <div className="flex-1">
-          {/* Match count */}
           <div className="px-4 py-2">
-            <p className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+            <p className="text-xs font-medium text-muted">
               {matches.length} match{matches.length !== 1 ? "es" : ""}
             </p>
           </div>
 
-          {/* Match list */}
-          <div className="divide-y divide-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+          <div className="divide-y divide-divider">
             {matches.map((match) => (
               <MatchCard
                 key={match.matchId}
                 match={match}
                 onPress={() => {
                   markAsRead(match.matchId);
-                  // Future: navigate to chat
                 }}
               />
             ))}
           </div>
 
-          {/* Load more trigger */}
           {hasMore && (
             <div ref={loadMoreRef} className="flex justify-center py-6">
               {loadingMore ? (
                 <Loading message="Loading more..." />
               ) : (
-                <button
-                  onClick={loadMore}
-                  className="text-sm text-[var(--tg-theme-button-color,#0088cc)] font-medium"
-                >
+                <button onClick={loadMore} className="text-sm font-semibold text-gradient">
                   Load more
                 </button>
               )}
@@ -119,18 +115,8 @@ export default function MatchesPage() {
           )}
         </div>
       )}
-    </div>
-  );
-}
 
-function Header() {
-  return (
-    <header className="sticky top-0 z-10 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] bg-[var(--tg-theme-bg-color,#ffffff)]/80 backdrop-blur-md">
-      <div className="flex items-center justify-between px-4 py-3">
-        <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-          Matches
-        </h1>
-      </div>
-    </header>
+      <BottomNav />
+    </div>
   );
 }

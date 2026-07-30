@@ -1,3 +1,5 @@
+import { Button } from "./button";
+
 interface ErrorStateProps {
   title?: string;
   message?: string;
@@ -11,8 +13,8 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-        <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-danger/10">
+        <svg className="h-7 w-7 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -21,15 +23,12 @@ export function ErrorState({
           />
         </svg>
       </div>
-      <h3 className="text-lg font-medium text-[var(--tg-theme-text-color,#000000)]">{title}</h3>
-      <p className="max-w-xs text-sm text-[var(--tg-theme-hint-color,#999999)]">{message}</p>
+      <h3 className="font-display text-lg font-semibold text-fg tracking-tight">{title}</h3>
+      <p className="max-w-xs text-sm text-muted">{message}</p>
       {onRetry && (
-        <button
-          onClick={onRetry}
-          className="mt-2 rounded-lg bg-[var(--tg-theme-button-color,#0088cc)] px-4 py-2 text-sm font-medium text-[var(--tg-theme-button-text-color,#ffffff)] transition-opacity hover:opacity-90"
-        >
+        <Button variant="secondary" size="sm" onClick={onRetry} className="mt-2">
           Try again
-        </button>
+        </Button>
       )}
     </div>
   );

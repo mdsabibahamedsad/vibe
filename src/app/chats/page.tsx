@@ -5,13 +5,9 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { useMatches } from "@/features/matching/hooks/useMatches";
 import { MatchCard } from "@/features/matching/components/MatchCard";
 import { Loading, EmptyState } from "@/components/ui";
+import { AppHeader } from "@/components/app-header";
+import { BottomNav } from "@/components/bottom-nav";
 
-/**
- * Chats Page — Shows all matched conversations.
- *
- * Redirects to individual chat on tap.
- * Reuses the MatchCard component for consistency.
- */
 export default function ChatsPage() {
   const router = useRouter();
   const { user, authenticated, loading: authLoading } = useCurrentUser();
@@ -32,21 +28,22 @@ export default function ChatsPage() {
 
   if (!authenticated || !user) {
     return (
-      <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
-        <Header />
+      <div className="flex min-h-dvh flex-col">
+        <AppHeader title="Chats" />
         <div className="flex-1 flex items-center justify-center">
           <EmptyState
             title="Sign in to see your chats"
             description="Connect with Telegram to see your conversations."
           />
         </div>
+        <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)] pb-safe">
-      <Header />
+    <div className="flex min-h-dvh flex-col pb-safe">
+      <AppHeader title="Chats" />
 
       {matchesLoading ? (
         <div className="flex-1 flex items-center justify-center">
@@ -55,13 +52,8 @@ export default function ChatsPage() {
       ) : error ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center px-4">
-            <p className="text-sm text-[var(--tg-theme-hint-color,#999999)]">
-              {error}
-            </p>
-            <button
-              onClick={refresh}
-              className="mt-3 text-sm font-medium text-[var(--tg-theme-button-color,#0088cc)]"
-            >
+            <p className="text-sm text-muted">{error}</p>
+            <button onClick={refresh} className="mt-3 text-sm font-semibold text-gradient">
               Try again
             </button>
           </div>
@@ -74,7 +66,7 @@ export default function ChatsPage() {
             action={
               <button
                 onClick={() => router.push("/discover")}
-                className="mt-3 inline-block rounded-xl bg-[var(--tg-theme-button-color,#0088cc)] px-6 py-2.5 text-sm font-medium text-white"
+                className="mt-3 inline-flex items-center justify-center rounded-full bg-brand-gradient px-6 py-2.5 text-sm font-semibold text-white shadow-glow transition-transform active:scale-95"
               >
                 Discover People
               </button>
@@ -84,35 +76,23 @@ export default function ChatsPage() {
       ) : (
         <div className="flex-1">
           <div className="px-4 py-2">
-            <p className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
+            <p className="text-xs font-medium text-muted">
               {matches.length} conversation{matches.length !== 1 ? "s" : ""}
             </p>
           </div>
-          <div className="divide-y divide-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+          <div className="divide-y divide-divider">
             {matches.map((match) => (
               <MatchCard
                 key={match.matchId}
                 match={match}
-                onPress={() => {
-                  router.push(`/chat/${match.matchId}`);
-                }}
+                onPress={() => router.push(`/chat/${match.matchId}`)}
               />
             ))}
           </div>
         </div>
       )}
-    </div>
-  );
-}
 
-function Header() {
-  return (
-    <header className="sticky top-0 z-10 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] bg-[var(--tg-theme-bg-color,#ffffff)]/80 backdrop-blur-md">
-      <div className="flex items-center justify-between px-4 py-3">
-        <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-          Chats
-        </h1>
-      </div>
-    </header>
+      <BottomNav />
+    </div>
   );
 }
