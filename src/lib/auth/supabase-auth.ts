@@ -13,6 +13,16 @@
  *
  * IMPORTANT: The Supabase service-role key is used ONLY on the server
  * for creating auth users. Never expose it to the client.
+ *
+ * Resiliency:
+ *   - Existing users are authenticated via the deterministic password using ONLY
+ *     the anon key — so even if the service-role key is temporarily unavailable,
+ *     returning users can still sign in.
+ *   - New users are created via the admin client (service role). If the service
+ *     role is not configured, creation fails with a clear error.
+ *   - The legacy `listUsers()` paginated lookup is NOT used (it only returns the
+ *     first page of 50 users and throws when the service key is invalid). Instead
+ *     we attempt sign-in, then createUser, then sign-in again.
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -61,110 +71,231 @@ export async function createAuthSession(validatedData: ValidatedTelegramData): P
   const email = generateAuthEmail(telegramUser.id);
   const password = generateAuthPassword(telegramUser.id, botToken);
 
-  let isNewUser = false;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Use admin client for auth user management (service role)
-  const adminClient = createAdminClient();
-
-  // Step 1: Try to find existing auth user by email
-  const { data: existingUsers, error: listError } = await adminClient.auth.admin.listUsers();
-
-  if (listError) {
-    logger.error("Failed to list Supabase Auth users", {
-      error: listError.message,
+  if (!supabaseUrl || !supabaseAnonKey) {
+    logger.error("createAuthSession: Supabase env vars missing", {
+      hasUrl: !!supabaseUrl,
+      hasAnonKey: !!supabaseAnonKey,
     });
-    throw new AppError("INTERNAL_ERROR", "Authentication service unavailable", {
+    throw new AppError("INTERNAL_ERROR", "Supabase is not configured on the server", {
       statusCode: 500,
     });
   }
 
-  const existingUser = existingUsers.users.find((u) => u.email === email);
+  // Sign-in client uses ONLY the public anon key (never the service role).
+  const signInClient = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false },
+  });
 
-  let authUserId: string;
+  const userMetadata = {
+    telegram_user_id: telegramUser.id,
+    telegram_username: telegramUser.username || null,
+    telegram_first_name: telegramUser.first_name,
+    telegram_last_name: telegramUser.last_name || null,
+  };
 
-  if (existingUser) {
-    // User exists — update metadata if needed
-    authUserId = existingUser.id;
+  // ==========================================================================
+  // Step 1: Try to sign in with the deterministic password (existing user).
+  // This path needs ONLY the anon key — it never touches the service role.
+  // ==========================================================================
+  const signInAttempt = await signInClient.auth.signInWithPassword({ email, password });
 
-    await adminClient.auth.admin.updateUserById(authUserId, {
-      user_metadata: {
-        telegram_user_id: telegramUser.id,
-        telegram_username: telegramUser.username || null,
-        telegram_first_name: telegramUser.first_name,
-        telegram_last_name: telegramUser.last_name || null,
-      },
-    });
-  } else {
-    // Create new auth user
-    const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        telegram_user_id: telegramUser.id,
-        telegram_username: telegramUser.username || null,
-        telegram_first_name: telegramUser.first_name,
-        telegram_last_name: telegramUser.last_name || null,
-      },
-    });
+  if (!signInAttempt.error && signInAttempt.data.session && signInAttempt.data.user) {
+    const session = signInAttempt.data.session;
+    const authUserId = signInAttempt.data.user.id;
 
-    if (createError || !newUser.user) {
-      logger.error("Failed to create Supabase Auth user", {
-        error: createError?.message,
+    // Best-effort: refresh auth metadata + public.users row + role.
+    // If the service-role key is broken, we still return the session —
+    // the user is already authenticated via the anon-key sign-in.
+    let userRole = "user";
+    try {
+      const adminClient = createAdminClient();
+      await adminClient.auth.admin.updateUserById(authUserId, {
+        user_metadata: userMetadata,
       });
-      throw new AppError("INTERNAL_ERROR", "Failed to create user account", {
-        statusCode: 500,
+      await adminClient
+        .from("users")
+        .upsert(
+          {
+            id: authUserId, // Same UUID as Supabase Auth user
+            telegram_user_id: telegramUser.id,
+            telegram_username: telegramUser.username || null,
+            display_name: telegramUser.first_name,
+            first_name: telegramUser.first_name,
+            last_name: telegramUser.last_name || null,
+            last_seen_at: new Date().toISOString(),
+          },
+          { onConflict: "id" },
+        );
+      const { data: appUser } = await adminClient
+        .from("users")
+        .select("role")
+        .eq("id", authUserId)
+        .single();
+      if (appUser && typeof appUser.role === "string") {
+        userRole = appUser.role;
+      }
+    } catch (err) {
+      logger.warn("createAuthSession: admin refresh skipped (best-effort)", {
+        error: err instanceof Error ? err.message : "Unknown error",
       });
     }
 
-    authUserId = newUser.user.id;
-    isNewUser = true;
+    return {
+      session: {
+        accessToken: session.access_token,
+        refreshToken: session.refresh_token,
+        expiresIn: session.expires_in ?? 3600,
+        expiresAt: session.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
+        user: {
+          id: authUserId,
+          telegramUserId: telegramUser.id,
+          displayName: telegramUser.first_name,
+          username: telegramUser.username,
+          role: userRole,
+        },
+      },
+      isNewUser: false,
+    };
   }
 
-  // Step 2: Upsert application user in public.users with matching ID
-  const { error: upsertError } = await adminClient.from("users").upsert(
-    {
-      id: authUserId, // Same UUID as Supabase Auth user
-      telegram_user_id: telegramUser.id,
-      telegram_username: telegramUser.username || null,
-      display_name: telegramUser.first_name,
-      first_name: telegramUser.first_name,
-      last_name: telegramUser.last_name || null,
-      last_seen_at: new Date().toISOString(),
-    },
-    { onConflict: "id" },
-  );
+  // ==========================================================================
+  // Step 2: Sign-in failed. Only proceed to user creation if the failure means
+  // the user does not exist yet. If it failed for another reason (e.g. invalid
+  // anon key, network error), surface that instead of attempting to create a
+  // user that may already exist.
+  // ==========================================================================
+  if (signInAttempt.error) {
+    const signInErrorCode = signInAttempt.error.code ?? signInAttempt.error.status;
+    const signInErrorMessage = signInAttempt.error.message ?? "";
+    const isUserNotFound =
+      signInErrorCode === "invalid_credentials" ||
+      /invalid login credentials|user not found|email not confirmed/i.test(
+        signInErrorMessage,
+      );
+
+    if (!isUserNotFound) {
+      logger.error("createAuthSession: sign-in failed for a non-user-not-found reason", {
+        code: signInErrorCode,
+        message: signInErrorMessage,
+      });
+      throw new AppError("INTERNAL_ERROR", "Failed to authenticate with Supabase", {
+        statusCode: 500,
+      });
+    }
+  }
+
+  let adminClient: ReturnType<typeof createAdminClient>;
+  try {
+    adminClient = createAdminClient();
+  } catch (err) {
+    logger.error("createAuthSession: admin client unavailable for new user", {
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+    throw new AppError(
+      "INTERNAL_ERROR",
+      "Failed to create user account — Supabase service role is not configured",
+      { statusCode: 500 },
+    );
+  }
+
+  const { data: created, error: createError } = await adminClient.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: userMetadata,
+  });
+
+  if (createError || !created?.user) {
+    // If the user was created concurrently, fall back to sign-in.
+    const alreadyExists =
+      createError?.status === 422 ||
+      /already registered|already been registered|email.*exist|duplicate/i.test(
+        createError?.message ?? "",
+      );
+
+    if (alreadyExists) {
+      const retry = await signInClient.auth.signInWithPassword({ email, password });
+      if (retry.error || !retry.data.session || !retry.data.user) {
+        logger.error("createAuthSession: failed to sign in after concurrent create", {
+          error: retry.error?.message,
+        });
+        throw new AppError("INTERNAL_ERROR", "Failed to create session", {
+          statusCode: 500,
+        });
+      }
+      const retrySession = retry.data.session;
+      return {
+        session: {
+          accessToken: retrySession.access_token,
+          refreshToken: retrySession.refresh_token,
+          expiresIn: retrySession.expires_in ?? 3600,
+          expiresAt: retrySession.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
+          user: {
+            id: retry.data.user.id,
+            telegramUserId: telegramUser.id,
+            displayName: telegramUser.first_name,
+            username: telegramUser.username,
+            role: "user",
+          },
+        },
+        isNewUser: false,
+      };
+    }
+
+    logger.error("createAuthSession: failed to create auth user", {
+      error: createError?.message,
+      status: createError?.status,
+    });
+    throw new AppError("INTERNAL_ERROR", "Failed to create user account", {
+      statusCode: 500,
+    });
+  }
+
+  const authUserId = created.user.id;
+
+  // ==========================================================================
+  // Step 3: Upsert the application user in public.users with matching ID.
+  // ==========================================================================
+  const { error: upsertError } = await adminClient
+    .from("users")
+    .upsert(
+      {
+        id: authUserId, // Same UUID as Supabase Auth user
+        telegram_user_id: telegramUser.id,
+        telegram_username: telegramUser.username || null,
+        display_name: telegramUser.first_name,
+        first_name: telegramUser.first_name,
+        last_name: telegramUser.last_name || null,
+        last_seen_at: new Date().toISOString(),
+      },
+      { onConflict: "id" },
+    );
 
   if (upsertError) {
-    logger.error("Failed to upsert application user", {
+    logger.error("createAuthSession: failed to upsert application user", {
       error: upsertError.message,
     });
 
     // If we created an auth user but failed to upsert, clean up
-    if (isNewUser) {
-      await adminClient.auth.admin.deleteUser(authUserId).catch(() => {});
-    }
-
+    await adminClient.auth.admin.deleteUser(authUserId).catch(() => {});
     throw new AppError("INTERNAL_ERROR", "Failed to create user profile", {
       statusCode: 500,
     });
   }
 
-  // Step 3: Sign in with password to get a Supabase session
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  const signInClient = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: { persistSession: false },
-  });
-
+  // ==========================================================================
+  // Step 4: Sign in with password to get a Supabase session.
+  // ==========================================================================
   const { data: signInData, error: signInError } = await signInClient.auth.signInWithPassword({
     email,
     password,
   });
 
   if (signInError || !signInData.session) {
-    logger.error("Failed to create Supabase session", {
+    logger.error("createAuthSession: failed to create Supabase session", {
       error: signInError?.message,
     });
     throw new AppError("INTERNAL_ERROR", "Failed to create session", {
@@ -174,19 +305,6 @@ export async function createAuthSession(validatedData: ValidatedTelegramData): P
 
   const session = signInData.session;
 
-  // Step 4: Look up user role
-  let userRole = "user";
-  const { data: appUser } = await adminClient
-    .from("users")
-    .select("role")
-    .eq("id", authUserId)
-    .single();
-
-  if (appUser) {
-    userRole = appUser.role;
-  }
-
-  // Step 5: Return session info to client
   return {
     session: {
       accessToken: session.access_token,
@@ -198,28 +316,39 @@ export async function createAuthSession(validatedData: ValidatedTelegramData): P
         telegramUserId: telegramUser.id,
         displayName: telegramUser.first_name,
         username: telegramUser.username,
-        role: userRole,
+        role: "user",
       },
     },
-    isNewUser,
+    isNewUser: true,
   };
 }
 
 /**
  * Check if a user needs onboarding (has no profile data).
+ *
+ * Best-effort: if the profile query fails (e.g. service-role key unavailable),
+ * we return true (assume onboarding is needed) rather than throwing, so
+ * authentication is never blocked by this secondary check.
  */
 export async function checkOnboardingStatus(userId: string): Promise<boolean> {
-  const adminClient = createAdminClient();
+  try {
+    const adminClient = createAdminClient();
 
-  // Check if the user has a profile with the basics
-  const { data: profile } = await adminClient
-    .from("profiles")
-    .select("id, bio, date_of_birth, gender")
-    .eq("user_id", userId)
-    .single();
+    // Check if the user has a profile with the basics
+    const { data: profile } = await adminClient
+      .from("profiles")
+      .select("id, bio, date_of_birth, gender")
+      .eq("user_id", userId)
+      .single();
 
-  if (!profile) return true;
+    if (!profile) return true;
 
-  // If any of these are missing, onboarding is needed
-  return !profile.bio || !profile.date_of_birth || !profile.gender;
+    // If any of these are missing, onboarding is needed
+    return !profile.bio || !profile.date_of_birth || !profile.gender;
+  } catch (err) {
+    logger.warn("checkOnboardingStatus: skipped (best-effort, assuming onboarding needed)", {
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+    return true;
+  }
 }
