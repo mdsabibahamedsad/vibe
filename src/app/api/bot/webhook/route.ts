@@ -26,7 +26,7 @@ import { logger } from "@/lib/logger";
  *   Never log sensitive user/payment data.
  */
 
-const PRODUCTION_MINI_APP_URL = "https://vibe-sand-phi-five.vercel.app";
+const PRODUCTION_MINI_APP_URL = "https://vibe-sand-phi.vercel.app";
 
 export async function POST(request: Request) {
   try {
