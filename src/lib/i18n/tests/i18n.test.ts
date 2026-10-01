@@ -1,4 +1,8 @@
+// @vitest-environment jsdom
+
 import { describe, it, expect, beforeEach } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import { translate, translatePlural, interpolate, clearCache, loadNamespace } from "../engine";
 import { formatDate, formatNumber, formatCurrency, formatRelativeTime, formatCompactNumber, formatDistance, formatAge } from "../formatters";
 import { detectLanguage, getSavedLanguage, saveLanguagePreference } from "../language-detection";
@@ -75,8 +79,10 @@ describe("Formatters", () => {
 
 describe("Language Detection", () => {
   beforeEach(() => {
+    // Use window.localStorage explicitly (Node's experimental global
+    // localStorage is a stub without methods).
     if (typeof window !== "undefined") {
-      localStorage.removeItem("vibe_language");
+      window.localStorage.removeItem("vibe_language");
     }
   });
 
@@ -171,16 +177,12 @@ describe("Translation Files Structure", () => {
 
   it("should have translation directory for each language", () => {
     languages.forEach((lang) => {
-      const fs = require("fs");
-      const path = require("path");
       const dir = path.join(process.cwd(), "src", "lib", "i18n", "translations", lang);
       expect(fs.existsSync(dir)).toBe(true);
     });
   });
 
   it("should have valid JSON files for English", () => {
-    const fs = require("fs");
-    const path = require("path");
     const enDir = path.join(process.cwd(), "src", "lib", "i18n", "translations", "en");
     const files = fs.readdirSync(enDir).filter((f: string) => f.endsWith(".json"));
     expect(files.length).toBeGreaterThan(0);
@@ -192,8 +194,6 @@ describe("Translation Files Structure", () => {
   });
 
   it("should have matching namespaces across all languages", () => {
-    const fs = require("fs");
-    const path = require("path");
     const enDir = path.join(process.cwd(), "src", "lib", "i18n", "translations", "en");
     const enFiles = new Set(fs.readdirSync(enDir));
 
