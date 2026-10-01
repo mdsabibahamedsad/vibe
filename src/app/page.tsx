@@ -1,76 +1,195 @@
 "use client";
 
+import { useCallback, useState } from "react";
+import Link from "next/link";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useTelegramWebApp } from "@/hooks/use-telegram-webapp";
+import { useUnreadCount } from "@/features/notifications/hooks/useUnreadCount";
 import { StoriesSection } from "@/features/stories/components/StoriesSection";
 import { Feed } from "@/features/feed/components/Feed";
-import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
+import { BottomNav } from "@/components/bottom-nav";
+import { Avatar } from "@/components/ui/avatar";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
-export default function HomePage() {
-  const { loading: authLoading, authenticated } = useCurrentUser();
-  const { t } = useTranslation("navigation");
+/** Light haptic tick (no-op outside Telegram). */
+function hapticLight(): void {
+  try {
+    const tg = (
+      window as unknown as {
+        Telegram?: {
+          WebApp?: {
+            HapticFeedback?: { impactOccurred?: (style: string) => void };
+          };
+        };
+      }
+    ).Telegram;
+    tg?.WebApp?.HapticFeedback?.impactOccurred?.("light");
+  } catch {
+    // Haptics unavailable — silently ignore
+  }
+}
 
-  // Show a brief loading screen while auth state is being determined
-  // This prevents the "Loading stories..." flash when auth is still initializing
-  if (authLoading) {
+export default function HomePage() {
+  const { loading: authLoading, authenticated, error: authError } = useCurrentUser();
+  const { isTelegram, ready: tgReady } = useTelegramWebApp();
+  const { total: unreadCount } = useUnreadCount();
+  const { t } = useTranslation("navigation");
+  const [retrying, setRetrying] = useState(false);
+
+  const handleRetry = useCallback(async () => {
+    hapticLight();
+    setRetrying(true);
+    try {
+      // Retry function exposed by AuthGate on window
+      const retryFn = (window as unknown as Record<string, unknown>).__vibeRetryAuth;
+      if (typeof retryFn === "function") {
+        await (retryFn as () => Promise<void>)();
+      }
+    } catch {
+      // Retry function may not be available yet
+    } finally {
+      setRetrying(false);
+    }
+  }, []);
+
+  const header = (
+    <AppHeader
+      brand
+      leading={
+        authenticated ? (
+          <Link
+            href="/profile"
+            aria-label={t("profile")}
+            className="rounded-full transition-transform active:scale-90"
+          >
+            <Avatar
+              alt={t("profile")}
+              size="sm"
+              ring
+            />
+          </Link>
+        ) : undefined
+      }
+      actions={
+        <>
+          <Link
+            href="/notifications"
+            aria-label={t("notifications")}
+            className="relative rounded-full p-2 text-muted transition-colors hover:text-fg"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1h6z"
+              />
+            </svg>
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-bold text-white shadow-accent-glow">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/settings"
+            aria-label={t("settings")}
+            className="rounded-full p-2 text-muted transition-colors hover:text-fg"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </Link>
+        </>
+      }
+    />
+  );
+
+  // Auth state still being determined — brand loading screen (brief)
+  if (authLoading && !authError) {
     return (
-      <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--tg-theme-button-color,#7c3aed)] border-t-transparent" />
-          <p className="text-sm text-[var(--tg-theme-hint-color,#999999)]">Loading Vibe...</p>
+      <div className="flex min-h-dvh flex-col">
+        {header}
+        <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="text-sm text-muted">{t("home.authenticating")}</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)]">
-      <header className="sticky top-0 z-10 bg-[var(--tg-theme-bg-color,#ffffff)]/80 backdrop-blur-md border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
-        <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-xl font-bold text-[var(--tg-theme-text-color,#000000)]">Vibe</h1>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/stories"
-              className="rounded-full p-2 text-[var(--tg-theme-hint-color,#999999)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-              aria-label={t("stories")}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
-            </Link>
-            <Link
-              href="/settings"
-              className="rounded-full p-2 text-[var(--tg-theme-hint-color,#999999)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-              aria-label={t("settings")}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="flex min-h-dvh flex-col">
+      {header}
 
-      {/* Only render stories/feed once auth state is known */}
-      {authenticated ? (
-        <>
-          <StoriesSection />
-          <Feed />
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--tg-theme-button-color,#7c3aed)]">
-            <span className="text-2xl font-bold text-white">V</span>
+      <main className="flex-1 pb-4">
+        {authenticated ? (
+          <>
+            <StoriesSection />
+            <Feed />
+          </>
+        ) : authError ? (
+          // Authentication failed — clear retry state, never an infinite spinner
+          <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-danger/10">
+              <svg
+                className="h-8 w-8 text-danger"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <h2 className="font-display text-xl font-bold text-fg">{t("home.authFailed")}</h2>
+            <p className="mt-2 max-w-xs text-sm text-muted">{t("home.authFailedSub")}</p>
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              className="mt-6 rounded-full bg-brand-gradient px-8 py-2.5 text-sm font-semibold text-white shadow-glow transition-all active:scale-95 disabled:opacity-60"
+            >
+              {retrying ? t("home.retrying") : t("home.retry")}
+            </button>
           </div>
-          <h2 className="text-xl font-bold text-[var(--tg-theme-text-color,#000000)] mb-2">
-            Welcome to Vibe
-          </h2>
-          <p className="text-sm text-[var(--tg-theme-hint-color,#999999)] max-w-xs">
-            Social discovery inside Telegram. Sign in to see stories and your feed.
-          </p>
-        </div>
-      )}
+        ) : tgReady && isTelegram ? (
+          // In Telegram, not yet authenticated — brief connecting state
+          <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+            <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="mt-4 text-sm text-muted">{t("home.authenticating")}</p>
+          </div>
+        ) : (
+          // Outside Telegram (browser visitor) — brand welcome
+          <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+            <div className="animate-pop-in mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-gradient shadow-glow">
+              <span className="font-display text-4xl font-bold text-white">V</span>
+            </div>
+            <h2 className="font-display text-2xl font-bold text-fg">{t("home.welcome")}</h2>
+            <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
+              {t("home.welcomeSub")}
+            </p>
+            <Link
+              href="/feed"
+              className="mt-6 rounded-full bg-brand-gradient px-8 py-2.5 text-sm font-semibold text-white shadow-glow transition-all active:scale-95"
+            >
+              {t("home.open")}
+            </Link>
+          </div>
+        )}
+      </main>
+
+      <BottomNav />
     </div>
   );
 }

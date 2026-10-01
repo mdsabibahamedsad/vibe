@@ -9,7 +9,16 @@
   "stories": "Hikayeler",
   "search": "Ara",
   "premium": "Premium",
-  "home": "Ana Sayfa",
+  "home": {
+    "open": "Vibe'ı Aç",
+    "retry": "Tekrar dene",
+    "retrying": "Tekrar deneniyor…",
+    "authenticating": "Telegram ile doğrulanıyor…",
+    "welcome": "Vibe'a hoş geldin",
+    "welcomeSub": "Telegram içinde sosyal keşif. Hikayeleri ve akışını görmek için giriş yap.",
+    "authFailed": "Kimlik doğrulama başarısız",
+    "authFailedSub": "Bir şeyler ters gitti. Tekrar denemek için dokun."
+  },
   "create": "Oluştur",
   "backToApp": "Uygulamaya Dön",
   "signIn": "Giriş yap",

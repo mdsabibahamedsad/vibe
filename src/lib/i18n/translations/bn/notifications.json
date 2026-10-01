@@ -1,0 +1,52 @@
+{
+  "title": "Notifications",
+  "emptyTitle": "No notifications yet",
+  "emptyDescription": "When you get notifications, they'll show up here.",
+  "markAllRead": "Mark all as read",
+  "loadMore": "Load more",
+  "categories": {
+    "all": "All",
+    "messages": "Messages",
+    "dating": "Dating",
+    "social": "Social",
+    "system": "System"
+  },
+  "types": {
+    "newMatch": "New Match! 🎉",
+    "newMessage": "New Message",
+    "postLike": "Post Liked",
+    "postComment": "New Comment",
+    "newFollower": "New Follower",
+    "storyView": "Story Viewed",
+    "storyReaction": "Story Reaction",
+    "storyMention": "Story Mention",
+    "profileVisit": "Profile Visit",
+    "subscriptionExpired": "Subscription Expired",
+    "subscriptionRenewed": "Subscription Renewed",
+    "reportUpdate": "Report Update",
+    "system": "System Update"
+  },
+  "bodies": {
+    "newMatch": "You matched with {actor}! Start chatting now.",
+    "newMessage": "{actor} sent you a message.",
+    "postLike": "{actor} liked your post.",
+    "postComment": "{actor} commented on your post.",
+    "newFollower": "{actor} started following you.",
+    "storyView": "{actor} viewed your story.",
+    "storyReaction": "{actor} reacted to your story.",
+    "storyMention": "{actor} mentioned you in their story.",
+    "profileVisit": "{actor} visited your profile.",
+    "subscriptionExpired": "Your subscription has expired. Renew to keep enjoying premium features.",
+    "subscriptionRenewed": "Your subscription has been renewed.",
+    "reportUpdate": "Your report has been reviewed.",
+    "system": "System update."
+  },
+  "settings": {
+    "title": "Notification Settings",
+    "description": "Manage your notification preferences",
+    "pushNotifications": "Push Notifications",
+    "inAppNotifications": "In-App Notifications",
+    "emailNotifications": "Email Notifications",
+    "loading": "Loading settings..."
+  }
+}

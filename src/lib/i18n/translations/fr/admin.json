@@ -1,0 +1,114 @@
+{
+  "title": "Vibe Admin",
+  "role": "{role}",
+  "accessDenied": "Access denied",
+  "dashboard": {
+    "title": "Dashboard Overview",
+    "welcome": "Welcome to the Vibe moderation control center.",
+    "quickActions": "Quick Actions",
+    "newUsersToday": "New Users Today",
+    "openReports": "Open Reports",
+    "criticalReports": "Critical Reports",
+    "bannedUsers": "Banned Users",
+    "suspendedUsers": "Suspended Users",
+    "pendingAppeals": "Pending Appeals",
+    "viewReports": "🚨 View Reports",
+    "reviewAppeals": "⚖️ Review Appeals",
+    "moderateContent": "📝 Moderate Content",
+    "manageAdmins": "🔐 Manage Admins",
+    "error": "Dashboard Error"
+  },
+  "reports": {
+    "title": "Reports",
+    "description": "Review and manage user reports",
+    "all": "All Reports",
+    "pending": "Pending",
+    "resolved": "Resolved",
+    "dismissed": "Dismissed"
+  },
+  "users": {
+    "title": "Users",
+    "searchPlaceholder": "Search by name, username, Telegram ID, or UUID...",
+    "searchButton": "Search",
+    "loadingDetails": "Loading user details..."
+  },
+  "content": {
+    "title": "Content Moderation",
+    "description": "Review and moderate user-generated content",
+    "searchButton": "Search",
+    "loading": "Loading..."
+  },
+  "appeals": {
+    "title": "Appeals",
+    "description": "Review user appeals against moderation actions.",
+    "all": "All Appeals",
+    "pending": "Pending",
+    "inReview": "In Review",
+    "approved": "Approved",
+    "denied": "Denied",
+    "details": "Appeal Details",
+    "userReason": "User Reason",
+    "user": "User",
+    "originalAction": "Original Action",
+    "userModerationHistory": "User Moderation History",
+    "approve": "✅ Approve Appeal",
+    "deny": "❌ Deny Appeal",
+    "decision": "Decision: {status}",
+    "note": "Note: {note}",
+    "noSelection": "Select an appeal to review",
+    "empty": "No appeals",
+    "emptyFilter": "No appeals match the current filter.",
+    "denialReason": "Reason for denial:",
+    "status": "Status: {status}",
+    "banned": " (Banned)"
+  },
+  "billing": {
+    "title": "Billing Overview",
+    "description": "View billing and subscription data"
+  },
+  "ads": {
+    "title": "Ad Management",
+    "description": "Manage advertisements and campaigns"
+  },
+  "audit": {
+    "title": "Audit Log",
+    "description": "View security and moderation audit trail"
+  },
+  "admins": {
+    "title": "Admin Management",
+    "description": "Manage administrator roles and permissions"
+  },
+  "translations": {
+    "title": "Translation Manager",
+    "description": "Manage translation resources for all supported languages",
+    "searchKeys": "Search translation keys...",
+    "addTranslation": "Add Translation",
+    "editTranslation": "Edit Translation",
+    "publishTranslation": "Publish",
+    "disableTranslation": "Disable",
+    "missingKeys": "Missing Keys",
+    "duplicateKeys": "Duplicate Keys",
+    "invalidPlaceholders": "Invalid Placeholders",
+    "brokenInterpolation": "Broken Interpolation",
+    "excessivelyLong": "Excessively Long",
+    "allLanguages": "All Languages",
+    "selectLanguage": "Select Language",
+    "selectNamespace": "Select Namespace",
+    "key": "Key",
+    "value": "Value",
+    "status": "Status",
+    "published": "Published",
+    "draft": "Draft",
+    "missing": "Missing",
+    "actions": "Actions",
+    "saveChanges": "Save Changes",
+    "discardChanges": "Discard",
+    "validationPassed": "All translations are valid",
+    "validationFailed": "Validation failed",
+    "version": "Version {version}",
+    "lastUpdated": "Last updated: {date}",
+    "updatedBy": "Updated by: {user}",
+    "publishConfirm": "Publish this translation? It will become visible to all users.",
+    "disableConfirm": "Disable this translation? Users will see the fallback language instead."
+  }
+}

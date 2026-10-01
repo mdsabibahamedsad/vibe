@@ -1,4 +1,4 @@
-import { FALLBACK_LANGUAGE, type Language } from "./types";
+import { FALLBACK_LANGUAGE, SUPPORTED_LANGUAGES, type Language } from "./types";
 
 export async function detectLanguage(): Promise<string> {
   const fromStorage = getSavedLanguage();
@@ -13,10 +13,28 @@ export async function detectLanguage(): Promise<string> {
   return FALLBACK_LANGUAGE;
 }
 
-export function getSavedLanguage(): string | null {
+/**
+ * Safely access the real Web Storage API.
+ *
+ * We go through `window.localStorage` explicitly instead of the bare global:
+ * Node.js >= 22 ships an experimental global `localStorage` that is a stub
+ * without real methods, which would silently break storage access in
+ * test environments (jsdom) where the global may not be shadowed.
+ */
+function getWebStorage(): Storage | null {
   if (typeof window === "undefined") return null;
   try {
-    const lang = localStorage.getItem("vibe_language");
+    return window.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function getSavedLanguage(): string | null {
+  const storage = getWebStorage();
+  if (!storage) return null;
+  try {
+    const lang = storage.getItem("vibe_language");
     if (lang && isValidLanguage(lang)) return lang;
     return null;
   } catch {
@@ -25,18 +43,20 @@ export function getSavedLanguage(): string | null {
 }
 
 export function saveLanguagePreference(language: string): void {
-  if (typeof window === "undefined") return;
+  const storage = getWebStorage();
+  if (!storage) return;
   try {
-    localStorage.setItem("vibe_language", language);
+    storage.setItem("vibe_language", language);
   } catch {
     // Storage unavailable
   }
 }
 
 export function clearLanguagePreference(): void {
-  if (typeof window === "undefined") return;
+  const storage = getWebStorage();
+  if (!storage) return;
   try {
-    localStorage.removeItem("vibe_language");
+    storage.removeItem("vibe_language");
   } catch {
     // Storage unavailable
   }
@@ -67,6 +87,5 @@ function getBrowserLocale(): string | null {
 }
 
 function isValidLanguage(code: string): boolean {
-  const { SUPPORTED_LANGUAGES } = require("./types");
   return SUPPORTED_LANGUAGES.some((l: Language) => l.code === code);
 }

@@ -1,0 +1,28 @@
+{
+  "title": "Help Center",
+  "description": "Find answers to common questions",
+  "searchPlaceholder": "Search help articles...",
+  "categories": "Categories",
+  "popularArticles": "Popular Articles",
+  "relatedArticles": "Related Articles",
+  "noResults": "No articles found",
+  "wasThisHelpful": "Was this helpful?",
+  "yes": "Yes",
+  "no": "No",
+  "feedbackThanks": "Thanks for your feedback!",
+  "stillNeedHelp": "Still need help?",
+  "contactSupport": "Contact Support",
+  "articleNotFound": "Article not found",
+  "translatedContent": "This article was translated automatically. Some content may differ from the original.",
+  "originalContent": "View original",
+  "categories": {
+    "gettingStarted": "Getting Started",
+    "account": "Account & Profile",
+    "privacy": "Privacy & Safety",
+    "premium": "Premium & Payments",
+    "dating": "Dating & Matching",
+    "chat": "Chat & Messaging",
+    "content": "Content & Creation",
+    "technical": "Technical Issues"
+  }
+}

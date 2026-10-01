@@ -1,0 +1,22 @@
+{
+  "title": "Stories",
+  "addStory": "Add story",
+  "loading": "Loading stories...",
+  "closeStory": "Close story",
+  "storyOptions": "Story options",
+  "reactToStory": "React to story",
+  "replyToStory": "Reply to story",
+  "shareStory": "Share story",
+  "addCaption": "Add a caption...",
+  "sendMessage": "Send a message...",
+  "removeMedia": "Remove media",
+  "goBack": "Go back",
+  "yourStory": "Your Story",
+  "viewedBy": "Viewed by {count}",
+  "noViewers": "No views yet",
+  "expired": "Expired",
+  "expiresIn": "Expires in {time}",
+  "delete": "Delete",
+  "deleteConfirm": "Delete this story?",
+  "you": "You"
+}

@@ -9,7 +9,16 @@
   "stories": "Stories",
   "search": "Search",
   "premium": "Premium",
-  "home": "Home",
+  "home": {
+    "open": "Open Vibe",
+    "retry": "Retry",
+    "retrying": "Retrying…",
+    "authenticating": "Authenticating with Telegram…",
+    "welcome": "Welcome to Vibe",
+    "welcomeSub": "Social discovery inside Telegram. Sign in to see stories and your feed.",
+    "authFailed": "Authentication failed",
+    "authFailedSub": "Something went wrong. Tap retry to try again."
+  },
   "create": "Create",
   "backToApp": "Back to App",
   "signIn": "Sign in",

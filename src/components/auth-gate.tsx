@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useTelegramWebApp } from "@/hooks/use-telegram-webapp";
 import { logger } from "@/lib/logger";
@@ -15,20 +15,60 @@ import { logger } from "@/lib/logger";
  *   3. Call authenticateWithTelegram(initData) to create/restore the session
  *   4. If not in Telegram and dev auth is available, optionally call it
  *
+ * Retry behavior:
+ *   - If the first auth attempt fails, the gate does NOT permanently block.
+ *   - The `attemptAuth` callback can be called again (e.g. by a retry button).
+ *   - A brief cooldown (2 s) prevents rapid-fire retries.
+ *
  * This component should be placed inside the TelegramProvider + AuthProvider tree,
  * typically in the root layout after both providers.
- *
- * It only runs once on mount (empty dependency array for the trigger).
- * Subsequent session restores are handled by AuthProvider internally.
  */
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const { isTelegram, initData, ready } = useTelegramWebApp();
-  const { authenticateWithTelegram, authenticateDev, authenticated, error } = useCurrentUser();
+  const { authenticateWithTelegram, authenticateDev, authenticated, loading, error } = useCurrentUser();
   const hasAttemptedAuth = useRef(false);
+  const lastAttemptRef = useRef(0);
+
+  /**
+   * Attempt authentication based on the current Telegram context.
+   * Safe to call multiple times — respects a 2-second cooldown.
+   */
+  const attemptAuth = useCallback(async () => {
+    if (loading) return; // already in progress
+
+    const now = Date.now();
+    if (now - lastAttemptRef.current < 2000) return; // cooldown
+    lastAttemptRef.current = now;
+
+    if (isTelegram && initData) {
+      // Running inside Telegram Mini App — authenticate using initData
+      logger.info("AuthGate: Telegram environment detected, authenticating with initData");
+      try {
+        await authenticateWithTelegram(initData);
+      } catch (err: unknown) {
+        logger.error("AuthGate: Telegram auth failed", {
+          error: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    } else if (!isTelegram && typeof window !== "undefined") {
+      // Running outside Telegram — try dev auth for local development
+      const isDev = process.env.NODE_ENV === "development";
+      if (isDev) {
+        logger.info("AuthGate: Outside Telegram in dev mode, trying dev auth");
+        try {
+          await authenticateDev();
+        } catch (err: unknown) {
+          logger.error("AuthGate: Dev auth failed", {
+            error: err instanceof Error ? err.message : "Unknown error",
+          });
+        }
+      }
+    }
+  }, [isTelegram, initData, loading, authenticateWithTelegram, authenticateDev]);
 
   // Auto-authenticate when Telegram WebApp is ready and no session exists
   useEffect(() => {
-    // Only attempt once
+    // Only attempt once automatically
     if (hasAttemptedAuth.current) return;
     // Wait for Telegram provider to be ready
     if (!ready) return;
@@ -39,28 +79,8 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     }
 
     hasAttemptedAuth.current = true;
-
-    if (isTelegram && initData) {
-      // Running inside Telegram Mini App — authenticate using initData
-      logger.info("AuthGate: Telegram environment detected, authenticating with initData");
-      authenticateWithTelegram(initData).catch((err: unknown) => {
-        logger.error("AuthGate: Telegram auth failed", {
-          error: err instanceof Error ? err.message : "Unknown error",
-        });
-      });
-    } else if (!isTelegram && typeof window !== "undefined") {
-      // Running outside Telegram — try dev auth for local development
-      const isDev = process.env.NODE_ENV === "development";
-      if (isDev) {
-        logger.info("AuthGate: Outside Telegram in dev mode, trying dev auth");
-        authenticateDev().catch((err: unknown) => {
-          logger.error("AuthGate: Dev auth failed", {
-            error: err instanceof Error ? err.message : "Unknown error",
-          });
-        });
-      }
-    }
-  }, [ready, isTelegram, initData, authenticated, authenticateWithTelegram, authenticateDev]);
+    attemptAuth();
+  }, [ready, authenticated, attemptAuth]);
 
   // Log auth errors for debugging
   useEffect(() => {
@@ -68,6 +88,13 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       logger.warn("AuthGate: Authentication error", { error });
     }
   }, [error]);
+
+  // Expose retryAuth on window for debugging / retry buttons
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as unknown as Record<string, unknown>).__vibeRetryAuth = attemptAuth;
+    }
+  }, [attemptAuth]);
 
   return <>{children}</>;
 }

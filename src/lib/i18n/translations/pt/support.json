@@ -1,0 +1,50 @@
+{
+  "title": "Support",
+  "description": "Get help from our support team",
+  "newTicket": "New Ticket",
+  "myTickets": "My Tickets",
+  "submitTicket": "Submit Ticket",
+  "subject": "Subject",
+  "subjectPlaceholder": "Brief description of your issue",
+  "message": "Message",
+  "messagePlaceholder": "Describe your issue in detail...",
+  "category": "Category",
+  "selectCategory": "Select a category",
+  "categories": {
+    "account": "Account Issue",
+    "billing": "Billing Issue",
+    "technical": "Technical Problem",
+    "report": "Report a User",
+    "appeal": "Appeal a Decision",
+    "feedback": "Feedback",
+    "other": "Other"
+  },
+  "priority": "Priority",
+  "priorities": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "attachments": "Attachments",
+  "addAttachment": "Add attachment",
+  "removeAttachment": "Remove",
+  "ticketCreated": "Ticket created! We'll get back to you soon.",
+  "ticketClosed": "Ticket closed",
+  "reopenTicket": "Reopen Ticket",
+  "closeTicket": "Close Ticket",
+  "reply": "Reply",
+  "replyPlaceholder": "Type your reply...",
+  "sendReply": "Send Reply",
+  "noTickets": "No support tickets yet",
+  "originalLanguage": "Original language: {language}",
+  "translatedMessage": "Translated from {language}",
+  "viewOriginal": "View original",
+  "translatedLabel": "AI translation",
+  "status": {
+    "open": "Open",
+    "inProgress": "In Progress",
+    "waitingOnUser": "Waiting on You",
+    "resolved": "Resolved",
+    "closed": "Closed"
+  }
+}

@@ -1,4 +1,5 @@
 import { FALLBACK_LANGUAGE, type I18nNamespace } from "./types";
+import { getTranslationResource } from "./translations/registry";
 
 type TranslationMap = Map<string, string>;
 
@@ -11,7 +12,7 @@ interface CacheEntry {
 const CACHE_TTL = 5 * 60 * 1000;
 const cache = new Map<string, CacheEntry>();
 
-let loadedLanguages = new Set<string>();
+const loadedLanguages = new Set<string>();
 let initialLoadDone = false;
 
 function makeKey(namespace: string, key: string): string {
@@ -20,8 +21,8 @@ function makeKey(namespace: string, key: string): string {
 
 function loadTranslationModule(language: string, namespace: string): Record<string, string> | null {
   try {
-    const module = require(`./translations/${language}/${namespace}.json`);
-    return module;
+    const resource = getTranslationResource(language, namespace);
+    return resource ? (resource as unknown as Record<string, string>) : null;
   } catch {
     return null;
   }

@@ -12,6 +12,7 @@ import type {
   StoryReactionType,
 } from "@/lib/stories/types";
 import { timeAgo } from "@/lib/utils";
+import { shareDeepLink } from "@/lib/utils/deep-link";
 
 interface StoryViewerProps {
   story: StoryItem;
@@ -564,7 +565,6 @@ export function StoryViewer({
                 e.stopPropagation();
                 // Share via deep-link utility
                 try {
-                  const { shareDeepLink } = require("@/lib/utils/deep-link");
                   shareDeepLink("story", story.id);
                 } catch {}
               }}

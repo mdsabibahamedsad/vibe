@@ -1,0 +1,37 @@
+{
+  "title": "Moderation",
+  "report": "Report",
+  "reportContent": "Report this content",
+  "reportUser": "Report this user",
+  "reason": "Reason",
+  "reasonPlaceholder": "Tell us what's wrong",
+  "submit": "Submit Report",
+  "submitted": "Report submitted. We'll review it shortly.",
+  "whyReporting": "Why are you reporting this?",
+  "options": {
+    "spam": "Spam",
+    "harassment": "Harassment",
+    "nudity": "Nudity or sexual content",
+    "hateSpeech": "Hate speech",
+    "violence": "Violence",
+    "impersonation": "Impersonation",
+    "copyright": "Copyright violation",
+    "other": "Other"
+  },
+  "appeal": {
+    "title": "Appeals",
+    "description": "Appeal moderation actions against your account",
+    "idPlaceholder": "Paste the moderation action ID here...",
+    "reasonPlaceholder": "Explain why you believe this action should be reviewed...",
+    "submit": "Submit Appeal",
+    "submitted": "Appeal submitted. We'll review it shortly.",
+    "loading": "Loading appeals...",
+    "noAppeals": "No appeals found",
+    "status": {
+      "pending": "Pending Review",
+      "inReview": "In Review",
+      "approved": "Approved",
+      "denied": "Denied"
+    }
+  }
+}

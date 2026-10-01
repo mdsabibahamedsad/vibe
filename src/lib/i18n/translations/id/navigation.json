@@ -9,7 +9,16 @@
   "stories": "Cerita",
   "search": "Cari",
   "premium": "Premium",
-  "home": "Beranda",
+  "home": {
+    "open": "Buka Vibe",
+    "retry": "Coba lagi",
+    "retrying": "Mencoba lagi…",
+    "authenticating": "Mengautentikasi dengan Telegram…",
+    "welcome": "Selamat datang di Vibe",
+    "welcomeSub": "Penemuan sosial di dalam Telegram. Masuk untuk melihat story dan feed kamu.",
+    "authFailed": "Autentikasi gagal",
+    "authFailedSub": "Terjadi kesalahan. Ketuk coba lagi."
+  },
   "create": "Buat",
   "backToApp": "Kembali ke Aplikasi",
   "signIn": "Masuk",
