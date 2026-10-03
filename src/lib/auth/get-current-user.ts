@@ -22,6 +22,13 @@ async function getAccessToken(request?: Request): Promise<string | null> {
   }
 
   try {
+    // 1) Try Authorization header (used by some API routes)
+    if (request) {
+      const authHeader = (request as Request).headers.get("Authorization");
+      if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);
+    }
+
+    // 2) Try the sb-auth-token cookie (set by the AuthBootstrapProvider on the client)
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
@@ -34,6 +41,25 @@ async function getAccessToken(request?: Request): Promise<string | null> {
       }
     }
   } catch {}
+
+  // 3) Try localStorage (the Supabase browser client stores sessions here)
+  // as a fallback for environments where the cookie is not available (e.g. SSR without cookies).
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("supabase.auth.token");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.access_token) return parsed.access_token;
+      }
+      const authCookie = localStorage.getItem("sb-auth-token");
+      if (authCookie) {
+        try {
+          const parsed = JSON.parse(authCookie);
+          if (parsed.access_token) return parsed.access_token;
+        } catch {}
+      }
+    } catch {}
+  }
 
   return null;
 }

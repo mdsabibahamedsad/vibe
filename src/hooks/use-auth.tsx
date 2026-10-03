@@ -231,10 +231,38 @@ export function AuthBootstrapProvider({
         }
 
         if (result.session) {
+          // Set the session via Supabase (localStorage) AND manually set the
+          // sb-auth-token cookie so the server can read it in getCurrentUser.
+          // The server-side getCurrentUser reads the cookie, not localStorage,
+          // so we must set the cookie manually.
           await getSupabaseClient().auth.setSession({
             access_token: result.session.accessToken,
             refresh_token: result.session.refreshToken,
           });
+
+          const cookieValue = JSON.stringify({
+            access_token: result.session.accessToken,
+            refresh_token: result.session.refreshToken,
+            expires_in: result.session.expiresIn,
+            expires_at: result.session.expiresAt,
+          });
+
+          // Set the sb-auth-token cookie for server-side reading
+          // Special handling for Telegram Mini App — allow cross-origin cookie
+          // in the Telegram WebView context
+          const isTelegram = typeof window !== "undefined" &&
+            (window as any).Telegram?.WebApp !== undefined;
+
+          // Cookie path: if in Telegram Mini App, use /; otherwise default
+          const cookiePath = isTelegram ? "/" : "/";
+          const cookieSecure = true; // Always Secure in production
+          const cookieSameSite = isTelegram ? "none" : "lax";
+
+          document.cookie =
+            "sb-auth-token=" + encodeURIComponent(cookieValue) +
+            "; path=" + cookiePath +
+            "; secure=" + (cookieSecure ? "true" : "false") +
+            "; samesite=" + cookieSameSite;
         }
 
         // Verify the new session on the server before marking authenticated
@@ -299,6 +327,27 @@ export function AuthBootstrapProvider({
           access_token: result.session.accessToken,
           refresh_token: result.session.refreshToken,
         });
+
+        // Set the sb-auth-token cookie for server-side reading
+        const cookieValue = JSON.stringify({
+          access_token: result.session.accessToken,
+          refresh_token: result.session.refreshToken,
+          expires_in: result.session.expiresIn,
+          expires_at: result.session.expiresAt,
+        });
+
+        const isTelegram = typeof window !== "undefined" &&
+          (window as any).Telegram?.WebApp !== undefined;
+
+        const cookiePath = isTelegram ? "/" : "/";
+        const cookieSecure = true;
+        const cookieSameSite = isTelegram ? "none" : "lax";
+
+        document.cookie =
+          "sb-auth-token=" + encodeURIComponent(cookieValue) +
+          "; path=" + cookiePath +
+          "; secure=" + (cookieSecure ? "true" : "false") +
+          "; samesite=" + cookieSameSite;
       }
 
       setUser(result.user);
