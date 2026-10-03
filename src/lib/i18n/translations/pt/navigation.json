@@ -17,7 +17,10 @@
     "welcome": "Bem-vindo ao Vibe",
     "welcomeSub": "Descoberta social dentro do Telegram. Entre para ver stories e seu feed.",
     "authFailed": "Falha na autenticação",
-    "authFailedSub": "Algo deu errado. Toque para tentar novamente."
+    "authFailedSub": "Algo deu errado. Toque para tentar novamente.",
+    "tagline1": "O seu mundo.",
+    "tagline2": "A sua gente.",
+    "tagline3": "O seu vibe."
   },
   "create": "Criar",
   "backToApp": "Voltar ao App",
@@ -30,7 +33,9 @@
     "discover": "Descobrir",
     "matches": "Matches",
     "chats": "Chats",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "home": "Início",
+    "create": "Criar"
   },
   "admin": {
     "title": "Admin Vibe",

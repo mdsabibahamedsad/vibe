@@ -33,15 +33,29 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/posts?id=xxx — Get a single post by ID
+ * GET /api/posts?authorId=xxx&limit=12&cursor=... — List an author's posts
  */
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser(request);
     const url = new URL(request.url);
     const postId = url.searchParams.get("id");
+    const authorId = url.searchParams.get("authorId");
+
+    // List an author's posts (profile screen)
+    if (authorId) {
+      const { listPostsByAuthor } = await import("@/features/feed/services/post.service");
+      const limit = url.searchParams.get("limit")
+        ? parseInt(url.searchParams.get("limit")!, 10)
+        : 12;
+      const cursor = url.searchParams.get("cursor") ?? undefined;
+
+      const result = await listPostsByAuthor(authorId, user.id, { limit, cursor });
+      return NextResponse.json(result);
+    }
 
     if (!postId) {
-      return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "Post ID or authorId is required" }, { status: 400 });
     }
 
     const post = await getPostById(postId, user.id);

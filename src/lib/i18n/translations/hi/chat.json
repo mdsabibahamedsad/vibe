@@ -23,5 +23,7 @@
   "offline": "Offline",
   "lastSeen": "Last seen recently",
   "today": "Today",
-  "yesterday": "Yesterday"
+  "yesterday": "Yesterday",
+  "discoverPeople": "लोग खोजें",
+  "conversationCount": "{count} बातचीत"
 }

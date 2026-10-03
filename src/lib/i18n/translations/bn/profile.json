@@ -21,5 +21,13 @@
   "block": "Block",
   "settings": "Settings",
   "premium": "Premium",
-  "joinDate": "Joined {date}"
+  "joinDate": "Joined {date}",
+  "tabVibes": "ভাইবস",
+  "tabMedia": "মিডিয়া",
+  "emptyPostsTitle": "এখনও কোনো ভাইব নেই",
+  "emptyPostsDescription": "আপনার প্রথম ভাইব শেয়ার করুন এবং নিজেকে প্রকাশ করুন।",
+  "errorTitle": "প্রোফাইল লোড করা যায়নি",
+  "shareProfile": "প্রোফাইল শেয়ার করুন",
+  "noBio": "এখনও কোনো বায়ো নেই",
+  "completeProfile": "আপনার প্রোফাইল সম্পূর্ণ করুন"
 }

@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { Button, Card, Loading } from "@/components/ui";
+import { Button, Card, Loading, FeedSkeleton } from "@/components/ui";
+import { AppHeader } from "@/components/app-header";
+import { DesktopNav } from "@/components/bottom-nav";
 import { PhotoPicker } from "@/components/shared/photo-picker";
 import { ProfilePreviewCard } from "@/components/shared/profile-preview-card";
 import { LanguageSelector } from "@/components/language-selector";
@@ -295,7 +297,13 @@ export default function SettingsPage() {
     }
   };
 
-  if (authLoading || profileLoading) return <Loading fullScreen message={t("loading")} />;
+  if (authLoading || profileLoading)
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <AppHeader title={ts("title")} />
+        <FeedSkeleton count={2} />
+      </div>
+    );
   if (!authenticated) return null;
 
   const tabs: { key: Tab; label: string }[] = [
@@ -308,39 +316,40 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
+    <div className="flex min-h-dvh flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] bg-[var(--tg-theme-bg-color,#ffffff)]">
-        <div className="flex items-center justify-between px-4 py-3">
+      <AppHeader
+        title={ts("title")}
+        leading={
           <button
             onClick={() => router.push("/")}
-            className="text-sm text-[var(--tg-theme-button-color,#0088cc)]"
+            className="rounded-full p-2 -ms-2 text-muted transition-colors hover:text-fg"
+            aria-label={t("back")}
           >
-            {t("back")}
+            <svg className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
-          <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-            {ts("title")}
-          </h1>
-          <div className="w-12" />
-        </div>
-
+        }
+      >
         {/* Tab bar */}
-        <div className="flex overflow-x-auto gap-1 px-4 pb-0 scrollbar-none">
+        <div className="mx-auto w-full max-w-2xl scrollbar-none flex gap-1.5 overflow-x-auto px-4 pb-2.5">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`whitespace-nowrap px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+              aria-pressed={activeTab === tab.key}
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95 ${
                 activeTab === tab.key
-                  ? "border-[var(--tg-theme-button-color,#0088cc)] text-[var(--tg-theme-button-color,#0088cc)]"
-                  : "border-transparent text-[var(--tg-theme-hint-color,#999999)]"
+                  ? "bg-brand-gradient text-white shadow-glow"
+                  : "border border-divider bg-surface-2 text-muted hover:text-fg"
               }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
-      </header>
+      </AppHeader>
 
       {/* Error */}
       {error && (
@@ -357,48 +366,48 @@ export default function SettingsPage() {
         {/* Profile Tab */}
         {activeTab === "profile" && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
+            <h2 className="text-lg font-semibold text-fg">
               {ts("editProfile")}
             </h2>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
+              <label className="block text-sm font-medium mb-1 text-fg">
                 {ts("displayName")}
               </label>
               <input
                 type="text"
                 value={form.displayName}
                 onChange={(e) => setForm((p) => ({ ...p, displayName: e.target.value }))}
-                className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 text-[var(--tg-theme-text-color,#000000)]"
+                className="w-full rounded-xl bg-surface-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-fg"
                 maxLength={50}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
+              <label className="block text-sm font-medium mb-1 text-fg">
                 {ts("bio")}
               </label>
               <textarea
                 value={form.bio}
                 onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
-                className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 resize-none text-[var(--tg-theme-text-color,#000000)]"
+                className="w-full rounded-xl bg-surface-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-fg"
                 rows={3}
                 maxLength={500}
               />
-              <p className="text-xs text-[var(--tg-theme-hint-color,#999999)] mt-1">
+              <p className="text-xs text-muted mt-1">
                 {form.bio.length}/500
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
+                <label className="block text-sm font-medium mb-1 text-fg">
                   {ts("gender")}
                 </label>
                 <select
                   value={form.gender}
                   onChange={(e) => setForm((p) => ({ ...p, gender: e.target.value }))}
-                  className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 text-[var(--tg-theme-text-color,#000000)]"
+                  className="w-full rounded-xl bg-surface-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-fg"
                 >
                   <option value="">{t("select")}</option>
                   <option value="male">{t("gender.male")}</option>
@@ -408,13 +417,13 @@ export default function SettingsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
+                <label className="block text-sm font-medium mb-1 text-fg">
                   {ts("lookingFor")}
                 </label>
                 <select
                   value={form.datingIntent}
                   onChange={(e) => setForm((p) => ({ ...p, datingIntent: e.target.value }))}
-                  className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 text-[var(--tg-theme-text-color,#000000)]"
+                  className="w-full rounded-xl bg-surface-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-fg"
                 >
                   <option value="">{t("select")}</option>
                   <option value="dating">{t("datingIntent.dating")}</option>
@@ -428,25 +437,25 @@ export default function SettingsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
+                <label className="block text-sm font-medium mb-1 text-fg">
                   {ts("city")}
                 </label>
                 <input
                   type="text"
                   value={form.city}
                   onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
-                  className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 text-[var(--tg-theme-text-color,#000000)]"
+                  className="w-full rounded-xl bg-surface-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-fg"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-[var(--tg-theme-text-color,#000000)]">
+                <label className="block text-sm font-medium mb-1 text-fg">
                   {ts("country")}
                 </label>
                 <input
                   type="text"
                   value={form.country}
                   onChange={(e) => setForm((p) => ({ ...p, country: e.target.value }))}
-                  className="w-full rounded-xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color,#0088cc)]/50 text-[var(--tg-theme-text-color,#000000)]"
+                  className="w-full rounded-xl bg-surface-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-fg"
                 />
               </div>
             </div>
@@ -460,8 +469,8 @@ export default function SettingsPage() {
         {/* Photos Tab */}
         {activeTab === "photos" && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-              Your Photos
+            <h2 className="text-lg font-semibold text-fg">
+              {ts("yourPhotos")}
             </h2>
             <PhotoPicker
               photos={photos}
@@ -479,17 +488,17 @@ export default function SettingsPage() {
         {activeTab === "interests" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-                Interests
+              <h2 className="text-lg font-semibold text-fg">
+                {ts("interests")}
               </h2>
-              <span className="text-sm text-[var(--tg-theme-hint-color,#999999)]">
+              <span className="text-sm text-muted">
                 {selectedInterests.size}/15
               </span>
             </div>
             <div className="space-y-4">
               {Object.entries(groupedInterests).map(([category, items]) => (
                 <div key={category}>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--tg-theme-hint-color,#999999)] mb-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">
                     {category}
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -499,8 +508,8 @@ export default function SettingsPage() {
                         onClick={() => toggleInterest(interest.id)}
                         className={`rounded-full px-3.5 py-2 text-sm font-medium transition-all ${
                           selectedInterests.has(interest.id)
-                            ? "bg-[var(--tg-theme-button-color,#0088cc)] text-white"
-                            : "bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] text-[var(--tg-theme-text-color,#000000)]"
+                            ? "bg-primary text-white"
+                            : "bg-surface-2 text-fg"
                         }`}
                       >
                         {interest.name}
@@ -516,7 +525,7 @@ export default function SettingsPage() {
               loading={saving}
               disabled={saving || selectedInterests.size < 1}
             >
-              Save Interests
+              {ts("saveInterests")}
             </Button>
           </div>
         )}
@@ -524,12 +533,12 @@ export default function SettingsPage() {
         {/* Preferences Tab */}
         {activeTab === "preferences" && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-              Discovery Preferences
+            <h2 className="text-lg font-semibold text-fg">
+              {ts("discoveryPreferences")}
             </h2>
             <div>
-              <label className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
-                Age range: {minAge}–{maxAge}
+              <label className="text-sm font-medium text-fg">
+                {ts("ageRange", { min: minAge, max: maxAge })}
               </label>
               <input
                 type="range"
@@ -541,7 +550,7 @@ export default function SettingsPage() {
                   setMinAge(v);
                   if (v > maxAge) setMaxAge(v);
                 }}
-                className="w-full accent-[var(--tg-theme-button-color,#0088cc)]"
+                className="w-full accent-primary"
               />
               <input
                 type="range"
@@ -553,12 +562,12 @@ export default function SettingsPage() {
                   setMaxAge(v);
                   if (v < minAge) setMinAge(v);
                 }}
-                className="w-full accent-[var(--tg-theme-button-color,#0088cc)]"
+                className="w-full accent-primary"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
-                Max distance: {maxDistance} km
+              <label className="text-sm font-medium text-fg">
+                {ts("maxDistance", { distance: maxDistance })}
               </label>
               <input
                 type="range"
@@ -566,12 +575,12 @@ export default function SettingsPage() {
                 max={500}
                 value={maxDistance}
                 onChange={(e) => setMaxDistance(parseInt(e.target.value))}
-                className="w-full accent-[var(--tg-theme-button-color,#0088cc)]"
+                className="w-full accent-primary"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)] mb-2">
-                Show me
+              <label className="text-sm font-medium text-fg mb-2">
+                {t("gender.showMe")}
               </label>
               <div className="flex gap-2">
                 {["male", "female", "non_binary"].map((g) => (
@@ -586,17 +595,21 @@ export default function SettingsPage() {
                     }}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
                       preferredGenders.has(g)
-                        ? "bg-[var(--tg-theme-button-color,#0088cc)] text-white"
-                        : "bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] text-[var(--tg-theme-text-color,#000000)]"
+                        ? "bg-primary text-white"
+                        : "bg-surface-2 text-fg"
                     }`}
                   >
-                    {g === "male" ? "Men" : g === "female" ? "Women" : "Non-binary"}
+                    {g === "male"
+                      ? t("gender.men")
+                      : g === "female"
+                        ? t("gender.women")
+                        : t("gender.nonBinary")}
                   </button>
                 ))}
               </div>
             </div>
             <Button onClick={savePreferences} fullWidth loading={saving} disabled={saving}>
-              Save Preferences
+              {ts("savePreferences")}
             </Button>
           </div>
         )}
@@ -605,7 +618,7 @@ export default function SettingsPage() {
         {activeTab === "preview" && (
           <div className="max-w-xs mx-auto">
             <ProfilePreviewCard
-              displayName={form.displayName || "Your Name"}
+              displayName={form.displayName || ts("yourName")}
               age={profileAge}
               city={form.city || undefined}
               country={form.country || undefined}
@@ -622,40 +635,52 @@ export default function SettingsPage() {
         {/* Account Settings Tab */}
         {activeTab === "settings" && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-              Account
+            <h2 className="text-lg font-semibold text-fg">
+              {ts("account")}
             </h2>
+
+            {/* Language */}
+            <Card>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-fg">{ts("languageSection")}</p>
+                  <p className="text-xs text-muted">{ts("selectLanguage")}</p>
+                </div>
+                <LanguageSelector variant="dropdown" />
+              </div>
+            </Card>
+
             <Card>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
-                    Deactivate Account
+                  <p className="text-sm font-medium text-fg">
+                    {ts("deactivateAccount")}
                   </p>
-                  <p className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
-                    Temporarily hide your profile
+                  <p className="text-xs text-muted">
+                    {ts("deactivateDescription")}
                   </p>
                 </div>
                 <button
                   onClick={async () => {
-                    if (confirm("Are you sure you want to deactivate your account?")) {
+                    if (confirm(ts("deactivateConfirm"))) {
                       await fetch("/api/profile/deactivate", { method: "POST" });
                       router.push("/");
                     }
                   }}
-                  className="rounded-lg bg-red-500 px-4 py-2 text-sm text-white"
+                  className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white transition-all active:scale-95"
                 >
-                  Deactivate
+                  {ts("deactivate")}
                 </button>
               </div>
             </Card>
             <Card>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[var(--tg-theme-text-color,#000000)]">
-                    Sign Out
+                  <p className="text-sm font-medium text-fg">
+                    {ts("signOut")}
                   </p>
-                  <p className="text-xs text-[var(--tg-theme-hint-color,#999999)]">
-                    Log out of your account
+                  <p className="text-xs text-muted">
+                    {ts("signOutDescription")}
                   </p>
                 </div>
                 <button
@@ -664,15 +689,17 @@ export default function SettingsPage() {
                     await logout();
                     router.push("/");
                   }}
-                  className="rounded-lg bg-[var(--tg-theme-secondary-bg-color,#f0f0f0)] px-4 py-2 text-sm text-[var(--tg-theme-text-color,#000000)]"
+                  className="rounded-full bg-surface-2 border border-divider px-4 py-2 text-sm font-semibold text-fg transition-all active:scale-95"
                 >
-                  Sign Out
+                  {ts("signOut")}
                 </button>
               </div>
             </Card>
           </div>
         )}
       </div>
+
+      <DesktopNav />
     </div>
   );
 }

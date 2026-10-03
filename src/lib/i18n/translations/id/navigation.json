@@ -17,7 +17,10 @@
     "welcome": "Selamat datang di Vibe",
     "welcomeSub": "Penemuan sosial di dalam Telegram. Masuk untuk melihat story dan feed kamu.",
     "authFailed": "Autentikasi gagal",
-    "authFailedSub": "Terjadi kesalahan. Ketuk coba lagi."
+    "authFailedSub": "Terjadi kesalahan. Ketuk coba lagi.",
+    "tagline1": "Duniamu.",
+    "tagline2": "Orang-orangmu.",
+    "tagline3": "Vibemu."
   },
   "create": "Buat",
   "backToApp": "Kembali ke Aplikasi",
@@ -30,7 +33,9 @@
     "discover": "Jelajahi",
     "matches": "Cocok",
     "chats": "Chat",
-    "profile": "Profil"
+    "profile": "Profil",
+    "home": "Beranda",
+    "create": "Buat"
   },
   "admin": {
     "title": "Admin Vibe",

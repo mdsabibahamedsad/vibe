@@ -14,5 +14,10 @@
   "verified": "Verified",
   "filterBy": "Filter by",
   "allResults": "All Results",
-  "seeAll": "See all"
+  "seeAll": "See all",
+  "discoverTitle": "খুঁজুন",
+  "signInToDiscover": "মানুষ খুঁজতে সাইন ইন করুন",
+  "discoverSubtitle": "আপনার আগ্রহের মানুষ খুঁজুন",
+  "datingCardTitle": "ডেটিং",
+  "datingCardSubtitle": "সোয়াইপ করুন, ম্যাচ করুন, নতুন মানুষের সাথে দেখা করুন"
 }

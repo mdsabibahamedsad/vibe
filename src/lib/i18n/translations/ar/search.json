@@ -14,5 +14,10 @@
   "verified": "Verified",
   "filterBy": "Filter by",
   "allResults": "All Results",
-  "seeAll": "See all"
+  "seeAll": "See all",
+  "discoverTitle": "استكشاف",
+  "signInToDiscover": "سجّل الدخول لاكتشاف أشخاص",
+  "discoverSubtitle": "اعثر على أشخاص يشاركونك اهتماماتك",
+  "datingCardTitle": "المواعدة",
+  "datingCardSubtitle": "اسحب، وطابق، وتعرّف على أشخاص جدد"
 }

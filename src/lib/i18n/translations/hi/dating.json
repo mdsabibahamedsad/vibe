@@ -20,5 +20,11 @@
   "superLikeConfirm": "Send a Super Like?",
   "matchNotification": "It's a Match!",
   "keepSwiping": "Keep Swiping",
-  "sendMessage": "Send a Message"
+  "sendMessage": "Send a Message",
+  "matchesTitle": "मैच",
+  "matchesErrorTitle": "मैच लोड करने में विफल",
+  "matchesEmptyTitle": "अभी कोई मैच नहीं",
+  "matchesEmptyDescription": "अपनी रुचियों के लोगों को खोजते रहें। जब दोनों पसंद करेंगे, तब मैच यहाँ दिखेगा।",
+  "matchesDiscoverCta": "लोग खोजें",
+  "matchCount": "{count} मैच"
 }

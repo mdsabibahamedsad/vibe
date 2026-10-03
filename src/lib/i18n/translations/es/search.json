@@ -14,5 +14,10 @@
   "verified": "Verified",
   "filterBy": "Filter by",
   "allResults": "All Results",
-  "seeAll": "See all"
+  "seeAll": "See all",
+  "discoverTitle": "Descubrir",
+  "signInToDiscover": "Inicia sesión para descubrir gente",
+  "discoverSubtitle": "Encuentra gente con tus intereses",
+  "datingCardTitle": "Citas",
+  "datingCardSubtitle": "Desliza, haz match y conoce gente nueva"
 }

@@ -14,5 +14,26 @@
   "views": "{count} views",
   "justPosted": "Just now",
   "loading": "Loading feed...",
-  "loadingMore": "Loading more..."
+  "loadingMore": "Loading more...",
+  "composer": {
+    "cancel": "বাতিল",
+    "newPost": "নতুন পোস্ট",
+    "publish": "প্রকাশ",
+    "publishing": "প্রকাশ হচ্ছে…",
+    "addMedia": "ছবি বা ভিডিও যোগ করুন",
+    "removeMedia": "মিডিয়া সরান",
+    "visibility": "দৃশ্যমানতা",
+    "visibilityPublic": "পাবলিক",
+    "visibilityFollowers": "ফলোয়ার",
+    "visibilityPrivate": "প্রাইভেট",
+    "needContent": "আপনার পোস্টে ক্যাপশন বা মিডিয়া যোগ করুন",
+    "uploadFailed": "আপলোড ব্যর্থ",
+    "processing": "প্রসেস হচ্ছে…",
+    "retry": "আবার চেষ্টা করুন",
+    "maxImages": "সর্বোচ্চ {max}টি ছবি",
+    "maxVideos": "শুধুমাত্র {max}টি ভিডিও",
+    "imageTooLarge": "ছবি {max}MB-এর কম হতে হবে",
+    "videoTooLarge": "ভিডিও {max}MB-এর কম হতে হবে",
+    "unsupportedType": "অসমর্থিত ফাইল টাইপ। JPEG, PNG, WebP বা MP4 আপলোড করুন।"
+  }
 }

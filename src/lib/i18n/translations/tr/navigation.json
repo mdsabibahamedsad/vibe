@@ -17,7 +17,10 @@
     "welcome": "Vibe'a hoş geldin",
     "welcomeSub": "Telegram içinde sosyal keşif. Hikayeleri ve akışını görmek için giriş yap.",
     "authFailed": "Kimlik doğrulama başarısız",
-    "authFailedSub": "Bir şeyler ters gitti. Tekrar denemek için dokun."
+    "authFailedSub": "Bir şeyler ters gitti. Tekrar denemek için dokun.",
+    "tagline1": "Senin dünyan.",
+    "tagline2": "Senin insanların.",
+    "tagline3": "Senin vibin."
   },
   "create": "Oluştur",
   "backToApp": "Uygulamaya Dön",
@@ -30,7 +33,9 @@
     "discover": "Keşfet",
     "matches": "Eşleşmeler",
     "chats": "Sohbetler",
-    "profile": "Profil"
+    "profile": "Profil",
+    "home": "Ana Sayfa",
+    "create": "Oluştur"
   },
   "admin": {
     "title": "Vibe Admin",

@@ -14,5 +14,26 @@
   "views": "{count} views",
   "justPosted": "Just now",
   "loading": "Loading feed...",
-  "loadingMore": "Loading more..."
+  "loadingMore": "Loading more...",
+  "composer": {
+    "cancel": "İptal",
+    "newPost": "Yeni Gönderi",
+    "publish": "Paylaş",
+    "publishing": "Paylaşılıyor…",
+    "addMedia": "Fotoğraf veya video ekle",
+    "removeMedia": "Medya kaldır",
+    "visibility": "Görünürlük",
+    "visibilityPublic": "Herkese açık",
+    "visibilityFollowers": "Takipçiler",
+    "visibilityPrivate": "Özel",
+    "needContent": "Gönderine bir başlık veya medya ekle",
+    "uploadFailed": "Yükleme başarısız",
+    "processing": "İşleniyor…",
+    "retry": "Tekrar dene",
+    "maxImages": "En fazla {max} görsel",
+    "maxVideos": "Sadece {max} video",
+    "imageTooLarge": "Görsel {max}MB'dan küçük olmalı",
+    "videoTooLarge": "Video {max}MB'dan küçük olmalı",
+    "unsupportedType": "Desteklenmeyen dosya türü. JPEG, PNG, WebP veya MP4 yükleyin."
+  }
 }

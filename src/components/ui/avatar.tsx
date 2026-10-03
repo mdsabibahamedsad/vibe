@@ -1,4 +1,4 @@
-import type { ImgHTMLAttributes } from "react";
+import { useState, type ImgHTMLAttributes } from "react";
 
 type AvatarSize = "sm" | "md" | "lg" | "xl";
 
@@ -25,6 +25,22 @@ const ringPadding: Record<AvatarSize, string> = {
   xl: "p-1.5",
 };
 
+/**
+ * Resolve an avatar source into a loadable URL.
+ *
+ * Many API responses expose avatar references as raw media IDs (UUIDs from the
+ * `media` table). A bare UUID is not a valid <img src>, so we route it through
+ * the authenticated media endpoint. Absolute/data/blob URLs pass through
+ * unchanged.
+ */
+export function resolveAvatarSrc(src: string): string {
+  if (/^https?:\/\//.test(src) || src.startsWith("/") || src.startsWith("data:") || src.startsWith("blob:")) {
+    return src;
+  }
+  // Bare media ID (UUID-ish) — serve via the media endpoint's thumbnail
+  return `/api/media/${encodeURIComponent(src)}?derivative=thumbnail`;
+}
+
 function getInitials(name: string): string {
   return name
     .split(" ")
@@ -35,24 +51,28 @@ function getInitials(name: string): string {
 }
 
 export function Avatar({ src, alt, size = "md", fallback, ring = false, className = "", ...props }: AvatarProps) {
+  const [failed, setFailed] = useState(false);
   const initials = fallback ?? getInitials(alt);
 
-  const inner = (
-    src ? (
-      <img
-        src={src}
-        alt={alt}
-        className={`rounded-full object-cover ${sizeClasses[size]} ${className}`}
-        {...props}
-      />
-    ) : (
-      <div
-        className={`rounded-full bg-brand-gradient flex items-center justify-center text-white font-semibold ${sizeClasses[size]} ${className}`}
-        title={alt}
-      >
-        {initials}
-      </div>
-    )
+  const resolved = src ? resolveAvatarSrc(src) : null;
+  const showImage = resolved !== null && !failed;
+
+  const inner = showImage ? (
+    <img
+      src={resolved as string}
+      alt={alt}
+      className={`rounded-full object-cover ${sizeClasses[size]} ${className}`}
+      onError={() => setFailed(true)}
+      {...props}
+    />
+  ) : (
+    <div
+      className={`rounded-full bg-brand-gradient flex items-center justify-center text-white font-semibold ${sizeClasses[size]} ${className}`}
+      title={alt}
+      aria-label={alt}
+    >
+      {initials}
+    </div>
   );
 
   if (ring) {

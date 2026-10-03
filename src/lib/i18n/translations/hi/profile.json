@@ -21,5 +21,13 @@
   "block": "Block",
   "settings": "Settings",
   "premium": "Premium",
-  "joinDate": "Joined {date}"
+  "joinDate": "Joined {date}",
+  "tabVibes": "वाइब्स",
+  "tabMedia": "मीडिया",
+  "emptyPostsTitle": "अभी कोई वाइब नहीं",
+  "emptyPostsDescription": "अपनी पहली वाइब साझा करें और खुद को व्यक्त करें।",
+  "errorTitle": "प्रोफ़ाइल लोड नहीं हो सकी",
+  "shareProfile": "प्रोफ़ाइल साझा करें",
+  "noBio": "अभी कोई बायो नहीं",
+  "completeProfile": "अपनी प्रोफ़ाइल पूरी करें"
 }

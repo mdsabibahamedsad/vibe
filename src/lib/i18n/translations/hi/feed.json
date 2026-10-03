@@ -14,5 +14,26 @@
   "views": "{count} views",
   "justPosted": "Just now",
   "loading": "Loading feed...",
-  "loadingMore": "Loading more..."
+  "loadingMore": "Loading more...",
+  "composer": {
+    "cancel": "रद्द करें",
+    "newPost": "नई पोस्ट",
+    "publish": "प्रकाशित करें",
+    "publishing": "प्रकाशित हो रहा है…",
+    "addMedia": "फ़ोटो या वीडियो जोड़ें",
+    "removeMedia": "मीडिया हटाएं",
+    "visibility": "दृश्यता",
+    "visibilityPublic": "सार्वजनिक",
+    "visibilityFollowers": "फ़ॉलोअर्स",
+    "visibilityPrivate": "निजी",
+    "needContent": "अपनी पोस्ट में कैप्शन या मीडिया जोड़ें",
+    "uploadFailed": "अपलोड विफल",
+    "processing": "प्रोसेसिंग…",
+    "retry": "पुनः प्रयास",
+    "maxImages": "अधिकतम {max} छवियां",
+    "maxVideos": "केवल {max} वीडियो",
+    "imageTooLarge": "छवि {max}MB से कम होनी चाहिए",
+    "videoTooLarge": "वीडियो {max}MB से कम होना चाहिए",
+    "unsupportedType": "असमर्थित फ़ाइल प्रकार। JPEG, PNG, WebP या MP4 अपलोड करें।"
+  }
 }

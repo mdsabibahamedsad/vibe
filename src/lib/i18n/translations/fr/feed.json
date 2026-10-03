@@ -14,5 +14,26 @@
   "views": "{count} views",
   "justPosted": "Just now",
   "loading": "Loading feed...",
-  "loadingMore": "Loading more..."
+  "loadingMore": "Loading more...",
+  "composer": {
+    "cancel": "Annuler",
+    "newPost": "Nouvelle publication",
+    "publish": "Publier",
+    "publishing": "Publication…",
+    "addMedia": "Ajouter photo ou vidéo",
+    "removeMedia": "Supprimer le média",
+    "visibility": "Visibilité",
+    "visibilityPublic": "Public",
+    "visibilityFollowers": "Abonnés",
+    "visibilityPrivate": "Privé",
+    "needContent": "Ajoutez un texte ou un média à votre publication",
+    "uploadFailed": "Échec du téléversement",
+    "processing": "Traitement…",
+    "retry": "Réessayer",
+    "maxImages": "Maximum {max} images",
+    "maxVideos": "Une seule vidéo ({max})",
+    "imageTooLarge": "L'image doit faire moins de {max} Mo",
+    "videoTooLarge": "La vidéo doit faire moins de {max} Mo",
+    "unsupportedType": "Type de fichier non pris en charge. Téléversez JPEG, PNG, WebP ou MP4."
+  }
 }

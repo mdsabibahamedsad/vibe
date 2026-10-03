@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar } from "@/components/ui";
+import { Avatar, Toast } from "@/components/ui";
 import { PostMedia } from "./PostMedia";
 import { PostActions } from "./PostActions";
 import { PostMenu } from "./PostMenu";
@@ -41,6 +41,7 @@ export function FeedPost({
   const [commentCount, setCommentCount] = useState(post.commentCount);
   const [isFollowing, setIsFollowing] = useState(post.author?.isFollowing ?? false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const isOwnPost = post.authorId === currentUserId;
 
@@ -53,6 +54,15 @@ export function FeedPost({
       setIsLiked(true);
       setLikeCount((c) => c + 1);
       await onLike(post.id);
+    }
+  };
+
+  /** Double-tap on media always likes (never unlikes). */
+  const handleDoubleTapLike = () => {
+    if (!isLiked) {
+      setIsLiked(true);
+      setLikeCount((c) => c + 1);
+      void onLike(post.id);
     }
   };
 
@@ -169,7 +179,7 @@ export function FeedPost({
         )}
 
         {/* Media */}
-        <PostMedia media={post.media} postType={post.postType} />
+        <PostMedia media={post.media} postType={post.postType} onDoubleTapLike={handleDoubleTapLike} />
 
         {/* Actions */}
         <PostActions
@@ -231,6 +241,8 @@ export function FeedPost({
         postId={post.id}
         onCommentCreated={(change) => setCommentCount((c) => Math.max(0, c + change))}
       />
+
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </>
   );
 }

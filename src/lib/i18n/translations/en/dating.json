@@ -20,5 +20,11 @@
   "superLikeConfirm": "Send a Super Like?",
   "matchNotification": "It's a Match!",
   "keepSwiping": "Keep Swiping",
-  "sendMessage": "Send a Message"
+  "sendMessage": "Send a Message",
+  "matchesTitle": "Matches",
+  "matchesErrorTitle": "Failed to load matches",
+  "matchesEmptyTitle": "No matches yet",
+  "matchesEmptyDescription": "Keep discovering people who share your interests. When you both like each other, you'll match here.",
+  "matchesDiscoverCta": "Discover People",
+  "matchCount": "{count} matchs"
 }

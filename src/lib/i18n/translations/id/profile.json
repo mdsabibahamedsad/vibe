@@ -21,5 +21,13 @@
   "block": "Block",
   "settings": "Settings",
   "premium": "Premium",
-  "joinDate": "Joined {date}"
+  "joinDate": "Joined {date}",
+  "tabVibes": "Vibes",
+  "tabMedia": "Media",
+  "emptyPostsTitle": "Belum ada vibe",
+  "emptyPostsDescription": "Bagikan vibe pertamamu dan ekspresikan dirimu.",
+  "errorTitle": "Tidak dapat memuat profil",
+  "shareProfile": "Bagikan profil",
+  "noBio": "Belum ada bio",
+  "completeProfile": "Lengkapi profil kamu"
 }

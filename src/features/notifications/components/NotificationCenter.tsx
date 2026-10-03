@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { NotificationItem } from "./NotificationItem";
 import { NotificationEmptyState } from "./NotificationEmptyState";
-import { Loading, ErrorState } from "@/components/ui";
+import { ErrorState, NotificationSkeleton } from "@/components/ui";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { NotificationItem as NotificationItemType } from "@/lib/notifications/schemas";
 
 type NotificationCategory = "all" | "messages" | "dating" | "social" | "system";
@@ -27,6 +28,7 @@ interface NotificationCenterProps {
 export function NotificationCenter({
   onNotificationPress,
 }: NotificationCenterProps) {
+  const { t } = useTranslation("notifications");
   const {
     items,
     loading,
@@ -74,33 +76,30 @@ export function NotificationCenter({
   );
 
   const categories: { key: NotificationCategory; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "messages", label: "Messages" },
-    { key: "dating", label: "Dating" },
-    { key: "social", label: "Social" },
-    { key: "system", label: "System" },
+    { key: "all", label: t("categories.all") },
+    { key: "messages", label: t("categories.messages") },
+    { key: "dating", label: t("categories.dating") },
+    { key: "social", label: t("categories.social") },
+    { key: "system", label: t("categories.system") },
   ];
 
   if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <Loading message="Loading notifications..." />
-      </div>
-    );
+    return <NotificationSkeleton />;
   }
 
   return (
     <div className="flex flex-col h-full">
       {/* Category filter tabs */}
-      <div className="flex gap-1 px-2 py-2 overflow-x-auto scrollbar-none border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+      <div className="scrollbar-none flex gap-1.5 overflow-x-auto px-4 py-2.5">
         {categories.map((cat) => (
           <button
             key={cat.key}
             onClick={() => setCategory(cat.key)}
-            className={`px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-colors ${
+            aria-pressed={category === cat.key}
+            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95 ${
               category === cat.key
-                ? "bg-[var(--tg-theme-button-color,#0088cc)] text-[var(--tg-theme-button-text-color,#ffffff)] font-medium"
-                : "text-[var(--tg-theme-text-color,#000000)] hover:bg-black/5 dark:hover:bg-white/10"
+                ? "bg-brand-gradient text-white shadow-glow"
+                : "border border-divider bg-surface-2 text-muted hover:text-fg"
             }`}
           >
             {cat.label}
@@ -125,18 +124,18 @@ export function NotificationCenter({
         <div className="flex-1 overflow-y-auto">
           {/* Mark all as read */}
           {items.some((n) => !n.isRead) && (
-            <div className="px-4 py-2 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+            <div className="px-4 py-2">
               <button
                 onClick={markAllAsRead}
-                className="text-xs font-medium text-[var(--tg-theme-button-color,#0088cc)]"
+                className="text-xs font-semibold text-primary transition-opacity hover:opacity-80"
               >
-                Mark all as read
+                {t("markAllRead")}
               </button>
             </div>
           )}
 
           {/* Notification list */}
-          <div className="divide-y divide-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
+          <div className="divide-y divide-divider">
             {items.map((notification) => (
               <NotificationItem
                 key={notification.id}
@@ -150,13 +149,13 @@ export function NotificationCenter({
           {hasMore && (
             <div ref={loadMoreRef} className="flex justify-center py-4">
               {loadingMore ? (
-                <Loading message="Loading more..." />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-hidden />
               ) : (
                 <button
                   onClick={loadMore}
-                  className="text-xs text-[var(--tg-theme-button-color,#0088cc)] font-medium"
+                  className="text-xs font-semibold text-primary transition-opacity hover:opacity-80"
                 >
-                  Load more
+                  {t("loadMore")}
                 </button>
               )}
             </div>

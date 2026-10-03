@@ -50,6 +50,12 @@
   --color-header-bg: var(--tg-theme-header-bg-color, #ffffff);
   --color-divider: color-mix(in oklab, var(--color-fg) 10%, transparent);
 
+  /* --- shadcn-style aliases (used by older feature components) --- */
+  --color-card: var(--color-surface);
+  --color-border: var(--color-divider);
+  --color-foreground: var(--color-fg);
+  --color-muted-foreground: var(--color-muted);
+
   /* --- Brand gradient stops --- */
   --color-brand-from: #7c3aed;
   --color-brand-via: #ec4899;
@@ -218,6 +224,34 @@ h1, h2, h3, h4, h5 {
   border: 1px solid var(--color-divider);
 }
 
+/* Skeleton loading block — pulsing shimmer wave */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-fg) 6%, transparent),
+    transparent
+  );
+  animation: skeleton-wave 1.4s ease infinite;
+}
+
+@keyframes skeleton-wave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Gradient ring (for stories / avatars) */
 .ring-gradient {
   background-image: linear-gradient(
@@ -270,4 +304,49 @@ h1, h2, h3, h4, h5 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================
+   Safe-area utilities (used across pages)
+   ============================================================ */
+.pb-safe {
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.pt-safe {
+  padding-top: var(--safe-area-top);
+}
+
+/* Hide scrollbars while keeping scrollability (horizontal chip rows etc.) */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Heart burst for double-tap like */
+@keyframes heart-burst {
+  0% {
+    transform: scale(0) rotate(-12deg);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.25) rotate(4deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.4) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+.animate-heart-burst {
+  animation: heart-burst 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

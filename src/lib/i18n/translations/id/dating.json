@@ -20,5 +20,11 @@
   "superLikeConfirm": "Send a Super Like?",
   "matchNotification": "It's a Match!",
   "keepSwiping": "Keep Swiping",
-  "sendMessage": "Send a Message"
+  "sendMessage": "Send a Message",
+  "matchesTitle": "Cocok",
+  "matchesErrorTitle": "Gagal memuat kecocokan",
+  "matchesEmptyTitle": "Belum ada yang cocok",
+  "matchesEmptyDescription": "Terus temukan orang dengan minatmu. Kalau sama-sama suka, akan muncul di sini.",
+  "matchesDiscoverCta": "Temukan orang",
+  "matchCount": "{count} kecocokan"
 }

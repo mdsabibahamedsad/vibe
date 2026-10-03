@@ -5,10 +5,12 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { useFeed } from "@/features/feed/hooks/useFeed";
 import { usePost } from "@/features/feed/hooks/usePost";
 import { FeedPost } from "./FeedPost";
-import { Loading, EmptyState, ErrorState } from "@/components/ui";
+import { Toast, FeedSkeleton, EmptyState, ErrorState } from "@/components/ui";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function Feed() {
   const { user, authenticated } = useCurrentUser();
+  const { t } = useTranslation("feed");
   const {
     items,
     loading,
@@ -108,7 +110,7 @@ export function Feed() {
   }
 
   if (loading) {
-    return <Loading fullScreen message="Loading feed..." />;
+    return <FeedSkeleton />;
   }
 
   if (feedError) {
@@ -118,14 +120,14 @@ export function Feed() {
   if (items.length === 0) {
     return (
       <EmptyState
-        title="Your feed is empty"
-        description="Follow people to see their posts here. Or create your first post!"
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
         action={
           <a
             href="/create"
-            className="mt-3 inline-block rounded-full bg-brand-gradient px-6 py-2.5 text-sm font-medium text-white shadow-glow active:scale-95 transition"
+            className="mt-3 inline-block rounded-full bg-brand-gradient px-6 py-2.5 text-sm font-semibold text-white shadow-glow transition-transform active:scale-95"
           >
-            Create Post
+            {t("createPost")}
           </a>
         }
       />
@@ -135,11 +137,7 @@ export function Feed() {
   return (
     <div className="pb-safe">
       {/* Post error toast */}
-      {postError && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 rounded-2xl bg-danger p-3 text-sm text-white shadow-lift">
-          {postError}
-        </div>
-      )}
+      <Toast message={postError} variant="error" onDismiss={() => {}} />
 
       {/* Feed items */}
       <div className="space-y-3">
@@ -168,13 +166,13 @@ export function Feed() {
       {hasMore && (
         <div ref={loadMoreRef} className="flex justify-center py-6">
           {loadingMore ? (
-            <Loading message="Loading more..." />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-hidden />
           ) : (
             <button
               onClick={loadMore}
-              className="text-sm text-primary font-medium hover:text-accent-400 transition-colors"
+              className="text-sm font-semibold text-primary transition-opacity hover:opacity-80"
             >
-              Load more
+              {t("loadingMore")}
             </button>
           )}
         </div>

@@ -17,7 +17,10 @@
     "welcome": "Bienvenue sur Vibe",
     "welcomeSub": "Découverte sociale dans Telegram. Connectez-vous pour voir les stories et votre fil.",
     "authFailed": "Échec de l'authentification",
-    "authFailedSub": "Une erreur est survenue. Appuyez sur réessayer."
+    "authFailedSub": "Une erreur est survenue. Appuyez sur réessayer.",
+    "tagline1": "Ton monde.",
+    "tagline2": "Ta bande.",
+    "tagline3": "Ton flow."
   },
   "create": "Créer",
   "backToApp": "Retour à l'application",
@@ -30,7 +33,9 @@
     "discover": "Découvrir",
     "matches": "Matchs",
     "chats": "Discussions",
-    "profile": "Profil"
+    "profile": "Profil",
+    "home": "Accueil",
+    "create": "Créer"
   },
   "admin": {
     "title": "Admin Vibe",

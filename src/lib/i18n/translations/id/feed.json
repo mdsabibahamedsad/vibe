@@ -14,5 +14,26 @@
   "views": "{count} views",
   "justPosted": "Just now",
   "loading": "Loading feed...",
-  "loadingMore": "Loading more..."
+  "loadingMore": "Loading more...",
+  "composer": {
+    "cancel": "Batal",
+    "newPost": "Postingan Baru",
+    "publish": "Terbitkan",
+    "publishing": "Menerbitkan…",
+    "addMedia": "Tambah foto atau video",
+    "removeMedia": "Hapus media",
+    "visibility": "Visibilitas",
+    "visibilityPublic": "Publik",
+    "visibilityFollowers": "Pengikut",
+    "visibilityPrivate": "Privat",
+    "needContent": "Tambahkan teks atau media ke postinganmu",
+    "uploadFailed": "Gagal mengunggah",
+    "processing": "Memproses…",
+    "retry": "Coba lagi",
+    "maxImages": "Maksimal {max} gambar",
+    "maxVideos": "Hanya {max} video",
+    "imageTooLarge": "Gambar harus kurang dari {max}MB",
+    "videoTooLarge": "Video harus kurang dari {max}MB",
+    "unsupportedType": "Tipe file tidak didukung. Unggah JPEG, PNG, WebP, atau MP4."
+  }
 }

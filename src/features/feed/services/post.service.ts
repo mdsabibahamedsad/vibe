@@ -166,6 +166,53 @@ export async function createPost(userId: string, data: CreatePostInput): Promise
   return (await getPostById(post.id, userId))!;
 }
 
+// ─── List Posts by Author ────────────────────────────────────────────────
+
+/**
+ * List a user's posts (used by the profile screen).
+ * Own profile: all posts. Other users: public posts only.
+ */
+export async function listPostsByAuthor(
+  authorId: string,
+  currentUserId: string,
+  options: { limit?: number; cursor?: string } = {},
+): Promise<{ items: PostResult[]; nextCursor: string | null }> {
+  const adminClient = createAdminClient();
+  const limit = Math.min(Math.max(options.limit ?? 12, 1), 30);
+  const isSelf = authorId === currentUserId;
+
+  let query = adminClient
+    .from("posts")
+    .select("*")
+    .eq("author_id", authorId)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
+
+  if (!isSelf) {
+    query = query.eq("visibility", "public");
+  }
+  if (options.cursor) {
+    query = query.lt("created_at", options.cursor);
+  }
+
+  const { data: posts, error } = await query;
+
+  if (error) {
+    logger.error("Failed to list posts by author", { error: error.message });
+    throw new AppError("INTERNAL_ERROR", "Failed to load posts", { statusCode: 500 });
+  }
+
+  const hasMore = (posts?.length ?? 0) > limit;
+  const page = hasMore ? posts!.slice(0, limit) : (posts ?? []);
+  const items = await Promise.all(page.map((p) => enrichPost(p, currentUserId)));
+
+  return {
+    items,
+    nextCursor: hasMore ? page[page.length - 1].created_at : null,
+  };
+}
+
 // ─── Get Single Post ─────────────────────────────────────────────────────
 
 export async function getPostById(

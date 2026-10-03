@@ -14,5 +14,10 @@
   "verified": "Verified",
   "filterBy": "Filter by",
   "allResults": "All Results",
-  "seeAll": "See all"
+  "seeAll": "See all",
+  "discoverTitle": "खोजें",
+  "signInToDiscover": "लोगों को खोजने के लिए साइन इन करें",
+  "discoverSubtitle": "अपनी रुचियों के लोग खोजें",
+  "datingCardTitle": "डेटिंग",
+  "datingCardSubtitle": "स्वाइप करें, मैच करें, नए लोगों से मिलें"
 }

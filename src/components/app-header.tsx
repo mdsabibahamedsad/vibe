@@ -7,14 +7,16 @@ interface AppHeaderProps {
   actions?: ReactNode;
   /** Optional leading content (e.g. back button). */
   leading?: ReactNode;
+  /** Optional content rendered below the title row (tab strips, search). */
+  children?: ReactNode;
 }
 
-export function AppHeader({ title, brand = false, actions, leading }: AppHeaderProps) {
+export function AppHeader({ title, brand = false, actions, leading, children }: AppHeaderProps) {
   return (
     <header
       className="glass sticky top-0 z-20 border-b border-divider"
     >
-      <div className="flex items-center justify-between gap-2 px-4 py-3">
+      <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-2 px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
           {leading}
           {brand ? (
@@ -31,6 +33,7 @@ export function AppHeader({ title, brand = false, actions, leading }: AppHeaderP
         </div>
         {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
+      {children}
     </header>
   );
 }

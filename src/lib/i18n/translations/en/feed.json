@@ -14,5 +14,26 @@
   "views": "{count} views",
   "justPosted": "Just now",
   "loading": "Loading feed...",
-  "loadingMore": "Loading more..."
+  "loadingMore": "Loading more...",
+  "composer": {
+    "cancel": "Cancel",
+    "newPost": "New Post",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "addMedia": "Add photo or video",
+    "removeMedia": "Remove media",
+    "visibility": "Visibility",
+    "visibilityPublic": "Public",
+    "visibilityFollowers": "Followers",
+    "visibilityPrivate": "Private",
+    "needContent": "Add a caption or media to your post",
+    "uploadFailed": "Upload failed",
+    "processing": "Processing…",
+    "retry": "Retry",
+    "maxImages": "Maximum {max} images allowed",
+    "maxVideos": "Only {max} video allowed",
+    "imageTooLarge": "Image must be less than {max}MB",
+    "videoTooLarge": "Video must be less than {max}MB",
+    "unsupportedType": "Unsupported file type. Please upload JPEG, PNG, WebP, or MP4."
+  }
 }

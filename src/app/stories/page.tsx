@@ -8,7 +8,10 @@ import { StoriesBar } from "@/features/stories/components/StoriesBar";
 import { StoryViewer } from "@/features/stories/components/StoryViewer";
 import { StoryComposer } from "@/features/stories/components/StoryComposer";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loading, EmptyState, ErrorState } from "@/components/ui";
+import { EmptyState, ErrorState, StorySkeleton } from "@/components/ui";
+import { AppHeader } from "@/components/app-header";
+import { BottomNav, DesktopNav } from "@/components/bottom-nav";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 /**
  * StoriesPage — Full-screen stories page accessible from navigation.
@@ -18,6 +21,7 @@ export default function StoriesPage() {
   const { user, authenticated, loading: authLoading } = useCurrentUser();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation("stories");
 
   const {
     groups,
@@ -86,51 +90,57 @@ export default function StoriesPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)]">
-        <Loading fullScreen message="Loading stories..." />
+      <div className="flex min-h-dvh flex-col">
+        <AppHeader title={t("title")} />
+        <StorySkeleton />
       </div>
     );
   }
 
   if (!authenticated || !user) {
     return (
-      <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)] flex items-center justify-center">
-        <EmptyState
-          title="Sign in to view stories"
-          description="Connect with Telegram to see stories from people you follow."
-        />
+      <div className="flex min-h-dvh flex-col">
+        <AppHeader title={t("title")} />
+        <div className="flex flex-1 items-center justify-center">
+          <EmptyState
+            title={t("title")}
+            description="Connect with Telegram to see stories from people you follow."
+          />
+        </div>
+        <BottomNav />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)] flex items-center justify-center">
-        <ErrorState title="Failed to load stories" message={error} onRetry={refresh} />
+      <div className="flex min-h-dvh flex-col">
+        <AppHeader title={t("title")} />
+        <div className="flex flex-1 items-center justify-center">
+          <ErrorState title={t("title")} message={error} onRetry={refresh} />
+        </div>
+        <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-[var(--tg-theme-bg-color,#ffffff)] pb-safe">
+    <div className="min-h-dvh pb-safe">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-[var(--tg-theme-bg-color,#ffffff)]/80 backdrop-blur-md border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)]">
-        <div className="flex items-center justify-between px-4 py-3">
+      <AppHeader
+        title={t("title")}
+        leading={
           <button
             onClick={() => router.back()}
-            className="rounded-full p-1 text-[var(--tg-theme-text-color,#000000)] hover:bg-black/5 dark:hover:bg-white/10"
-            aria-label="Go back"
+            className="rounded-full p-2 -ms-2 text-muted transition-colors hover:text-fg"
+            aria-label={t("goBack")}
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-5 w-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">
-            Stories
-          </h1>
-          <div className="w-10" /> {/* Spacer */}
-        </div>
-      </div>
+        }
+      />
 
       {/* Stories Bar */}
       {(hasOwnStory || groups.length > 0) && (
@@ -146,16 +156,16 @@ export default function StoriesPage() {
 
       {/* Empty state */}
       {!hasOwnStory && groups.length === 0 && (
-        <div className="px-4 mt-12">
+        <div className="mt-12 px-4">
           <EmptyState
-            title="No stories yet"
+            title={t("title")}
             description="Share photos and videos that disappear after 24 hours."
             action={
               <button
                 onClick={() => setComposerOpen(true)}
-                className="mt-3 rounded-lg bg-[var(--tg-theme-button-color,#0088cc)] px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="mt-3 rounded-full bg-brand-gradient px-6 py-2.5 text-sm font-semibold text-white shadow-glow transition-transform active:scale-95"
               >
-                Add Story
+                {t("addStory")}
               </button>
             }
           />
@@ -190,6 +200,9 @@ export default function StoriesPage() {
         onClose={() => setComposerOpen(false)}
         onSuccess={handleStoryCreated}
       />
+
+      <BottomNav />
+      <DesktopNav />
     </div>
   );
 }

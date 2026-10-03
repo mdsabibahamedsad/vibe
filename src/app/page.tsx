@@ -8,7 +8,7 @@ import { useUnreadCount } from "@/features/notifications/hooks/useUnreadCount";
 import { StoriesSection } from "@/features/stories/components/StoriesSection";
 import { Feed } from "@/features/feed/components/Feed";
 import { AppHeader } from "@/components/app-header";
-import { BottomNav } from "@/components/bottom-nav";
+import { BottomNav, DesktopNav } from "@/components/bottom-nav";
 import { Avatar } from "@/components/ui/avatar";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
@@ -121,6 +121,7 @@ export default function HomePage() {
             <p className="text-sm text-muted">{t("home.authenticating")}</p>
           </div>
         </div>
+        <DesktopNav />
       </div>
     );
   }
@@ -129,7 +130,7 @@ export default function HomePage() {
     <div className="flex min-h-dvh flex-col">
       {header}
 
-      <main className="flex-1 pb-4">
+      <main className="mx-auto w-full max-w-2xl flex-1 pb-4">
         {authenticated ? (
           <>
             <StoriesSection />
@@ -171,17 +172,26 @@ export default function HomePage() {
           </div>
         ) : (
           // Outside Telegram (browser visitor) — brand welcome
-          <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-            <div className="animate-pop-in mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-gradient shadow-glow">
-              <span className="font-display text-4xl font-bold text-white">V</span>
+          <div className="flex flex-col items-center justify-center px-6 py-16 text-center sm:py-24">
+            <div className="animate-pop-in mb-6 flex h-24 w-24 items-center justify-center rounded-[2rem] bg-brand-gradient shadow-glow sm:h-28 sm:w-28">
+              <span className="font-display text-5xl font-bold text-white sm:text-6xl">V</span>
             </div>
-            <h2 className="font-display text-2xl font-bold text-fg">{t("home.welcome")}</h2>
-            <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
+            <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
+              <span className="text-gradient">VIBE</span>
+            </h2>
+            <p className="mt-4 font-display text-lg font-semibold leading-snug text-fg">
+              {t("home.tagline1")}
+              <br />
+              {t("home.tagline2")}
+              <br />
+              <span className="text-gradient">{t("home.tagline3")}</span>
+            </p>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
               {t("home.welcomeSub")}
             </p>
             <Link
               href="/feed"
-              className="mt-6 rounded-full bg-brand-gradient px-8 py-2.5 text-sm font-semibold text-white shadow-glow transition-all active:scale-95"
+              className="mt-8 rounded-full bg-brand-gradient px-10 py-3 text-base font-semibold text-white shadow-glow transition-all hover:brightness-110 active:scale-95"
             >
               {t("home.open")}
             </Link>
@@ -190,6 +200,7 @@ export default function HomePage() {
       </main>
 
       <BottomNav />
+      <DesktopNav />
     </div>
   );
 }

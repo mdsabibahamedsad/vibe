@@ -20,5 +20,11 @@
   "superLikeConfirm": "Send a Super Like?",
   "matchNotification": "It's a Match!",
   "keepSwiping": "Keep Swiping",
-  "sendMessage": "Send a Message"
+  "sendMessage": "Send a Message",
+  "matchesTitle": "التطابقات",
+  "matchesErrorTitle": "فشل تحميل التطابقات",
+  "matchesEmptyTitle": "لا توجد تطابقات بعد",
+  "matchesEmptyDescription": "واصل اكتشاف أشخاص يشاركونك اهتماماتك. عند الإعجاب المتبادل ستظهر التطابقات هنا.",
+  "matchesDiscoverCta": "اكتشف أشخاصًا",
+  "matchCount": "{count} تطابق"
 }

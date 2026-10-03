@@ -21,5 +21,13 @@
   "block": "Block",
   "settings": "Settings",
   "premium": "Premium",
-  "joinDate": "Joined {date}"
+  "joinDate": "Joined {date}",
+  "tabVibes": "Vibes",
+  "tabMedia": "Médias",
+  "emptyPostsTitle": "Aucun vibe pour le moment",
+  "emptyPostsDescription": "Partagez votre premier vibe et exprimez-vous.",
+  "errorTitle": "Impossible de charger le profil",
+  "shareProfile": "Partager le profil",
+  "noBio": "Pas encore de bio",
+  "completeProfile": "Complétez votre profil"
 }

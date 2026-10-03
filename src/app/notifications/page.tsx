@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter";
-import { Loading, EmptyState } from "@/components/ui";
+import { EmptyState, NotificationSkeleton } from "@/components/ui";
+import { AppHeader } from "@/components/app-header";
+import { BottomNav, DesktopNav } from "@/components/bottom-nav";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { NotificationItem } from "@/lib/notifications/schemas";
 
@@ -37,44 +39,24 @@ export default function NotificationsPage() {
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-[var(--tg-theme-bg-color,#ffffff)]">
-        <Loading />
-      </div>
-    );
-  }
-
-  if (!authenticated || !user) {
-    return (
-      <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
-        <Header title={t("title")} />
-        <div className="flex-1 flex items-center justify-center">
-          <EmptyState
-            title={t("emptyTitle")}
-            description={t("emptyDescription")}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--tg-theme-bg-color,#ffffff)]">
-      <Header title={t("title")} />
-      <div className="flex-1 max-w-lg mx-auto w-full">
-        <NotificationCenter onNotificationPress={handleNotificationPress} />
-      </div>
+    <div className="flex min-h-dvh flex-col pb-safe">
+      <AppHeader title={t("title")} />
+
+      <main className="mx-auto w-full max-w-2xl flex-1">
+        {authLoading ? (
+          <NotificationSkeleton />
+        ) : !authenticated || !user ? (
+          <div className="flex flex-1 items-center justify-center py-16">
+            <EmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
+          </div>
+        ) : (
+          <NotificationCenter onNotificationPress={handleNotificationPress} />
+        )}
+      </main>
+
+      <BottomNav />
+      <DesktopNav />
     </div>
-  );
-}
-
-function Header({ title }: { title: string }) {
-  return (
-    <header className="sticky top-0 z-10 border-b border-[var(--tg-theme-secondary-bg-color,#f0f0f0)] bg-[var(--tg-theme-bg-color,#ffffff)]/80 backdrop-blur-md">
-      <div className="flex items-center justify-between px-4 py-3">
-        <h1 className="text-lg font-semibold text-[var(--tg-theme-text-color,#000000)]">{title}</h1>
-      </div>
-    </header>
   );
 }

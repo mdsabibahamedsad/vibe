@@ -14,5 +14,26 @@
   "views": "{count} views",
   "justPosted": "Just now",
   "loading": "Loading feed...",
-  "loadingMore": "Loading more..."
+  "loadingMore": "Loading more...",
+  "composer": {
+    "cancel": "إلغاء",
+    "newPost": "منشور جديد",
+    "publish": "نشر",
+    "publishing": "جارٍ النشر…",
+    "addMedia": "أضف صورة أو فيديو",
+    "removeMedia": "إزالة الوسائط",
+    "visibility": "من يمكنه الرؤية",
+    "visibilityPublic": "عام",
+    "visibilityFollowers": "المتابعون",
+    "visibilityPrivate": "خاص",
+    "needContent": "أضف تعليقاً أو وسائط إلى منشورك",
+    "uploadFailed": "فشل الرفع",
+    "processing": "جارٍ المعالجة…",
+    "retry": "إعادة المحاولة",
+    "maxImages": "الحد الأقصى {max} صور",
+    "maxVideos": "فيديو واحد فقط ({max})",
+    "imageTooLarge": "يجب أن تكون الصورة أقل من {max} ميجابايت",
+    "videoTooLarge": "يجب أن يكون الفيديو أقل من {max} ميجابايت",
+    "unsupportedType": "نوع ملف غير مدعوم. يرجى رفع JPEG أو PNG أو WebP أو MP4."
+  }
 }

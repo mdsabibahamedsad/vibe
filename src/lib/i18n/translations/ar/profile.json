@@ -21,5 +21,13 @@
   "block": "Block",
   "settings": "Settings",
   "premium": "Premium",
-  "joinDate": "Joined {date}"
+  "joinDate": "Joined {date}",
+  "tabVibes": "فيبات",
+  "tabMedia": "الوسائط",
+  "emptyPostsTitle": "لا فيبات بعد",
+  "emptyPostsDescription": "شارك أول فيب وعبّر عن نفسك.",
+  "errorTitle": "تعذر تحميل الملف الشخصي",
+  "shareProfile": "مشاركة الملف الشخصي",
+  "noBio": "لا توجد نبذة بعد",
+  "completeProfile": "أكمل ملفك الشخصي"
 }

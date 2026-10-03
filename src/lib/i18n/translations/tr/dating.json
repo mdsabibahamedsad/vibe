@@ -20,5 +20,11 @@
   "superLikeConfirm": "Send a Super Like?",
   "matchNotification": "It's a Match!",
   "keepSwiping": "Keep Swiping",
-  "sendMessage": "Send a Message"
+  "sendMessage": "Send a Message",
+  "matchesTitle": "Eşleşmeler",
+  "matchesErrorTitle": "Eşleşmeler yüklenemedi",
+  "matchesEmptyTitle": "Henüz eşleşme yok",
+  "matchesEmptyDescription": "İlgi alanların aynı olan insanları keşfetmeye devam et. Karşılıklı beğenide eşleşme burada görünür.",
+  "matchesDiscoverCta": "İnsanları keşfet",
+  "matchCount": "{count} eşleşme"
 }
