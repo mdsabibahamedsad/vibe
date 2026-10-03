@@ -122,8 +122,23 @@ export async function getCurrentUser(request?: Request): Promise<CurrentUser> {
     });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  // Use the server (anon) client to verify the JWT token and look up the
+  // authenticated user. The server client uses the anon key with `auth:{persistSession:false}`
+  // because server-side sessions are handled via the `Authorization` header, not cookies.
+  // Supports both NEXT_PUBLIC_SUPABASE_URL and SUPABASE_URL naming conventions.
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new AppError(
+      "INTERNAL_ERROR",
+      "Authentication service is not configured properly. Please try again later.",
+      { statusCode: 500 },
+    );
+  }
 
   const client = createClient(supabaseUrl, supabaseAnonKey, {
     auth: { persistSession: false },
