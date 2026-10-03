@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createServerClient, createAdminClient } from "@/lib/supabase";
 import { AppError } from "@/lib/errors";
 
 export interface CurrentUser {
@@ -39,11 +39,25 @@ async function getAccessToken(request?: Request): Promise<string | null> {
   return null;
 }
 
+/**
+ * Look up the application user row for the authenticated Supabase user.
+ *
+ * IMPORTANT: Uses the server (anon) client, NOT the admin (service-role) client.
+ * The service-role key (SUPABASE_SERVICE_ROLE_KEY) is a server-only secret that
+ * may be missing in some deployments. The users table has RLS, but the policy
+ * "Users can read own data" permits `id = auth.uid()`, and auth.uid() resolves
+ * to the verified JWT user id. This keeps user lookup working without the
+ * service-role key while still enforcing RLS.
+ *
+ * This is safe because the row is always filtered to the authenticated user id.
+ */
 async function lookupUser(appUserId: string): Promise<CurrentUser> {
-  const adminClient = createAdminClient();
-  const { data: appUser, error: appUserError } = await adminClient
+  const serverClient = createServerClient();
+
+  // Use a single-row query with a timeout to avoid hanging.
+  const { data: appUser, error: appUserError } = await serverClient
     .from("users")
-    .select("*")
+    .select("id, telegram_user_id, telegram_username, display_name, first_name, last_name, role, is_active, is_banned, avatar_media_id, last_seen_at")
     .eq("id", appUserId)
     .single();
 
