@@ -15,7 +15,10 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 let _supabaseClient: SupabaseClient | null = null;
 
 function getSupabaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    process.env.SUPABASE_URL; // fallback for misconfigured deployments
   if (!url) {
     throw new Error(
       "Missing environment variable: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL",

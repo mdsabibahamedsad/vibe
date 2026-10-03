@@ -2,6 +2,7 @@
 
 import { useContext } from "react";
 import { AuthContext } from "@/components/auth-provider";
+import { useAuthBootstrap } from "@/hooks/use-auth";
 import type { AuthContextValue } from "@/components/auth-provider";
 
 /**
@@ -17,5 +18,20 @@ import type { AuthContextValue } from "@/components/auth-provider";
  *   return <Profile user={user} />;
  */
 export function useCurrentUser(): AuthContextValue {
-  return useContext(AuthContext);
+  // Use the new auth bootstrap for compatibility.
+  // This preserves the old interface while using the new auth flow.
+  const bootstrap = useAuthBootstrap();
+
+  return {
+    status: bootstrap.status,
+    loading: bootstrap.status === "loading",
+    authenticated: bootstrap.status === "authenticated",
+    user: bootstrap.user,
+    error: bootstrap.error,
+    authenticateWithTelegram: bootstrap.authenticateWithTelegram,
+    authenticateDev: bootstrap.authenticateDev,
+    logout: bootstrap.logout,
+    refreshSession: bootstrap.refreshSession,
+    bootstrapped: bootstrap.bootstrapped,
+  };
 }

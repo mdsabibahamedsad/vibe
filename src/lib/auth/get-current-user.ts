@@ -1,5 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
-import { createServerClient, createAdminClient } from "@/lib/supabase";
+import { createServerClient } from "@/lib/supabase";
 import { AppError } from "@/lib/errors";
 
 export interface CurrentUser {
@@ -122,10 +121,16 @@ export async function getCurrentUser(request?: Request): Promise<CurrentUser> {
     });
   }
 
-  // Use the server (anon) client to verify the JWT token and look up the
-  // authenticated user. The server client uses the anon key with `auth:{persistSession:false}`
-  // because server-side sessions are handled via the `Authorization` header, not cookies.
-  // Supports both NEXT_PUBLIC_SUPABASE_URL and SUPABASE_URL naming conventions.
+  // Verify the authenticated user via the server (anon) client.
+  // The server client reads the `sb-*-auth-token` cookie that is set when
+  // the frontend calls /api/auth/telegram (the session is established there)
+  // and when the session is refreshed in the browser. Because the client
+  // runs on the server, it verifies the JWT against Supabase's public JWT
+  // verification endpoints using the anon key, with `auth: { persistSession: false }`
+  // so no browser session is implied.
+  //
+  // Both NEXT_PUBLIC_SUPABASE_URL and SUPABASE_URL naming conventions are
+  // supported to match different deployment conventions.
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseAnonKey =
@@ -140,11 +145,9 @@ export async function getCurrentUser(request?: Request): Promise<CurrentUser> {
     );
   }
 
-  const client = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: { persistSession: false },
-  });
+  const serverClient = createServerClient();
 
-  const { data: userData, error: userError } = await client.auth.getUser(accessToken);
+  const { data: userData, error: userError } = await serverClient.auth.getUser(accessToken);
 
   if (userError || !userData.user) {
     throw new AppError("AUTHENTICATION_ERROR", "Invalid or expired session", {

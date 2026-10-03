@@ -1,24 +1,39 @@
 "use client";
 
-import { createContext, type ReactNode, useCallback, useEffect, useState } from "react";
+import { createContext, type ReactNode, useCallback, useEffect, useState, useRef } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
 
-/** User info returned from the auth API */
 export interface AuthUser {
   id: string;
-  telegramUserId: number;
-  username?: string;
+  telegramUserId: number | null;
+  username: string | null;
   displayName: string;
   role: string;
   needsOnboarding: boolean;
+  /** Legacy / UI-facing fields used by components */
+  telegramUserIdRaw: number | null;
+  telegramUsernameRaw: string | null;
+  displayNameRaw: string;
 }
 
-/** Auth context value exposed to consumers */
+/**
+ * Explicit auth bootstrap states.
+ * - loading:        AuthProvider is deciding (no existing session, no Telegram auth yet)
+ * - authenticating:  Telegram initData is being submitted OR an existing session is being verified
+ * - authenticated:   A verified application session exists. Safe to call protected APIs.
+ * - unauthenticated: No session and no auth flow in progress (e.g. browser visitor)
+ * - error:          Authentication failed
+ */
+export type AuthStatus = "loading" | "authenticating" | "authenticated" | "unauthenticated" | "error";
+
 export interface AuthContextValue {
-  /** Whether the auth state has been determined */
+  /** Auth status with fine-grained loading states */
+  status: AuthStatus;
+  /** Whether the auth provider is still deciding the initial state */
   loading: boolean;
-  /** Whether the user is authenticated */
+  /** Whether the user is fully authenticated (server-verified) */
   authenticated: boolean;
   /** The authenticated user (null if not authenticated) */
   user: AuthUser | null;
@@ -26,15 +41,18 @@ export interface AuthContextValue {
   error: string | null;
   /** Authenticate via Telegram initData */
   authenticateWithTelegram: (initData: string) => Promise<void>;
-  /** Authenticate via development mode */
+  /** Authenticate via development mode (local dev only) */
   authenticateDev: () => Promise<void>;
   /** Logout the current user */
   logout: () => Promise<void>;
   /** Refresh the user session */
   refreshSession: () => Promise<void>;
+  /** Whether the first auth resolution has completed */
+  bootstrapped: boolean;
 }
 
-export const AuthContext = createContext<AuthContextValue>({
+const defaultContextValue: AuthContextValue = {
+  status: "loading",
   loading: true,
   authenticated: false,
   user: null,
@@ -43,73 +61,147 @@ export const AuthContext = createContext<AuthContextValue>({
   authenticateDev: async () => {},
   logout: async () => {},
   refreshSession: async () => {},
-});
+  bootstrapped: false,
+};
+
+export const AuthContext = createContext<AuthContextValue>(defaultContextValue);
 
 /**
  * AuthProvider manages authentication state and Supabase sessions.
  *
- * On mount, it checks for an existing Supabase session and restores it.
- * It exposes authentication methods (Telegram initData, dev auth, logout).
+ * Design:
+ *   - Never sets `authenticated: true` until the server has VERIFIED the
+ *     session via /api/auth/telegram/me (restored) or a fresh
+ *     /api/auth/telegram exchange.
+ *   - Provides explicit states: loading → authenticating → authenticated /
+ *     unauthenticated → error.
+ *   - Protected API hooks must only call when status === "authenticated".
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [bootstrapped, setBootstrapped] = useState(false);
+  const bootstrappedRef = useRef(false);
+
+  /** Mark the first bootstrap as complete (regardless of outcome). */
+  const finishBootstrap = useCallback((nextStatus: AuthStatus, nextUser: AuthUser | null, nextError: string | null) => {
+    if (bootstrappedRef.current) return;
+    bootstrappedRef.current = true;
+    setStatus(nextStatus);
+    setUser(nextUser);
+    setError(nextError);
+    setBootstrapped(true);
+  }, []);
+
+  /**
+   * Verify a Supabase session on the server.
+   * Uses the server (anon) client to verify the JWT and re-derive the user row.
+   */
+  async function verifySession(userId: string): Promise<AuthUser | null> {
+    try {
+      const serverClient = createServerClient();
+
+      const { data: appUser, error: appUserError } = await serverClient
+        .from("users")
+        .select(
+          "id, telegram_user_id, telegram_username, display_name, first_name, last_name, role, is_active, is_banned, avatar_media_id, last_seen_at",
+        )
+        .eq("id", userId)
+        .single();
+
+      if (appUserError || !appUser) {
+        return null;
+      }
+
+      if (appUser.is_banned) {
+        return null;
+      }
+
+      return {
+        id: appUser.id,
+        telegramUserId: appUser.telegram_user_id ?? null,
+        username: appUser.telegram_username ?? null,
+        displayName: appUser.display_name ?? "",
+        role: appUser.role ?? "",
+        needsOnboarding: false,
+        telegramUserIdRaw: appUser.telegram_user_id ?? null,
+        telegramUsernameRaw: appUser.telegram_username ?? null,
+        displayNameRaw: appUser.display_name ?? "",
+      };
+    } catch (err) {
+      logger.error("Auth bootstrap: server session verification failed", {
+        error: err instanceof Error ? err.message : "Unknown",
+      });
+      return null;
+    }
+  }
 
   /**
    * On mount, try to restore an existing Supabase session.
    */
   useEffect(() => {
-    const restoreSession = async () => {
+    let cancelled = false;
+
+    async function restoreSession() {
       try {
-        // Check if Supabase already has a session
-        const {
-          data: { session: existingSession },
-        } = await getSupabaseClient().auth.getSession();
+        const sessionResult = await getSupabaseClient().auth.getSession();
+        const existingSession = sessionResult.data?.session;
 
         if (existingSession) {
-          // Session exists — get the user
-          const {
-            data: { user: authUser },
-          } = await getSupabaseClient().auth.getUser();
+          const userResult = await getSupabaseClient().auth.getUser();
+          const authUser = userResult.data?.user;
 
           if (authUser) {
-            // Fetch application user info from the auth API
-            const response = await fetch("/api/auth/telegram/me", {
-              headers: {
-                Authorization: `Bearer ${existingSession.access_token}`,
-              },
-            });
+            const verifiedUser = await verifySession(authUser.id);
 
-            if (response.ok) {
-              const result = await response.json();
-              setUser(result.user);
-              setAuthenticated(true);
-            } else {
-              // Session invalid — sign out
-              await getSupabaseClient().auth.signOut();
+            if (!cancelled) {
+              if (verifiedUser) {
+                setUser(verifiedUser);
+                setStatus("authenticated");
+                setBootstrapped(true);
+              } else {
+                // Server could not verify → treat as invalid session
+                await getSupabaseClient().auth.signOut();
+                finishBootstrap("unauthenticated", null, null);
+              }
             }
+          } else {
+            await getSupabaseClient().auth.signOut();
+            finishBootstrap("unauthenticated", null, null);
           }
+        } else {
+          finishBootstrap("loading", null, null);
         }
       } catch (err) {
         logger.error("Failed to restore auth session", {
           error: err instanceof Error ? err.message : "Unknown error",
         });
-      } finally {
-        setLoading(false);
+        if (!cancelled) {
+          finishBootstrap("error", null, err instanceof Error ? err.message : "Failed to restore session");
+        }
       }
-    };
+    }
 
     restoreSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /**
    * Authenticate via Telegram initData.
-   * Sends the raw initData to the server for validation.
+   * Sends the raw initData to the server for cryptographic validation.
    */
   const authenticateWithTelegram = useCallback(async (initData: string) => {
-    setLoading(true);
+    if (!initData) {
+      setError("No Telegram authentication data received. Open this app from Telegram.");
+      setStatus("unauthenticated");
+      return;
+    }
+
+    setStatus("authenticating");
     setError(null);
 
     try {
@@ -123,12 +215,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!response.ok || !result.authenticated) {
         setError(result.error || "Authentication failed");
-        setAuthenticated(false);
+        setStatus("unauthenticated");
         setUser(null);
         return;
       }
 
-      // Set the Supabase session with the tokens from the server
       if (result.session) {
         await getSupabaseClient().auth.setSession({
           access_token: result.session.accessToken,
@@ -136,15 +227,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
 
-      setUser(result.user);
-      setAuthenticated(true);
+      // Verify the new session on the server before marking authenticated
+      const verifiedUser = await verifySession(result.user.id);
+
+      if (verifiedUser) {
+        setUser(verifiedUser);
+        setStatus("authenticated");
+      } else {
+        setStatus("error");
+        setError("Session verification failed. Please try again.");
+      }
     } catch (err) {
-      setError("Failed to authenticate. Please try again.");
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Failed to authenticate. Please try again.");
       logger.error("Telegram auth error", {
         error: err instanceof Error ? err.message : "Unknown error",
       });
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -152,24 +250,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Development authentication (local-only, never enabled in production).
    */
   const authenticateDev = useCallback(async () => {
-    setLoading(true);
+    if (process.env.NODE_ENV === "production") {
+      setError("Development authentication is not available in production.");
+      setStatus("unauthenticated");
+      return;
+    }
+
+    const devAuthEnabled = process.env.NEXT_PUBLIC_DEV_AUTH === "true";
+    if (!devAuthEnabled) {
+      setError("No authentication available. Open this app from Telegram.");
+      setStatus("unauthenticated");
+      return;
+    }
+
+    setStatus("authenticating");
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/dev", {
-        method: "POST",
-      });
-
+      const response = await fetch("/api/auth/dev", { method: "POST" });
       const result = await response.json();
 
       if (!response.ok || !result.authenticated) {
         setError(result.error || "Development authentication failed");
-        setAuthenticated(false);
+        setStatus("unauthenticated");
         setUser(null);
         return;
       }
 
-      // Set the Supabase session
       if (result.session) {
         await getSupabaseClient().auth.setSession({
           access_token: result.session.accessToken,
@@ -177,15 +284,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
 
-      setUser(result.user);
-      setAuthenticated(true);
+      const verifiedUser = await verifySession(result.user.id);
+      if (verifiedUser) {
+        setUser(verifiedUser);
+        setStatus("authenticated");
+      } else {
+        setStatus("error");
+        setError("Session verification failed. Please try again.");
+      }
     } catch (err) {
-      setError("Failed to authenticate in development mode.");
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Failed to authenticate in development mode.");
       logger.error("Dev auth error", {
         error: err instanceof Error ? err.message : "Unknown error",
       });
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -194,22 +306,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const logout = useCallback(async () => {
     try {
-      // Get current access token
-      const {
-        data: { session },
-      } = await getSupabaseClient().auth.getSession();
+      const { data: { session } } = await getSupabaseClient().auth.getSession();
 
       if (session) {
-        // Invalidate on server
         await fetch("/api/auth/logout", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
+          headers: { Authorization: `Bearer ${session.access_token}` },
         });
       }
 
-      // Sign out locally
       await getSupabaseClient().auth.signOut();
     } catch (err) {
       logger.error("Logout error", {
@@ -217,8 +322,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     } finally {
       setUser(null);
-      setAuthenticated(false);
-      setLoading(false);
+      setStatus("unauthenticated");
+      setError(null);
     }
   }, []);
 
@@ -227,35 +332,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const refreshSession = useCallback(async () => {
     try {
-      const {
-        data: { session },
-      } = await getSupabaseClient().auth.getSession();
+      const { data: { session } } = await getSupabaseClient().auth.getSession();
 
-      if (session) {
-        const { data, error: refreshError } = await getSupabaseClient().auth.refreshSession();
+      if (!session) {
+        setStatus("unauthenticated");
+        return;
+      }
 
-        if (refreshError || !data.session) {
-          await logout();
-        }
+      const { data, error: refreshError } = await getSupabaseClient().auth.refreshSession();
+
+      if (refreshError || !data.session) {
+        await logout();
+        return;
+      }
+
+      // Verify the refreshed session on the server
+      const verifiedUser = await verifySession(data.session.user.id);
+      if (verifiedUser) {
+        setUser(verifiedUser);
+        setStatus("authenticated");
+      } else {
+        setStatus("unauthenticated");
       }
     } catch (err) {
       logger.error("Session refresh error", {
         error: err instanceof Error ? err.message : "Unknown error",
       });
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Session refresh failed");
     }
-  }, [logout]);
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        loading,
-        authenticated,
+        status,
+        loading: status === "loading",
+        authenticated: status === "authenticated",
         user,
         error,
         authenticateWithTelegram,
         authenticateDev,
         logout,
         refreshSession,
+        bootstrapped,
       }}
     >
       {children}

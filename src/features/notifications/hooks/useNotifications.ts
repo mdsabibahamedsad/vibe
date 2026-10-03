@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuthBootstrap } from "@/hooks/use-auth";
 import { logger } from "@/lib/logger";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { NotificationItem, NotificationListResponse } from "@/lib/notifications/schemas";
@@ -24,8 +25,13 @@ interface UseNotificationsReturn {
 /**
  * Hook for fetching and managing the notification list.
  * Supports cursor pagination, category filtering, and realtime updates.
+ *
+ * The hook waits for auth bootstrap to complete before calling protected APIs.
+ * HTTP 401 is interpreted as "auth not ready yet" and triggers a retry once
+ * the user becomes authenticated — never as a fatal error.
  */
 export function useNotifications(): UseNotificationsReturn {
+  const { status, user, bootstrapped, error: authError, refreshSession, logout } = useAuthBootstrap();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -35,6 +41,9 @@ export function useNotifications(): UseNotificationsReturn {
 
   const cursorRef = useRef<string | null>(null);
   const loadingRef = useRef(false);
+
+  // Do NOT fetch until auth has finished bootstrapping AND is authenticated.
+  const authReady = bootstrapped && status === "authenticated";
 
   // ─── Fetch notifications ───────────────────────────────────────────
 
@@ -49,6 +58,13 @@ export function useNotifications(): UseNotificationsReturn {
 
       if (!res.ok) {
         const result = await res.json().catch(() => ({ error: "Failed to load" }));
+
+        // 401 => auth not ready yet / unauthenticated.
+        // Do NOT surface as a fatal error; the hook will retry once auth is ready.
+        if (res.status === 401) {
+          throw new Error("REAUTHENTICATE_NEEDED");
+        }
+
         throw new Error(result.error || "Failed to load notifications");
       }
 
@@ -69,14 +85,25 @@ export function useNotifications(): UseNotificationsReturn {
       cursorRef.current = data.nextCursor;
       setHasMore(data.hasMore);
     } catch (err) {
+      const message = err instanceof Error
+        ? err.message
+        : "Failed to load notifications";
+
+      // REAUTHENTICATE_NEEDED => auth isn't ready. Return without
+        // surfacing a fatal error; the hook will re-run once auth is "authenticated".
+      if (message === "REAUTHENTICATE_NEEDED") {
+        return;
+      }
+
       logger.error("Notification load error", {
-        error: err instanceof Error ? err.message : "Unknown",
+        error: message,
+        authError,
       });
-      setError(err instanceof Error ? err.message : "Failed to load notifications");
+      setError(message);
     } finally {
       setLoading(false);
     }
-  }, [fetchNotifications, category]);
+  }, [fetchNotifications, category, authError]);
 
   // ─── Load more ────────────────────────────────────────────────────
 
@@ -95,14 +122,23 @@ export function useNotifications(): UseNotificationsReturn {
       cursorRef.current = data.nextCursor;
       setHasMore(data.hasMore);
     } catch (err) {
+      const message = err instanceof Error
+        ? err.message
+        : "Failed to load more notifications";
+
+      if (message === "REAUTHENTICATE_NEEDED") {
+        return; // retry once auth is "authenticated"
+      }
+
       logger.error("Notification load more error", {
-        error: err instanceof Error ? err.message : "Unknown",
+        error: message,
+        authError,
       });
     } finally {
       setLoadingMore(false);
       loadingRef.current = false;
     }
-  }, [fetchNotifications, category]);
+  }, [fetchNotifications, category, authError]);
 
   // ─── Set category ─────────────────────────────────────────────────
 
@@ -154,9 +190,14 @@ export function useNotifications(): UseNotificationsReturn {
 
   // ─── Initial load ─────────────────────────────────────────────────
 
+  // Load the initial notification batch ONLY when:
+  //   1. Auth has finished bootstrapping
+  //   2. Auth status is "authenticated"
   useEffect(() => {
-    loadInitial();
-  }, [loadInitial]);
+    if (bootstrapped && authReady) {
+      loadInitial();
+    }
+  }, [bootstrapped, authReady, loadInitial]);
 
   // ─── Realtime subscription ────────────────────────────────────────
 

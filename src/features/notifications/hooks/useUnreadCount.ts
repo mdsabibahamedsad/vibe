@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuthBootstrap } from "@/hooks/use-auth";
 import { logger } from "@/lib/logger";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { UnreadCountResponse } from "@/lib/notifications/schemas";
@@ -22,8 +23,11 @@ interface UseUnreadCountReturn {
  *  - Realtime updates on new notifications
  *  - Deduplication via notification ID tracking
  *  - Visual cap at 99+
+ *
+ * The hook waits for auth bootstrap to complete before calling protected APIs.
  */
 export function useUnreadCount(): UseUnreadCountReturn {
+  const { status, user, bootstrapped, error: authError } = useAuthBootstrap();
   const [counts, setCounts] = useState<UnreadCountResponse>({
     total: 0,
     messages: 0,
@@ -35,27 +39,40 @@ export function useUnreadCount(): UseUnreadCountReturn {
 
   const seenIdsRef = useRef<Set<string>>(new Set());
 
+  // Do NOT fetch until auth has finished bootstrapping AND is authenticated.
+  const authReady = bootstrapped && status === "authenticated";
+
   const fetchCount = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications/unread-count");
-      if (res.ok) {
-        const data = (await res.json()) as UnreadCountResponse;
-        setCounts(data);
+
+      if (!res.ok) {
+        // 401 => auth not ready yet. Return without surfacing as a fatal error.
+        if (res.status === 401) return;
+        const data = (await res.json().catch(() => ({}))) as Partial<UnreadCountResponse>;
+        if (data.total !== undefined) setCounts(data as UnreadCountResponse);
+        return;
       }
+
+      const data = (await res.json()) as UnreadCountResponse;
+      setCounts(data);
     } catch (err) {
       logger.error("Failed to fetch unread count", {
         error: err instanceof Error ? err.message : "Unknown",
+        authError,
       });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authError]);
 
   // ─── Initial fetch ────────────────────────────────────────────────
 
   useEffect(() => {
-    fetchCount();
-  }, [fetchCount]);
+    if (authReady) {
+      fetchCount();
+    }
+  }, [authReady, fetchCount]);
 
   // ─── Realtime updates ─────────────────────────────────────────────
 

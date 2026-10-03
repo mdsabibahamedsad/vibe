@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import { TelegramProvider } from "@/components/telegram-provider";
 import { AuthProvider } from "@/components/auth-provider";
 import { AuthGate } from "@/components/auth-gate";
+import { AuthBootstrapProvider } from "@/hooks/use-auth";
 import { I18nProvider } from "@/components/i18n-provider";
 import "./globals.css";
 
@@ -50,11 +51,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-dvh">
         <TelegramProvider>
           <AuthProvider>
-            <AuthGate>
-              <I18nProvider>
-                {children}
-              </I18nProvider>
-            </AuthGate>
+            <AuthBootstrapProvider>
+              <AuthGate>
+                <I18nProvider>
+                  {children}
+                </I18nProvider>
+              </AuthGate>
+            </AuthBootstrapProvider>
           </AuthProvider>
         </TelegramProvider>
       </body>

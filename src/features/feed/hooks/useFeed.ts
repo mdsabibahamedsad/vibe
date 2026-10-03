@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuthBootstrap } from "@/hooks/use-auth";
 import { logger } from "@/lib/logger";
 import type { FeedItem } from "@/features/feed/services/feed.service";
 
@@ -24,6 +25,7 @@ interface UseFeedReturn {
 
 export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
   const { limit = 20 } = options;
+  const { status, user, bootstrapped, error: authError } = useAuthBootstrap();
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -31,6 +33,13 @@ export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
   const [hasMore, setHasMore] = useState(true);
   const cursorRef = useRef<string | null>(null);
   const loadingRef = useRef(false);
+
+  // Do NOT call /api/feed while:
+  //   - still loading (AuthProvider is still deciding)
+  //   - authenticating (Telegram initData is being submitted)
+  //   - unauthenticated (no valid session and no auth flow in progress)
+  //   - outside a bootstrap (hasn't finished its first resolution)
+  const authReady = status === "authenticated";
 
   const fetchFeed = useCallback(
     async (cursor?: string) => {
@@ -42,6 +51,13 @@ export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
 
       if (!res.ok) {
         const result = await res.json().catch(() => ({ error: "Failed to load feed" }));
+
+        // 401 => auth not ready / unauthenticated: do NOT surface as a fatal feed error.
+        // Feed hooks will retry once auth becomes "authenticated".
+        if (res.status === 401) {
+          throw new Error("REAUTHENTICATE_NEEDED");
+        }
+
         throw new Error(result.error || "Failed to load feed");
       }
 
@@ -59,8 +75,18 @@ export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
       cursorRef.current = data.nextCursor;
       setHasMore(data.hasMore);
     } catch (err) {
-      logger.error("Feed load error", { error: err instanceof Error ? err.message : "Unknown" });
-      setError(err instanceof Error ? err.message : "Failed to load feed");
+      const message = err instanceof Error
+        ? err.message
+        : "Failed to load feed";
+
+      // REAUTHENTICATE_NEEDED means auth is not ready yet. Store as a
+        // transient state but do NOT surface to the user as a fatal feed error.
+      if (message === "REAUTHENTICATE_NEEDED") {
+        return; // retry once auth is "authenticated"
+      }
+
+      logger.error("Feed load error", { error: message });
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -81,18 +107,29 @@ export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
       cursorRef.current = data.nextCursor;
       setHasMore(data.hasMore);
     } catch (err) {
-      logger.error("Feed load more error", {
-        error: err instanceof Error ? err.message : "Unknown",
-      });
+      const message = err instanceof Error
+        ? err.message
+        : "Failed to load more feed";
+
+      if (message === "REAUTHENTICATE_NEEDED") {
+        return; // retry once auth is "authenticated"
+      }
+
+      logger.error("Feed load more error", { error: message });
     } finally {
       setLoadingMore(false);
       loadingRef.current = false;
     }
   }, [fetchFeed]);
 
+  // Trigger the initial feed load ONLY when:
+  //   1. Auth has finished bootstrapping
+  //   2. Auth status is "authenticated"
   useEffect(() => {
-    loadInitial();
-  }, [loadInitial]);
+    if (bootstrapped && authReady) {
+      loadInitial();
+    }
+  }, [bootstrapped, authReady, loadInitial]);
 
   const removeItem = useCallback((postId: string) => {
     setItems((prev) => prev.filter((p) => p.id !== postId));

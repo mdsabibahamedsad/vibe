@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { useCurrentUser } from "@/hooks/use-current-user";
 import { useTelegramWebApp } from "@/hooks/use-telegram-webapp";
+import { useAuthBootstrap } from "@/hooks/use-auth";
 import { logger } from "@/lib/logger";
 
 /**
@@ -25,7 +25,7 @@ import { logger } from "@/lib/logger";
  */
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const { isTelegram, initData, ready } = useTelegramWebApp();
-  const { authenticateWithTelegram, authenticateDev, authenticated, loading, error } = useCurrentUser();
+  const { authenticateWithTelegram, authenticateDev, status, bootstrapped, error } = useAuthBootstrap();
   const hasAttemptedAuth = useRef(false);
   const lastAttemptRef = useRef(0);
 
@@ -34,7 +34,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
    * Safe to call multiple times — respects a 2-second cooldown.
    */
   const attemptAuth = useCallback(async () => {
-    if (loading) return; // already in progress
+    if (status === "authenticating") return; // already in progress
 
     const now = Date.now();
     if (now - lastAttemptRef.current < 2000) return; // cooldown
@@ -64,7 +64,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [isTelegram, initData, loading, authenticateWithTelegram, authenticateDev]);
+  }, [isTelegram, initData, status, authenticateWithTelegram, authenticateDev]);
 
   // Auto-authenticate when Telegram WebApp is ready and no session exists
   useEffect(() => {
@@ -72,15 +72,15 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     if (hasAttemptedAuth.current) return;
     // Wait for Telegram provider to be ready
     if (!ready) return;
-    // Don't re-auth if already authenticated (existing session restored by AuthProvider)
-    if (authenticated) {
+    // Don't re-auth if already authenticated (session verified by AuthProvider)
+    if (status === "authenticated" || status === "error") {
       hasAttemptedAuth.current = true;
       return;
     }
 
     hasAttemptedAuth.current = true;
     attemptAuth();
-  }, [ready, authenticated, attemptAuth]);
+  }, [ready, status, attemptAuth]);
 
   // Log auth errors for debugging
   useEffect(() => {
