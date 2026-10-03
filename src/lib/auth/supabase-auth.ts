@@ -71,8 +71,16 @@ export async function createAuthSession(validatedData: ValidatedTelegramData): P
   const email = generateAuthEmail(telegramUser.id);
   const password = generateAuthPassword(telegramUser.id, botToken);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Support both conventional Supabase env var names so the app works
+  // regardless of the naming convention the deployment uses.
+  //
+  // URL: NEXT_PUBLIC_SUPABASE_URL | SUPABASE_URL
+  // Anon key: NEXT_PUBLIC_SUPABASE_ANON_KEY | SUPABASE_PUBLISHABLE_KEY
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     logger.error("createAuthSession: Supabase env vars missing", {

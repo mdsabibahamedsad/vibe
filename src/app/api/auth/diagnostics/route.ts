@@ -21,7 +21,11 @@ export async function GET() {
   const envVars = {
     NEXT_PUBLIC_SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    // Support alternative naming conventions (SUPABASE_PUBLISHABLE_KEY)
+    SUPABASE_PUBLISHABLE_KEY: !!process.env.SUPABASE_PUBLISHABLE_KEY,
     SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    // Support alternative service-role naming (SUPABASE_SECRET_KEY)
+    SUPABASE_SECRET_KEY: !!process.env.SUPABASE_SECRET_KEY,
     TELEGRAM_BOT_TOKEN: !!process.env.TELEGRAM_BOT_TOKEN,
     TELEGRAM_MINI_APP_URL: !!process.env.TELEGRAM_MINI_APP_URL,
     NEXT_PUBLIC_APP_URL: !!process.env.NEXT_PUBLIC_APP_URL,
@@ -55,8 +59,9 @@ export async function GET() {
   }
 
   // ---- Supabase anon key validity ----
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Support both conventional env var names.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
   if (supabaseUrl && anonKey) {
     try {
       const res = await fetch(`${supabaseUrl}/auth/v1/settings`, {

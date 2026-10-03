@@ -72,18 +72,35 @@ export async function withQueryTimeout<T>(
  * Create a Supabase server client.
  */
 export function createServerClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Support multiple environment variable naming conventions, because
+  // different hosting platforms and local setups use different names.
+  //
+  // URL: NEXT_PUBLIC_SUPABASE_URL | SUPABASE_URL
+  // Anon key: NEXT_PUBLIC_SUPABASE_ANON_KEY | SUPABASE_PUBLISHABLE_KEY
+  //
+  // This guarantees the server client can be created in production and local
+  // development regardless of which Supabase env var convention the project
+  // uses.
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl) {
-    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_URL");
+    throw new Error(
+      "Missing environment variable: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL",
+    );
   }
 
   if (!supabaseAnonKey) {
-    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    throw new Error(
+      "Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_PUBLISHABLE_KEY",
+    );
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  // Non-null asserted after the explicit runtime checks above.
+  return createClient(supabaseUrl!, supabaseAnonKey!, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,

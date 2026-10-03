@@ -26,19 +26,25 @@ import { createClient } from "@supabase/supabase-js";
  *   );
  */
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseServiceRoleKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
 
 export function createAdminClient() {
   if (!supabaseUrl) {
-    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_URL");
+    throw new Error(
+      "Missing environment variable: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL",
+    );
   }
 
   if (!supabaseServiceRoleKey) {
-    throw new Error("Missing environment variable: SUPABASE_SERVICE_ROLE_KEY");
+    throw new Error(
+      "Missing environment variable: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY",
+    );
   }
 
-  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+  // Non-null asserted after the explicit runtime checks above.
+  return createClient(supabaseUrl!, supabaseServiceRoleKey!, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
