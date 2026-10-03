@@ -42,50 +42,75 @@ async function getAccessToken(request?: Request): Promise<string | null> {
 /**
  * Look up the application user row for the authenticated Supabase user.
  *
- * IMPORTANT: Uses the server (anon) client, NOT the admin (service-role) client.
- * The service-role key (SUPABASE_SERVICE_ROLE_KEY) is a server-only secret that
- * may be missing in some deployments. The users table has RLS, but the policy
- * "Users can read own data" permits `id = auth.uid()`, and auth.uid() resolves
- * to the verified JWT user id. This keeps user lookup working without the
- * service-role key while still enforcing RLS.
+ * Uses the server (anon) client, NOT the admin (service-role) client, so that
+ * user lookup works in production regardless of whether the service-role key
+ * (SUPABASE_SERVICE_ROLE_KEY) is configured.
  *
- * This is safe because the row is always filtered to the authenticated user id.
+ * The users table has RLS, and the policy "Users can read own data" permits
+ * `id = auth.uid()`. Here auth.uid() resolves to the verified JWT user id
+ * returned by supabase.auth.getUser(). Because the query is filtered to that
+ * exact id, the read is both secure (RLS enforced) and correct.
+ *
+ * Missing environment variables are surfaced as proper AppErrors (500) so the
+ * caller (API route) returns a safe, consistent response instead of leaking a
+ * raw Node.js Error to the client.
  */
 async function lookupUser(appUserId: string): Promise<CurrentUser> {
-  const serverClient = createServerClient();
+  try {
+    const serverClient = createServerClient();
 
-  // Use a single-row query with a timeout to avoid hanging.
-  const { data: appUser, error: appUserError } = await serverClient
-    .from("users")
-    .select("id, telegram_user_id, telegram_username, display_name, first_name, last_name, role, is_active, is_banned, avatar_media_id, last_seen_at")
-    .eq("id", appUserId)
-    .single();
+    // Single-row query filtered to the authenticated user id. The RLS policy
+    // "Users can read own data" (id = auth.uid()) guarantees this is only
+    // ever readable by the user it belongs to.
+    const { data: appUser, error: appUserError } = await serverClient
+      .from("users")
+      .select(
+        "id, telegram_user_id, telegram_username, display_name, first_name, last_name, role, is_active, is_banned, avatar_media_id, last_seen_at",
+      )
+      .eq("id", appUserId)
+      .single();
 
-  if (appUserError || !appUser) {
-    throw new AppError("AUTHENTICATION_ERROR", "User not found", {
-      statusCode: 401,
-    });
+    if (appUserError || !appUser) {
+      throw new AppError("AUTHENTICATION_ERROR", "User not found", {
+        statusCode: 401,
+      });
+    }
+
+    if (appUser.is_banned) {
+      throw new AppError("AUTHORIZATION_ERROR", "Your account has been suspended", {
+        statusCode: 403,
+      });
+    }
+
+    return {
+      id: appUser.id,
+      telegramUserId: appUser.telegram_user_id,
+      telegramUsername: appUser.telegram_username,
+      displayName: appUser.display_name,
+      firstName: appUser.first_name,
+      lastName: appUser.last_name,
+      role: appUser.role,
+      isActive: appUser.is_active,
+      isBanned: appUser.is_banned,
+      avatarMediaId: appUser.avatar_media_id,
+      lastSeenAt: appUser.last_seen_at,
+    };
+  } catch (err) {
+    // Surface missing env vars as safe AppErrors instead of raw Errors.
+    const message = err instanceof Error ? err.message : String(err);
+    if (
+      message.includes("Missing environment variable") ||
+      message.includes("SUPABASE_SERVICE_ROLE_KEY") ||
+      message.includes("NEXT_PUBLIC_SUPABASE")
+    ) {
+      throw new AppError(
+        "INTERNAL_ERROR",
+        "Authentication service is not configured properly. Please try again later.",
+        { statusCode: 500 },
+      );
+    }
+    throw err;
   }
-
-  if (appUser.is_banned) {
-    throw new AppError("AUTHORIZATION_ERROR", "Your account has been suspended", {
-      statusCode: 403,
-    });
-  }
-
-  return {
-    id: appUser.id,
-    telegramUserId: appUser.telegram_user_id,
-    telegramUsername: appUser.telegram_username,
-    displayName: appUser.display_name,
-    firstName: appUser.first_name,
-    lastName: appUser.last_name,
-    role: appUser.role,
-    isActive: appUser.is_active,
-    isBanned: appUser.is_banned,
-    avatarMediaId: appUser.avatar_media_id,
-    lastSeenAt: appUser.last_seen_at,
-  };
 }
 
 export async function getCurrentUser(request?: Request): Promise<CurrentUser> {
