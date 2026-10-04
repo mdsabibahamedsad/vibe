@@ -75,17 +75,19 @@ export function createServerClient() {
   // Support multiple environment variable naming conventions, because
   // different hosting platforms and local setups use different names.
   //
-  // URL: NEXT_PUBLIC_SUPABASE_URL | SUPABASE_URL
-  // Anon key: NEXT_PUBLIC_SUPABASE_ANON_KEY | SUPABASE_PUBLISHABLE_KEY
+  // Server-side clients must read the DATABASE URL / ANON KEY from the
+  // non-public names. Use NEXT_PUBLIC_* names ONLY in browser code.
+  // URL: SUPABASE_URL | NEXT_PUBLIC_SUPABASE_URL (alias for parity)
+  // Anon key: SUPABASE_ANON_KEY | SUPABASE_PUBLISHABLE_KEY
   //
   // This guarantees the server client can be created in production and local
   // development regardless of which Supabase env var convention the project
   // uses.
   const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_PUBLISHABLE_KEY;
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl) {
     throw new Error(
