@@ -1,3 +1,3 @@
 export { getSupabaseClient } from "./client";
-export { createServerClient } from "./server";
+export { createServerClient, createAuthenticatedServerClient } from "./server";
 export { createAdminClient } from "./admin";

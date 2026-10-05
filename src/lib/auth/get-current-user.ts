@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase";
+import { createServerClient, createAuthenticatedServerClient } from "@/lib/supabase";
 import { AppError } from "@/lib/errors";
 
 export interface CurrentUser {
@@ -67,22 +67,27 @@ async function getAccessToken(request?: Request): Promise<string | null> {
 /**
  * Look up the application user row for the authenticated Supabase user.
  *
- * Uses the server (anon) client, NOT the admin (service-role) client, so that
- * user lookup works in production regardless of whether the service-role key
+ * Uses the server (anon) client acting AS the user (JWT attached via the
+ * Authorization header), NOT the admin (service-role) client, so that user
+ * lookup works in production regardless of whether the service-role key
  * (SUPABASE_SERVICE_ROLE_KEY) is configured.
  *
  * The users table has RLS, and the policy "Users can read own data" permits
- * `id = auth.uid()`. Here auth.uid() resolves to the verified JWT user id
- * returned by supabase.auth.getUser(). Because the query is filtered to that
- * exact id, the read is both secure (RLS enforced) and correct.
+ * `id = auth.uid()`. The JWT makes auth.uid() resolve to the verified user
+ * id returned by supabase.auth.getUser(). Because the query is filtered to
+ * that exact id, the read is both secure (RLS enforced) and correct.
+ *
+ * NOTE: querying with a plain anon client (no JWT) leaves auth.uid() NULL,
+ * so RLS denies the read and every protected route returns 401. Always use
+ * the authenticated client here.
  *
  * Missing environment variables are surfaced as proper AppErrors (500) so the
  * caller (API route) returns a safe, consistent response instead of leaking a
  * raw Node.js Error to the client.
  */
-async function lookupUser(appUserId: string): Promise<CurrentUser> {
+async function lookupUser(appUserId: string, accessToken: string): Promise<CurrentUser> {
   try {
-    const serverClient = createServerClient();
+    const serverClient = createAuthenticatedServerClient(accessToken);
 
     // Single-row query filtered to the authenticated user id. The RLS policy
     // "Users can read own data" (id = auth.uid()) guarantees this is only
@@ -181,7 +186,7 @@ export async function getCurrentUser(request?: Request): Promise<CurrentUser> {
     });
   }
 
-  return lookupUser(userData.user.id);
+  return lookupUser(userData.user.id, accessToken);
 }
 
 export async function getOptionalCurrentUser(request?: Request): Promise<CurrentUser | null> {

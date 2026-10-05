@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useTelegramWebApp } from "@/hooks/use-telegram-webapp";
@@ -11,6 +11,14 @@ import { AppHeader } from "@/components/app-header";
 import { BottomNav, DesktopNav } from "@/components/bottom-nav";
 import { Avatar } from "@/components/ui/avatar";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+
+/**
+ * How long the "connecting" state may last before we stop showing an
+ * infinite spinner and offer an explicit Retry action instead.
+ * Authentication itself has its own shorter request timeouts; this is the
+ * last-resort UI guard so the app can NEVER sit on a spinner forever.
+ */
+const CONNECT_TIMEOUT_MS = 20000;
 
 /** Light haptic tick (no-op outside Telegram). */
 function hapticLight(): void {
@@ -31,15 +39,25 @@ function hapticLight(): void {
 }
 
 export default function HomePage() {
-  const { loading: authLoading, authenticated, error: authError } = useCurrentUser();
+  const { status, loading: authLoading, authenticated, error: authError } = useCurrentUser();
   const { isTelegram, ready: tgReady } = useTelegramWebApp();
   const { total: unreadCount } = useUnreadCount();
   const { t } = useTranslation("navigation");
   const [retrying, setRetrying] = useState(false);
+  const [connectTimedOut, setConnectTimedOut] = useState(false);
+  // Hydration guard: Telegram/browser-only state differs between server and
+  // client renders. Until mounted, render the same neutral shell on both so
+  // React never has to repair a mismatched tree (minified error #418).
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleRetry = useCallback(async () => {
     hapticLight();
     setRetrying(true);
+    setConnectTimedOut(false);
     try {
       // Retry function exposed by AuthGate on window
       const retryFn = (window as unknown as Record<string, unknown>).__vibeRetryAuth;
@@ -52,6 +70,50 @@ export default function HomePage() {
       setRetrying(false);
     }
   }, []);
+
+  // Last-resort connecting guard: if auth never resolves (hung request,
+  // missing initData, Telegram bridge stall), stop spinning and show retry.
+  const connecting =
+    authLoading || status === "authenticating" || status === "retrying";
+  useEffect(() => {
+    if (!connecting) {
+      setConnectTimedOut(false);
+      return;
+    }
+    const timer = setTimeout(() => setConnectTimedOut(true), CONNECT_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [connecting]);
+
+  const retryBlock = (
+    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-danger/10">
+        <svg
+          className="h-8 w-8 text-danger"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+      </div>
+      <h2 className="font-display text-xl font-bold text-fg">{t("home.authFailed")}</h2>
+      <p className="mt-2 max-w-xs text-sm text-muted">
+        {authError ?? t("home.authFailedSub")}
+      </p>
+      <button
+        onClick={handleRetry}
+        disabled={retrying}
+        className="mt-6 rounded-full bg-brand-gradient px-8 py-2.5 text-sm font-semibold text-white shadow-glow transition-all active:scale-95 disabled:opacity-60"
+      >
+        {retrying ? t("home.retrying") : t("home.retry")}
+      </button>
+    </div>
+  );
 
   const header = (
     <AppHeader
@@ -110,8 +172,25 @@ export default function HomePage() {
     />
   );
 
-  // Auth state still being determined — brand loading screen (brief)
-  if (authLoading && !authError) {
+  // Pre-mount: identical shell on server and client (hydration-safe).
+  if (!mounted) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        {header}
+        <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="text-sm text-muted">{t("home.authenticating")}</p>
+          </div>
+        </div>
+        <DesktopNav />
+      </div>
+    );
+  }
+
+  // Auth state still being determined — brand loading screen (brief, bounded
+  // by CONNECT_TIMEOUT_MS: after that the retry UI takes over).
+  if (connecting && !authError && !connectTimedOut) {
     return (
       <div className="flex min-h-dvh flex-col">
         {header}
@@ -136,26 +215,15 @@ export default function HomePage() {
             <StoriesSection />
             <Feed />
           </>
-        ) : authError ? (
-          // Authentication failed — clear retry state, never an infinite spinner
+        ) : authError || connectTimedOut ? (
+          // Authentication failed or stalled — clear retry state, never an infinite spinner
+          retryBlock
+        ) : tgReady && isTelegram ? (
+          // In Telegram, not yet authenticated — brief connecting state with
+          // an inline retry so a stalled bridge never traps the user.
           <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-danger/10">
-              <svg
-                className="h-8 w-8 text-danger"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-            <h2 className="font-display text-xl font-bold text-fg">{t("home.authFailed")}</h2>
-            <p className="mt-2 max-w-xs text-sm text-muted">{t("home.authFailedSub")}</p>
+            <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="mt-4 text-sm text-muted">{t("home.authenticating")}</p>
             <button
               onClick={handleRetry}
               disabled={retrying}
@@ -163,12 +231,6 @@ export default function HomePage() {
             >
               {retrying ? t("home.retrying") : t("home.retry")}
             </button>
-          </div>
-        ) : tgReady && isTelegram ? (
-          // In Telegram, not yet authenticated — brief connecting state
-          <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-            <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <p className="mt-4 text-sm text-muted">{t("home.authenticating")}</p>
           </div>
         ) : (
           // Outside Telegram (browser visitor) — brand welcome

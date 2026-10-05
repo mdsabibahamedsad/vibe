@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { TelegramProvider } from "@/components/telegram-provider";
-import { AuthProvider } from "@/components/auth-provider";
 import { AuthGate } from "@/components/auth-gate";
 import { AuthBootstrapProvider } from "@/hooks/use-auth";
 import { I18nProvider } from "@/components/i18n-provider";
@@ -49,16 +48,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* TelegramProvider handles detection/fallback if not in WebView. */}
       </head>
       <body className="min-h-dvh">
+        {/* Single auth provider: AuthBootstrapProvider is the canonical
+            session owner. The legacy AuthProvider is NOT mounted to avoid
+            duplicate session restores and race conditions. */}
         <TelegramProvider>
-          <AuthProvider>
-            <AuthBootstrapProvider>
-              <AuthGate>
-                <I18nProvider>
-                  {children}
-                </I18nProvider>
-              </AuthGate>
-            </AuthBootstrapProvider>
-          </AuthProvider>
+          <AuthBootstrapProvider>
+            <AuthGate>
+              <I18nProvider>
+                {children}
+              </I18nProvider>
+            </AuthGate>
+          </AuthBootstrapProvider>
         </TelegramProvider>
       </body>
     </html>

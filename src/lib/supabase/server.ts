@@ -110,3 +110,47 @@ export function createServerClient() {
     },
   });
 }
+
+/**
+ * Create a Supabase server client that acts as the given user.
+ *
+ * The plain `createServerClient()` sends only the anon apikey, so Postgres
+ * RLS sees `auth.uid() = NULL` and denies reads on user-owned rows (e.g.
+ * `users` with policy `id = auth.uid()`). Passing the user's verified JWT
+ * as the `Authorization` header makes `auth.uid()` resolve to that user,
+ * so RLS-enforced self-reads succeed without ever using the service role.
+ *
+ * @param accessToken - Verified Supabase JWT (already validated via auth.getUser)
+ */
+export function createAuthenticatedServerClient(accessToken: string) {
+  const supabaseUrl =
+    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl) {
+    throw new Error(
+      "Missing environment variable: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL",
+    );
+  }
+
+  if (!supabaseAnonKey) {
+    throw new Error(
+      "Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_PUBLISHABLE_KEY",
+    );
+  }
+
+  return createClient(supabaseUrl!, supabaseAnonKey!, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  });
+}

@@ -1,7 +1,5 @@
 "use client";
 
-import { useContext } from "react";
-import { AuthContext } from "@/components/auth-provider";
 import { useAuthBootstrap } from "@/hooks/use-auth";
 import type { AuthContextValue } from "@/components/auth-provider";
 

@@ -22,11 +22,17 @@ export interface AuthUser {
  * Explicit auth bootstrap states.
  * - loading:        AuthProvider is deciding (no existing session, no Telegram auth yet)
  * - authenticating:  Telegram initData is being submitted OR an existing session is being verified
+ * - retrying:       A retryable attempt failed; backing off before the next attempt
  * - authenticated:   A verified application session exists. Safe to call protected APIs.
  * - unauthenticated: No session and no auth flow in progress (e.g. browser visitor)
  * - error:          Authentication failed
+ *
+ * @deprecated The canonical provider is `AuthBootstrapProvider` in
+ * `@/hooks/use-auth`. This legacy provider is no longer mounted in the
+ * root layout; it is kept only for type compatibility (`AuthUser`,
+ * `AuthContextValue`) and is not part of the startup path.
  */
-export type AuthStatus = "loading" | "authenticating" | "authenticated" | "unauthenticated" | "error";
+export type AuthStatus = "loading" | "authenticating" | "retrying" | "authenticated" | "unauthenticated" | "error";
 
 export interface AuthContextValue {
   /** Auth status with fine-grained loading states */
@@ -171,7 +177,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             finishBootstrap("unauthenticated", null, null);
           }
         } else {
-          finishBootstrap("loading", null, null);
+          // No session: resolve to "unauthenticated" — resolving to
+          // "loading" here used to trap the UI on "Authenticating…" forever.
+          finishBootstrap("unauthenticated", null, null);
         }
       } catch (err) {
         logger.error("Failed to restore auth session", {
