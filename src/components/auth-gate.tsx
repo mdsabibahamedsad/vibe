@@ -97,20 +97,27 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   // Auto-authenticate when Telegram WebApp is ready and no session exists.
   // Fires once; subsequent automatic attempts are driven by the effect below.
+  //
+  // Serialized AFTER the session restore (bootstrapped === true): starting
+  // Telegram auth while status is still "loading" races the restore — the
+  // restore snapshots "no session" and then clobbers the fresh login back
+  // to "unauthenticated". Waiting for the restore eliminates that race and
+  // keeps a single central auth bootstrap (restore → telegram auth).
   useEffect(() => {
     if (autoStartedRef.current) return;
     if (!ready) return;
-    // Don't re-auth if already authenticated (session verified by AuthProvider)
+    if (!bootstrapped) return;
+    // Don't re-auth if already authenticated (session verified by provider)
     if (status === "authenticated") {
       autoStartedRef.current = true;
       return;
     }
-    // Only auto-start from the pre-auth states.
-    if (status !== "loading" && status !== "unauthenticated") return;
+    // Only auto-start from the settled pre-auth state.
+    if (status !== "unauthenticated") return;
 
     autoStartedRef.current = true;
     attemptAuth();
-  }, [ready, status, attemptAuth]);
+  }, [ready, bootstrapped, status, attemptAuth]);
 
   // Bounded automatic retry: while the last attempt ended in "error" with a
   // retryable message and budget remains, back off and try again.

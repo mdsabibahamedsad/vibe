@@ -67,6 +67,19 @@ const defaultValue: AuthBootstrapValue = {
 const AuthBootstrapContext = createContext<AuthBootstrapValue>(defaultValue);
 
 /**
+ * Module-scoped flight guard for Telegram authentication.
+ *
+ * React Strict Mode mounts/unmounts providers twice in development, which
+ * creates a NEW provider instance (and a new `inFlightRef`) per mount. A
+ * ref alone therefore cannot dedupe the two parallel `POST
+ * /api/auth/telegram` requests — both mounts would fire, risking duplicate
+ * user-creation attempts and wasted sessions. This module-level promise is
+ * shared across mounts: concurrent calls with the same initData attach to
+ * the same flight instead of starting a new one.
+ */
+let telegramAuthFlight: { initData: string; promise: Promise<void> } | null = null;
+
+/**
  * Persist the Supabase session where the server can read it.
  *
  * The browser Supabase client stores the session in localStorage (enough for
@@ -167,6 +180,10 @@ export function AuthBootstrapProvider({
       fetch("/api/auth/telegram/me", {
         method: "GET",
         headers: { Authorization: `Bearer ${accessToken}` },
+        // Dual-path transport: Bearer header works even where the
+        // Telegram WebView blocks cookies; same-origin cookies are sent
+        // as well when present.
+        credentials: "same-origin",
       }),
       AUTH_REQUEST_TIMEOUT_MS,
     );
@@ -237,6 +254,10 @@ export function AuthBootstrapProvider({
         const verifiedUser = await verifySessionOnServer(token);
 
         if (!cancelled) {
+          // Defense in depth: if a Telegram login already completed while
+          // this restore was in flight (concurrent mounts / Strict Mode),
+          // never clobber the verified authenticated state.
+          if (bootstrappedRef.current) return;
           if (verifiedUser) {
             logger.info("[AUTH] session restore success");
             setUser(verifiedUser);
@@ -251,7 +272,7 @@ export function AuthBootstrapProvider({
           }
         }
       } catch (err) {
-        if (!cancelled) {
+        if (!cancelled && !bootstrappedRef.current) {
           const classified = classifyAuthError(err);
           logger.error("[AUTH] session restore failed", { kind: classified.kind });
           // A failed restore must not trap the UI: surface unauthenticated
@@ -276,10 +297,18 @@ export function AuthBootstrapProvider({
    */
   const authenticateWithTelegram = useCallback(
     async (initData: string, opts?: { isRetry?: boolean }) => {
+      // Attach to the shared module-level flight when another mount already
+      // started authentication with the same initData (Strict Mode). This
+      // is the singleton/promise guard: exactly one POST per initData.
+      if (telegramAuthFlight && telegramAuthFlight.initData === initData) {
+        return telegramAuthFlight.promise;
+      }
       if (inFlightRef.current) return;
       if (!initData) {
         setError("No Telegram authentication data received. Open this app from Telegram.");
         setStatus("unauthenticated");
+        setBootstrapped(true);
+        bootstrappedRef.current = true;
         return;
       }
 
@@ -288,78 +317,101 @@ export function AuthBootstrapProvider({
       setStatus(opts?.isRetry ? "retrying" : "authenticating");
       setError(null);
 
-      try {
-        logger.info("[AUTH] server validation started");
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), AUTH_REQUEST_TIMEOUT_MS);
-        let response: Response;
+      /** First bootstrap resolution wins; later flights only update status. */
+      const markBootstrapped = () => {
+        if (!bootstrappedRef.current) {
+          bootstrappedRef.current = true;
+          setBootstrapped(true);
+        }
+      };
+
+      const flight = (async () => {
         try {
-          response = await fetch("/api/auth/telegram", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData }),
-            signal: controller.signal,
+          logger.info("[AUTH] server validation started");
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), AUTH_REQUEST_TIMEOUT_MS);
+          let response: Response;
+          try {
+            response = await fetch("/api/auth/telegram", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ initData }),
+              // Same-origin: the server-set sb-auth-token cookie is stored
+              // alongside the Bearer-token session below (dual-path).
+              credentials: "same-origin",
+              signal: controller.signal,
+            });
+          } finally {
+            clearTimeout(timeoutId);
+          }
+
+          const result = (await response.json().catch(() => null)) as {
+            authenticated?: boolean;
+            error?: string;
+            user?: { id: string };
+            session?: {
+              accessToken: string;
+              refreshToken: string;
+              expiresIn?: number;
+              expiresAt?: number;
+            };
+          } | null;
+
+          if (!response.ok || !result?.authenticated || !result.session || !result.user) {
+            const classified = classifyAuthError(
+              new Error(result?.error ?? "Telegram authentication failed"),
+              response.status,
+            );
+            logger.warn("[AUTH] server validation rejected", {
+              kind: classified.kind,
+              httpStatus: response.status,
+            });
+            // Credential rejections (400/401: bad/expired initData) are terminal
+            // for automatic retries; everything else stays retryable by the gate.
+            setError(classified.message);
+            setStatus(classified.retryable ? "error" : "unauthenticated");
+            setUser(null);
+            markBootstrapped();
+            return;
+          }
+
+          logger.info("[AUTH] server validation success");
+          await getSupabaseClient().auth.setSession({
+            access_token: result.session.accessToken,
+            refresh_token: result.session.refreshToken,
           });
-        } finally {
-          clearTimeout(timeoutId);
-        }
+          persistSessionCookie(result.session);
 
-        const result = (await response.json().catch(() => null)) as {
-          authenticated?: boolean;
-          error?: string;
-          user?: { id: string };
-          session?: {
-            accessToken: string;
-            refreshToken: string;
-            expiresIn?: number;
-            expiresAt?: number;
-          };
-        } | null;
+          // Verify the new session on the server before marking authenticated
+          const verifiedUser = await verifySessionOnServer(result.session.accessToken);
 
-        if (!response.ok || !result?.authenticated || !result.session || !result.user) {
-          const classified = classifyAuthError(
-            new Error(result?.error ?? "Telegram authentication failed"),
-            response.status,
-          );
-          logger.warn("[AUTH] server validation rejected", {
-            kind: classified.kind,
-            httpStatus: response.status,
-          });
-          // Credential rejections (400/401: bad/expired initData) are terminal
-          // for automatic retries; everything else stays retryable by the gate.
-          setError(classified.message);
-          setStatus(classified.retryable ? "error" : "unauthenticated");
-          setUser(null);
-          return;
-        }
-
-        logger.info("[AUTH] server validation success");
-        await getSupabaseClient().auth.setSession({
-          access_token: result.session.accessToken,
-          refresh_token: result.session.refreshToken,
-        });
-        persistSessionCookie(result.session);
-
-        // Verify the new session on the server before marking authenticated
-        const verifiedUser = await verifySessionOnServer(result.session.accessToken);
-
-        if (verifiedUser) {
-          logger.info("[AUTH] authenticated");
-          setUser(verifiedUser);
-          setStatus("authenticated");
-        } else {
-          // Verification failed unexpectedly — treat as error
-          logger.error("[AUTH] session verification failed after login");
+          if (verifiedUser) {
+            logger.info("[AUTH] authenticated");
+            setUser(verifiedUser);
+            setStatus("authenticated");
+          } else {
+            // Verification failed unexpectedly — treat as error
+            logger.error("[AUTH] session verification failed after login");
+            setStatus("error");
+            setError("Session verification failed. Please try again.");
+          }
+          markBootstrapped();
+        } catch (err) {
+          const classified = classifyAuthError(err);
+          logger.error("[AUTH] telegram authentication failed", { kind: classified.kind });
           setStatus("error");
-          setError("Session verification failed. Please try again.");
+          setError(classified.message);
+          markBootstrapped();
+        } finally {
+          inFlightRef.current = false;
         }
-      } catch (err) {
-        const classified = classifyAuthError(err);
-        logger.error("[AUTH] telegram authentication failed", { kind: classified.kind });
-        setStatus("error");
-        setError(classified.message);
+      })();
+
+      telegramAuthFlight = { initData, promise: flight };
+      try {
+        return await flight;
       } finally {
-        inFlightRef.current = false;
+        if (telegramAuthFlight?.promise === flight) telegramAuthFlight = null;
       }
     },
     [],
@@ -429,16 +481,28 @@ export function AuthBootstrapProvider({
       if (!result.user) {
         setStatus("error");
         setError("Session verification failed. Please try again.");
+        if (!bootstrappedRef.current) {
+          bootstrappedRef.current = true;
+          setBootstrapped(true);
+        }
         return;
       }
 
       setUser(result.user);
       setStatus("authenticated");
+      if (!bootstrappedRef.current) {
+        bootstrappedRef.current = true;
+        setBootstrapped(true);
+      }
     } catch (err) {
       const classified = classifyAuthError(err);
       logger.error("[AUTH] dev authentication failed", { kind: classified.kind });
       setStatus("error");
       setError(classified.message);
+      if (!bootstrappedRef.current) {
+        bootstrappedRef.current = true;
+        setBootstrapped(true);
+      }
     } finally {
       inFlightRef.current = false;
     }

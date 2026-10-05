@@ -90,8 +90,24 @@ export async function POST(request: Request) {
     // Step 3: Check onboarding status
     const needsOnboarding = await checkOnboardingStatus(authResult.session.user.id);
 
-    // Step 4: Return authenticated response
-    return NextResponse.json({
+    // Step 4: Return authenticated response + establish the server-readable
+    // session cookie. Returning tokens in JSON alone does NOT authenticate
+    // the next request — the browser must retain a session artifact the
+    // server can read. We set BOTH paths:
+    //   1. `sb-auth-token` cookie (standard browser session path; read by
+    //      getCurrentUser() from the Cookie header / cookie store), and
+    //   2. tokens in JSON (client stores via Supabase setSession and sends
+    //      as Authorization: Bearer — works where WebView cookies are blocked).
+    // SameSite=None requires Secure (production HTTPS, incl. Telegram
+    // WebView); plain-HTTP local dev falls back to Lax without Secure.
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieValue = JSON.stringify({
+      access_token: authResult.session.accessToken,
+      refresh_token: authResult.session.refreshToken,
+      expires_in: authResult.session.expiresIn,
+      expires_at: authResult.session.expiresAt,
+    });
+    const response = NextResponse.json({
       authenticated: true,
       user: {
         id: authResult.session.user.id,
@@ -108,6 +124,15 @@ export async function POST(request: Request) {
         expiresAt: authResult.session.expiresAt,
       },
     });
+    response.cookies.set("sb-auth-token", cookieValue, {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
+      maxAge: authResult.session.expiresIn ?? 3600,
+    });
+    response.headers.set("Cache-Control", "no-store");
+    return response;
   } catch (error) {
     if (error instanceof AppError) {
       // Log detailed error server-side (without secrets)

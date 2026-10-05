@@ -25,7 +25,8 @@ export async function GET(request: Request) {
     const user = await getCurrentUser(request);
     const needsOnboarding = await checkOnboardingStatus(user.id);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
+      authenticated: true,
       user: {
         id: user.id,
         telegramUserId: user.telegramUserId,
@@ -37,14 +38,21 @@ export async function GET(request: Request) {
         needsOnboarding,
       },
     });
+    response.headers.set("Cache-Control", "no-store");
+    return response;
   } catch (error) {
+    // An absent/invalid session is an ordinary 401, never a 500.
     if (error instanceof AppError) {
+      const status = error.statusCode >= 400 && error.statusCode < 500 ? error.statusCode : 500;
       return NextResponse.json(
-        { success: false, error: error.toSafeResponse().error },
-        { status: error.statusCode },
+        { authenticated: false, success: false, error: error.toSafeResponse().error },
+        { status },
       );
     }
 
-    return NextResponse.json({ success: false, error: "Failed to get user info" }, { status: 500 });
+    return NextResponse.json(
+      { authenticated: false, success: false, error: "Failed to get user info" },
+      { status: 500 },
+    );
   }
 }

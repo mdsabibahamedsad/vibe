@@ -9,7 +9,7 @@ import { Toast, FeedSkeleton, EmptyState, ErrorState } from "@/components/ui";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function Feed() {
-  const { user, authenticated } = useCurrentUser();
+  const { user, authenticated, status, bootstrapped } = useCurrentUser();
   const { t } = useTranslation("feed");
   const {
     items,
@@ -99,6 +99,14 @@ export function Feed() {
     },
     [removeItemsByAuthor],
   );
+
+  // Auth still resolving (initializing / authenticating / retrying): never
+  // show the signed-out empty state and never fetch — render a skeleton.
+  const authPending =
+    !bootstrapped || status === "loading" || status === "authenticating" || status === "retrying";
+  if (authPending) {
+    return <FeedSkeleton />;
+  }
 
   if (!authenticated || !user) {
     return (

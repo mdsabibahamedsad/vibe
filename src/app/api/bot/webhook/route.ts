@@ -175,13 +175,21 @@ export async function POST(request: Request) {
 
 /**
  * Get the Mini App URL from environment or fall back to production URL.
+ *
+ * Never point production Telegram clients at localhost: a localhost URL in
+ * TELEGRAM_MINI_APP_URL / NEXT_PUBLIC_APP_URL (e.g. copied from local dev)
+ * would break the "Open Vibe" button for every real user, and the Mini App
+ * would open without a usable backend. In production, localhost values fall
+ * back to the canonical production URL.
  */
 function getMiniAppUrl(): string {
-  return (
-    process.env.TELEGRAM_MINI_APP_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    PRODUCTION_MINI_APP_URL
-  );
+  const configured =
+    process.env.TELEGRAM_MINI_APP_URL || process.env.NEXT_PUBLIC_APP_URL || PRODUCTION_MINI_APP_URL;
+  if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/i.test(configured)) {
+    logger.warn("Bot webhook: localhost Mini App URL configured in production — using production fallback");
+    return PRODUCTION_MINI_APP_URL;
+  }
+  return configured;
 }
 
 /**

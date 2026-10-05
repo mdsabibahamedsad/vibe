@@ -251,9 +251,20 @@ export default function HomePage() {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
               {t("home.welcomeSub")}
             </p>
+            {/* Outside Telegram there is no initData, so we must NOT pretend
+                the visitor is authenticated. Deep-link into the Telegram bot
+                where the Mini App boots with automatic authentication. */}
+            <a
+              href="https://t.me/VibeSocialAppBot"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-8 rounded-full bg-brand-gradient px-10 py-3 text-base font-semibold text-white shadow-glow transition-all hover:brightness-110 active:scale-95"
+            >
+              Open Vibe from Telegram
+            </a>
             <Link
               href="/feed"
-              className="mt-8 rounded-full bg-brand-gradient px-10 py-3 text-base font-semibold text-white shadow-glow transition-all hover:brightness-110 active:scale-95"
+              className="mt-3 text-sm font-semibold text-primary transition-opacity hover:opacity-80"
             >
               {t("home.open")}
             </Link>

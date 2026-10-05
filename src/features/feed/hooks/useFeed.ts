@@ -137,9 +137,18 @@ export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
   // Trigger the initial feed load ONLY when:
   //   1. Auth has finished bootstrapping
   //   2. Auth status is "authenticated"
+  //
+  // While auth is "initializing" (loading) / "authenticating" / "retrying"
+  // no fetch is issued — this is the race-condition fix: the feed must
+  // never call a protected API before the session is verified.
+  // When the bootstrap settles to a non-authenticated state, resolve the
+  // initial loading flag so consumers don't spin forever.
   useEffect(() => {
-    if (bootstrapped && authReady) {
+    if (!bootstrapped) return;
+    if (authReady) {
       loadInitial();
+    } else {
+      setLoading(false);
     }
   }, [bootstrapped, authReady, loadInitial]);
 

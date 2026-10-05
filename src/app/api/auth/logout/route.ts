@@ -21,8 +21,10 @@ export async function POST(request: Request) {
     const accessToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
     if (!accessToken) {
-      // Not authenticated — still return success
-      return NextResponse.json({ success: true });
+      // Not authenticated — still return success (and clear any stale cookie)
+      const response = NextResponse.json({ success: true });
+      response.cookies.delete("sb-auth-token");
+      return response;
     }
 
     // Verify the access token first
@@ -58,7 +60,9 @@ export async function POST(request: Request) {
 
     logger.info("User logged out", { userId: userData.user.id });
 
-    return NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true });
+    response.cookies.delete("sb-auth-token");
+    return response;
   } catch (error) {
     logger.error("Logout error", {
       error: error instanceof Error ? error.message : "Unknown error",
