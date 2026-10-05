@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid pagination parameters", details: parsed.error.flatten() },
+        { success: false, error: "Invalid pagination parameters", details: parsed.error.flatten() },
         { status: 400 },
       );
     }
@@ -30,8 +30,13 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     const error = err as Error;
     if ("statusCode" in error) {
-      return NextResponse.json({ error: error.message }, { status: (error as any).statusCode });
+      // AppError (incl. AUTHENTICATION_ERROR → 401): predictable JSON
+      // envelope, never a raw exception or HTML error page.
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: (error as { statusCode: number }).statusCode },
+      );
     }
-    return NextResponse.json({ error: "Failed to load feed" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to load feed" }, { status: 500 });
   }
 }

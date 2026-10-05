@@ -15,51 +15,81 @@ export interface CurrentUser {
   lastSeenAt: string | null;
 }
 
+/**
+ * Extract an access token from an `sb-*-auth-token` cookie value.
+ *
+ * The client stores the session as a JSON blob (`{ access_token, ... }`)
+ * encoded with `encodeURIComponent`. Depending on the Next.js version, the
+ * cookie value we receive may already be percent-decoded or still encoded,
+ * so both forms are attempted. Returns null when the value is not ours.
+ */
+function tokenFromAuthCookieValue(value: string | undefined): string | null {
+  if (!value) return null;
+  const candidates = [value];
+  try {
+    const decoded = decodeURIComponent(value);
+    if (decoded !== value) candidates.push(decoded);
+  } catch {
+    // Not percent-encoded — parse the raw value only.
+  }
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate) as { access_token?: unknown };
+      if (typeof parsed.access_token === "string" && parsed.access_token) {
+        return parsed.access_token;
+      }
+    } catch {
+      // Try the next candidate form.
+    }
+  }
+  return null;
+}
+
+function tokenFromCookieHeader(cookieHeader: string | null): string | null {
+  if (!cookieHeader) return null;
+  // Split on ";" — cookie values never contain a raw ";" (they are encoded).
+  for (const part of cookieHeader.split(";")) {
+    const eq = part.indexOf("=");
+    if (eq === -1) continue;
+    const name = part.slice(0, eq).trim();
+    if (name.startsWith("sb-") && name.endsWith("-auth-token")) {
+      const token = tokenFromAuthCookieValue(part.slice(eq + 1).trim());
+      if (token) return token;
+    }
+  }
+  return null;
+}
+
 async function getAccessToken(request?: Request): Promise<string | null> {
+  // 1) Authorization header (explicit Bearer token — most reliable, works
+  // even where cookies are blocked, e.g. some Telegram WebViews).
   if (request) {
     const authHeader = request.headers.get("Authorization");
-    return authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);
+    // NOTE: no early `return null` here — fall through to cookies below.
+    // A previous early-return meant cookie auth NEVER worked for routes
+    // that pass `request` (i.e. every protected route), so /api/feed
+    // returned "Authentication required" despite a valid session.
+
+    // 2) Cookie header on the incoming request (same-origin browser fetch
+    // sends the `sb-auth-token` cookie set at login automatically).
+    const fromHeader = tokenFromCookieHeader(request.headers.get("cookie"));
+    if (fromHeader) return fromHeader;
   }
 
   try {
-    // 1) Try Authorization header (used by some API routes)
-    if (request) {
-      const authHeader = (request as Request).headers.get("Authorization");
-      if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);
-    }
-
-    // 2) Try the sb-auth-token cookie (set by the AuthBootstrapProvider on the client)
+    // 3) next/headers cookie store (covers runtimes where the raw Cookie
+    // header is not directly visible).
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
     for (const cookie of allCookies) {
       if (cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token")) {
-        try {
-          const parsed = JSON.parse(cookie.value);
-          if (parsed.access_token) return parsed.access_token;
-        } catch {}
+        const token = tokenFromAuthCookieValue(cookie.value);
+        if (token) return token;
       }
     }
   } catch {}
-
-  // 3) Try localStorage (the Supabase browser client stores sessions here)
-  // as a fallback for environments where the cookie is not available (e.g. SSR without cookies).
-  if (typeof window !== "undefined") {
-    try {
-      const stored = localStorage.getItem("supabase.auth.token");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.access_token) return parsed.access_token;
-      }
-      const authCookie = localStorage.getItem("sb-auth-token");
-      if (authCookie) {
-        try {
-          const parsed = JSON.parse(authCookie);
-          if (parsed.access_token) return parsed.access_token;
-        } catch {}
-      }
-    } catch {}
-  }
 
   return null;
 }

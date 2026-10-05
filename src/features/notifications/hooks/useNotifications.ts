@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthBootstrap } from "@/hooks/use-auth";
+import { authFetch } from "@/lib/auth/auth-fetch";
 import { logger } from "@/lib/logger";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { NotificationItem, NotificationListResponse } from "@/lib/notifications/schemas";
@@ -54,7 +55,7 @@ export function useNotifications(): UseNotificationsReturn {
       if (cursor) params.set("cursor", cursor);
       if (cat && cat !== "all") params.set("category", cat);
 
-      const res = await fetch(`/api/notifications?${params.toString()}`);
+      const res = await authFetch(`/api/notifications?${params.toString()}`);
 
       if (!res.ok) {
         const result = await res.json().catch(() => ({ error: "Failed to load" }));
@@ -160,7 +161,7 @@ export function useNotifications(): UseNotificationsReturn {
     );
 
     try {
-      await fetch(`/api/notifications/${notificationId}/read`, { method: "POST" });
+      await authFetch(`/api/notifications/${notificationId}/read`, { method: "POST" });
     } catch {
       // Revert on failure
       setItems((prev) =>
@@ -181,7 +182,7 @@ export function useNotifications(): UseNotificationsReturn {
     );
 
     try {
-      await fetch("/api/notifications", { method: "POST" });
+      await authFetch("/api/notifications", { method: "POST" });
     } catch {
       // Refresh on failure
       loadInitial();

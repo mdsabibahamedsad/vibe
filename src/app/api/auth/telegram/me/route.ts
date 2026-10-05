@@ -40,11 +40,11 @@ export async function GET(request: Request) {
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json(
-        { error: error.toSafeResponse().error },
+        { success: false, error: error.toSafeResponse().error },
         { status: error.statusCode },
       );
     }
 
-    return NextResponse.json({ error: "Failed to get user info" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to get user info" }, { status: 500 });
   }
 }

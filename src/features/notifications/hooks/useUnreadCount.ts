@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthBootstrap } from "@/hooks/use-auth";
+import { authFetch } from "@/lib/auth/auth-fetch";
 import { logger } from "@/lib/logger";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { UnreadCountResponse } from "@/lib/notifications/schemas";
@@ -44,7 +45,7 @@ export function useUnreadCount(): UseUnreadCountReturn {
 
   const fetchCount = useCallback(async () => {
     try {
-      const res = await fetch("/api/notifications/unread-count");
+      const res = await authFetch("/api/notifications/unread-count");
 
       if (!res.ok) {
         // 401 => auth not ready yet. Return without surfacing as a fatal error.

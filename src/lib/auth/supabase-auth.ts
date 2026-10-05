@@ -217,6 +217,18 @@ export async function createAuthSession(validatedData: ValidatedTelegramData): P
   });
 
   if (createError || !created?.user) {
+    // A 403/"not allowed" here means the configured service-role key is
+    // rejected by Supabase (rotated/revoked/pasted incorrectly). New-user
+    // onboarding genuinely requires the admin API — surface an explicit
+    // operations signal server-side (the client still gets a generic 500
+    // so no infrastructure detail leaks).
+    const status = createError?.status;
+    const msg = createError?.message ?? "";
+    if (status === 403 || status === 401 || /not allowed|invalid.*key|unauthorized/i.test(msg)) {
+      logger.error("createAuthSession: SERVICE_ROLE_KEY_INVALID — Supabase admin API rejected the configured key", {
+        status,
+      });
+    }
     // If the user was created concurrently, fall back to sign-in.
     const alreadyExists =
       createError?.status === 422 ||

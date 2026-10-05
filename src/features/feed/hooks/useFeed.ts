@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthBootstrap } from "@/hooks/use-auth";
+import { authFetch } from "@/lib/auth/auth-fetch";
 import { logger } from "@/lib/logger";
 import type { FeedItem } from "@/features/feed/services/feed.service";
 
@@ -25,7 +26,7 @@ interface UseFeedReturn {
 
 export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
   const { limit = 20 } = options;
-  const { status, user, bootstrapped, error: authError } = useAuthBootstrap();
+  const { status, user, bootstrapped, error: authError, refreshSession } = useAuthBootstrap();
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -42,19 +43,30 @@ export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
   const authReady = status === "authenticated";
 
   const fetchFeed = useCallback(
-    async (cursor?: string) => {
+    async (cursor?: string, opts?: { retried?: boolean }) => {
       const params = new URLSearchParams();
       params.set("limit", String(limit));
       if (cursor) params.set("cursor", cursor);
 
-      const res = await fetch(`/api/feed?${params.toString()}`);
+      // authFetch attaches the Bearer token + same-origin cookies so the
+      // request authenticates even where WebView cookies are blocked.
+      const res = await authFetch(`/api/feed?${params.toString()}`);
 
       if (!res.ok) {
         const result = await res.json().catch(() => ({ error: "Failed to load feed" }));
 
-        // 401 => auth not ready / unauthenticated: do NOT surface as a fatal feed error.
-        // Feed hooks will retry once auth becomes "authenticated".
+        // 401 => session may have just expired: attempt ONE controlled
+        // refresh + single retry, then give up quietly (the hook retries
+        // again once auth becomes "authenticated"). Never a fatal error.
         if (res.status === 401) {
+          if (!opts?.retried) {
+            try {
+              await refreshSession();
+              return await fetchFeed(cursor, { retried: true });
+            } catch {
+              // Refresh failed — fall through to the quiet reauth path.
+            }
+          }
           throw new Error("REAUTHENTICATE_NEEDED");
         }
 
@@ -63,7 +75,7 @@ export function useFeed(options: UseFeedOptions = {}): UseFeedReturn {
 
       return await res.json();
     },
-    [limit],
+    [limit, refreshSession],
   );
 
   const loadInitial = useCallback(async () => {
